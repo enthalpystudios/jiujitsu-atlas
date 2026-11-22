@@ -9,38 +9,44 @@
 :root {
   color-scheme: light;
 
-  /* surfaces — warm paper, quiet and matte */
-  --bg: #f3f1ec;
-  --bg-2: #fbfaf7;
-  --panel: #fbfaf7;
-  --panel-2: #f2efe8;
+  /* surfaces — neutral paper, so the frames and belt colours carry the warmth */
+  --bg: #f5f5f4;
+  --bg-2: #fdfdfc;
+  --panel: #ffffff;
+  --panel-2: #f0f0ee;
   --stage-bg: #0b0d0e;
-  --topbar-bg: rgba(243, 241, 236, 0.82);
-  --backdrop: rgba(20, 18, 14, 0.46);
+  --topbar-bg: rgba(245, 245, 244, 0.82);
+  --backdrop: rgba(17, 17, 17, 0.48);
 
   /* ink */
-  --text: #1c1a17;
-  --text-soft: #3d3a34;
-  --muted: #5f5b54;
-  --faint: #6f6a61;
+  --text: #1a1a1a;
+  --text-soft: #3c3c3c;
+  --muted: #5d5d5d;
+  --faint: #6e6e6e;
 
   /* lines */
-  --line: rgba(28, 26, 23, 0.1);
-  --line-strong: rgba(28, 26, 23, 0.18);
+  --line: rgba(0, 0, 0, 0.1);
+  --line-strong: rgba(0, 0, 0, 0.17);
 
-  /* accent — aged brass, legible on paper */
-  --accent: #8a6518;
-  --accent-2: #7a5a14;
-  --accent-ink: #fff8e8;
-  --accent-soft: rgba(138, 101, 24, 0.12);
-  --accent-on-dark: #e7c44b;
+  /* accent — the red of the RFEJYDA patch ring, with the patch gold on dark */
+  --accent: #a41b12;
+  --accent-2: #8b160f;
+  --accent-ink: #ffffff;
+  --accent-soft: rgba(164, 27, 18, 0.12);
+  --accent-on-dark: #f2af40;
+
+  /* primary actions are ink, so the patch red stays a brand thread rather
+     than a warning colour at full-button scale */
+  --primary-bg: #1a1a1a;
+  --primary-bg-hover: #000000;
+  --primary-ink: #ffffff;
 
   /* semantic */
   --good: #2f7d57;
   --bad: #b23a2e;
 
   /* atmosphere */
-  --glow-1: rgba(138, 101, 24, 0.055);
+  --glow-1: rgba(164, 27, 18, 0.045);
   --glow-2: rgba(79, 143, 224, 0.04);
 
   /* geometry */
@@ -78,6 +84,10 @@
   --accent-ink: #17140a;
   --accent-soft: rgba(231, 196, 75, 0.16);
   --accent-on-dark: #e7c44b;
+
+  --primary-bg: var(--accent);
+  --primary-bg-hover: var(--accent-2);
+  --primary-ink: var(--accent-ink);
 
   --good: #6fce9c;
   --bad: #f07a6a;
@@ -626,15 +636,15 @@ h2 {
 }
 
 .primary {
-  border: 1px solid var(--accent);
-  background: var(--accent);
-  color: var(--accent-ink);
+  border: 1px solid var(--primary-bg);
+  background: var(--primary-bg);
+  color: var(--primary-ink);
   box-shadow: 0 8px 20px var(--accent-soft);
 }
 
 .primary:hover {
-  background: var(--accent-2);
-  border-color: var(--accent-2);
+  background: var(--primary-bg-hover);
+  border-color: var(--primary-bg-hover);
   transform: translateY(-1px);
 }
 
@@ -1389,7 +1399,7 @@ h2 {
 }
 
 .modal-section li { margin: 5px 0; }
-.modal-section li::marker { color: var(--accent); }
+.modal-section li::marker { color: var(--muted); }
 
 .modal-source {
   display: flex;
@@ -1628,7 +1638,7 @@ h2 {
   line-height: 1.5;
 }
 .flash-points li { margin: 4px 0; }
-.flash-points li::marker { color: var(--accent); }
+.flash-points li::marker { color: var(--muted); }
 
 /* Back of the flashcard: compact summary so the answer fits without scrolling. */
 .flashcard.is-back { padding: 20px 20px 28px; }
