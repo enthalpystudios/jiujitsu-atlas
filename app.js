@@ -767,8 +767,28 @@
       </div>`;
   }
 
-  function syncGalleryDots(track) {
-    const gallery = track.closest("[data-gallery]");
+  function toggleKnownMark() {
+    const tech = currentFlashTech();
+    if (!tech) return;
+    setKnown(tech.id, !isKnown(tech.id));
+    renderBrowse();
+    renderFlash();
+  }
+
+  /* Marks a card as known without moving on. It sits on the card because it is
+     a statement about the card, not a step in the flow. */
+  function markToggle(tech) {
+    const known = isKnown(tech.id);
+    return `
+      <div class="flash-mark-row">
+        <button type="button" class="flash-mark ${known ? "is-known" : ""}" data-flash-mark aria-pressed="${known}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 6 9 17l-5-5"></path></svg>
+          ${t("flash.known")}
+        </button>
+      </div>`;
+  }
+
+  function syncGalleryDots(track) {    const gallery = track.closest("[data-gallery]");
     if (!gallery || !track.clientWidth) return;
     const index = Math.round(track.scrollLeft / track.clientWidth);
     gallery.querySelectorAll(".flash-dot").forEach((dot, i) => {
@@ -1382,12 +1402,7 @@
     const actions = $(".flash-actions");
     if (actions) actions.hidden = state.view !== "flashcards";
     const primaryM = $("#flash-primary-m");
-    if (primaryM) {
-      primaryM.hidden = flipped;
-      primaryM.textContent = t("flash.show");
-    }
-    const grade = $("#flash-grade");
-    if (grade) grade.hidden = !flipped;
+    if (primaryM) primaryM.textContent = t(flipped ? "flash.next" : "flash.show");
     const count = $("#flash-count");
     if (count) count.textContent = `${state.flashIndex + 1} / ${state.flashOrder.length}`;
     const fill = $("#flash-bar-fill");
@@ -1402,6 +1417,7 @@
     if (!flipped) {
       if (state.flashMode === "name" || !hasFrames) {
         host.innerHTML = `
+          ${markToggle(tech)}
           <span class="cat-badge flash-category" style="--cat-color:${cat.color}">${cat.name}</span>
           ${gradeBadge(tech)}
           <h2 class="flash-name">${tech.japanese} ${speakButton(tech.japanese)}</h2>
@@ -1424,6 +1440,7 @@
 
     host.innerHTML = `
       ${imageBlock}
+      ${markToggle(tech)}
       <span class="cat-badge flash-category" style="--cat-color:${cat.color}">${cat.name}</span>
       ${gradeBadge(tech)}
       <h2 class="flash-back-title">${tech.japanese} ${speakButton(tech.japanese)}</h2>
@@ -1474,15 +1491,6 @@
     renderFlash();
   }
 
-  /* Self-assessment on a phone. Marking is the action, so it also advances:
-     "again" keeps the card in the review set, "know it" takes it out. */
-  function gradeFlash(known) {
-    const tech = currentFlashTech();
-    if (!tech) return;
-    setKnown(tech.id, known);
-    renderBrowse();
-    moveFlash(1);
-  }
 
   /* ---------------- speed round ---------------- */
 
@@ -1944,6 +1952,11 @@
         openModal(event.target.closest("[data-open-card]").getAttribute("data-open-card"));
         return;
       }
+      if (event.target.closest("[data-flash-mark]")) {
+        event.stopPropagation();
+        toggleKnownMark();
+        return;
+      }
       const dot = event.target.closest("[data-dot]");
       if (dot) {
         event.stopPropagation();
@@ -2012,10 +2025,8 @@
     $("#flash-shuffle").addEventListener("click", shuffleFlash);
     $("#flash-shuffle-m").addEventListener("click", shuffleFlash);
     $("#flash-known").addEventListener("change", toggleFlashKnown);
-    // Phone loop: reveal, then assess; assessing is what moves on.
+    // Phone loop: one action that follows the card, plus a quiet mark toggle.
     $("#flash-primary-m").addEventListener("click", () => (state.flashFlipped ? moveFlash(1) : flipFlash()));
-    $("#flash-again").addEventListener("click", () => gradeFlash(false));
-    $("#flash-know").addEventListener("click", () => gradeFlash(true));
 
     $("#flash-mode").addEventListener("click", (event) => {
       const button = event.target.closest("[data-mode]");

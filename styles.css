@@ -1688,10 +1688,38 @@ h2 {
 .flash-hud { display: none; }
 .flash-actions { display: none; }
 
-.flash-grade {
-  display: flex;
-  flex: 1 1 0;
-  gap: 10px;
+/* The mark toggle belongs to the card, and only to the phone. Desktop keeps
+   its "I know this" checkbox in the controls row. */
+.flash-mark-row {
+  display: none;
+  justify-content: flex-end;
+  width: 100%;
+  margin-bottom: 6px;
+}
+
+.flash-mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.74rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 150ms var(--ease), border-color 150ms var(--ease), background 150ms var(--ease);
+}
+
+.flash-mark svg { width: 15px; height: 15px; }
+.flash-mark:hover { color: var(--text); border-color: var(--line-strong); }
+
+.flash-mark.is-known {
+  border-color: transparent;
+  background: var(--accent-soft);
+  color: var(--accent);
 }
 
 .progress-text {
@@ -2694,6 +2722,9 @@ h2 {
     background: var(--accent);
     transition: width 220ms var(--ease);
   }
+
+  .flash-mark-row { display: flex; }
+  .flash-mark { min-height: 40px; }
 
   .flash-shuffle {
     flex: 0 0 auto;

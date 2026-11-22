@@ -285,15 +285,11 @@
     <p class="footer-meta" id="footer-meta">103 técnicas · 98 términos de glosario · Todos los cinturones.</p>
   </footer>
 
-  <!-- Phone loop for the flashcards: one action row that changes with the
-       state of the card. It lives outside <main> so a fixed position is
-       measured against the viewport, not against the animated view. -->
+  <!-- Phone loop for the flashcards: one action that follows the card and
+       never changes size or place. It lives outside <main> so a fixed position
+       is measured against the viewport, not against the animated view. -->
   <div class="flash-actions" hidden>
     <button id="flash-primary-m" class="primary">Mostrar respuesta</button>
-    <div class="flash-grade" id="flash-grade" hidden>
-      <button id="flash-again" class="ghost" data-i18n="flash.again">Otra vez</button>
-      <button id="flash-know" class="primary" data-i18n="flash.know">La sé</button>
-    </div>
   </div>
 
   <!-- BELT SHEET -->
