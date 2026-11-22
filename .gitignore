@@ -11,3 +11,9 @@ __pycache__/
 # Local scratch
 *.part
 *.log
+
+# Local scratch from the pronunciation-audio pilot (baked `say` samples,
+# term list for voice work). Never part of the app.
+audio/
+audio-samples/
+terms.csv
