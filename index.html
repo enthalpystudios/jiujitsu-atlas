@@ -132,6 +132,13 @@
           <p class="eyebrow" data-i18n="flash.eyebrow">PRÁCTICA EN DOS SENTIDOS</p>
           <h2 data-i18n="flash.title">Fichas</h2>
           <p class="lede" data-i18n="flash.lede">Nombre → técnica y técnica → nombre. Baraja, revela y marca lo que sabes.</p>
+          <div class="flash-hud">
+            <span class="flash-count" id="flash-count">1 / 103</span>
+            <span class="flash-bar" aria-hidden="true"><i id="flash-bar-fill"></i></span>
+            <button type="button" class="icon-btn" id="flash-shuffle-m" aria-label="Barajar" data-i18n-aria="flash.shuffle">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M16 3h5v5M21 3l-7 7M8 21H3v-5M3 21l7-7M21 16v5h-5M14 14l7 7M3 8V3h5M10 10 3 3"></path></svg>
+            </button>
+          </div>
         </div>
         <div class="segmented" id="flash-mode" role="group" aria-label="Sentido de las fichas" data-i18n-aria="flash.direction">
           <button class="active" data-mode="name" aria-pressed="true" data-i18n="flash.dirName">Nombre → técnica</button>
@@ -149,10 +156,8 @@
       </div>
 
       <div class="flash-controls">
-        <button id="flash-flip" class="primary" data-i18n="flash.show">Mostrar respuesta</button>
+        <button id="flash-flip" class="primary">Mostrar respuesta</button>
         <button id="flash-shuffle" class="ghost" data-i18n="flash.shuffle">Barajar</button>
-        <button id="flash-prev-m" class="ghost mobile-nav" aria-label="Anterior" data-i18n-aria="flash.prev" data-i18n="flash.prevShort">← Ant.</button>
-        <button id="flash-next-m" class="ghost mobile-nav" aria-label="Siguiente" data-i18n-aria="flash.next" data-i18n="flash.nextShort">Sig. →</button>
         <label class="checkline compact">
           <input type="checkbox" id="flash-known">
           <span data-i18n="flash.known">Me la sé</span>
@@ -274,6 +279,17 @@
     <p data-i18n="footer.text">Estudio privado. Los fotogramas son imágenes de las fuentes citadas; sigue el enlace para ver el vídeo completo.</p>
     <p class="footer-meta" id="footer-meta">103 técnicas · 98 términos de glosario · Todos los cinturones.</p>
   </footer>
+
+  <!-- Phone loop for the flashcards: one action row that changes with the
+       state of the card. It lives outside <main> so a fixed position is
+       measured against the viewport, not against the animated view. -->
+  <div class="flash-actions" hidden>
+    <button id="flash-primary-m" class="primary">Mostrar respuesta</button>
+    <div class="flash-grade" id="flash-grade" hidden>
+      <button id="flash-again" class="ghost" data-i18n="flash.again">Otra vez</button>
+      <button id="flash-know" class="primary" data-i18n="flash.know">La sé</button>
+    </div>
+  </div>
 
   <!-- BELT SHEET -->
   <div class="sheet" id="sheet-belt" hidden>

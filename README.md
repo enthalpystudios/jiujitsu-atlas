@@ -41,6 +41,14 @@ reduced and the controls move to where a thumb can reach them:
 - **Settings sheet.** Theme (auto/light/dark) and language, which are set-once
   preferences, move out of the header entirely.
 - **The card opens as a sheet,** with the frames on top and the notes below.
+- **Flashcards become a loop.** One card, a counter with a progress bar, and a
+  single action row pinned above the tab bar: "Mostrar respuesta" on the front,
+  then "Otra vez" / "La sé" on the back, where assessing the card is what moves
+  on. Swipe left and right to change card. The chevrons, the "Barajar" button
+  and the bare "Me la sé" checkbox stay for desktop only.
+- **The answer leads with one readable frame** at 4:3 with paging dots, instead
+  of a 16:5 strip crushed behind its own phase labels. The notes lose their
+  three-line clamp and the remaining key points sit behind one tap.
 - **The marketing prelude is dropped** so the first technique appears in the
   first screen rather than ~635 px down.
 

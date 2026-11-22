@@ -133,6 +133,7 @@
     flashMode: readRaw(STORAGE.flashMode) || "name",
     flashIndex: 0,
     flashFlipped: false,
+    flashPointsExpanded: false,
     flashOrder: TECH.map((t) => t.id),
     modalId: null,
     modalFrame: 0,
@@ -738,6 +739,44 @@
     return `strip-${Math.min(Math.max(count, 3), 6)}`;
   }
 
+  /* One frame at a time, snapped, with tappable dots. A phone cannot read a
+     filmstrip squeezed across the card, and the frames are the whole point of
+     the answer, so on the card they get a stage rather than a sliver. */
+  function flashGallery(tech) {
+    if (!tech.frames || !tech.frames.length) return "";
+    const slides = tech.frames
+      .map(
+        (frame, index) => `
+        <figure class="flash-slide">
+          <img src="${frame.src}" alt="${escapeHtml(tech.japanese)} — ${escapeHtml(phaseLabel(frame))}" loading="${index === 0 ? "eager" : "lazy"}">
+          <figcaption class="flash-slide-label">${escapeHtml(phaseLabel(frame))}</figcaption>
+        </figure>`
+      )
+      .join("");
+    const dots = tech.frames.length > 1
+      ? `<div class="flash-dots">${tech.frames
+          .map(
+            (frame, index) =>
+              `<button type="button" class="flash-dot${index === 0 ? " active" : ""}" data-dot="${index}" aria-label="${escapeHtml(phaseLabel(frame))}"></button>`
+          )
+          .join("")}</div>`
+      : "";
+    return `
+      <div class="flash-gallery" data-gallery>
+        <div class="flash-track">${slides}</div>
+        ${dots}
+      </div>`;
+  }
+
+  function syncGalleryDots(track) {
+    const gallery = track.closest("[data-gallery]");
+    if (!gallery || !track.clientWidth) return;
+    const index = Math.round(track.scrollLeft / track.clientWidth);
+    gallery.querySelectorAll(".flash-dot").forEach((dot, i) => {
+      dot.classList.toggle("active", i === index);
+    });
+  }
+
   function escapeHtml(value) {
     return String(value)
       .replace(/&/g, "&amp;")
@@ -1088,6 +1127,8 @@
   function syncHeaderForView() {
     const filtersButton = $("#filters-btn");
     if (filtersButton) filtersButton.hidden = state.view !== "browse";
+    const actions = $(".flash-actions");
+    if (actions) actions.hidden = state.view !== "flashcards";
   }
 
   /* ---------------- modal ---------------- */
@@ -1240,6 +1281,7 @@
     state.flashOrder = activeTech().map((tech) => tech.id);
     state.flashIndex = 0;
     state.flashFlipped = false;
+    state.flashPointsExpanded = false;
   }
 
   function renderFlash() {
@@ -1248,6 +1290,8 @@
       host.innerHTML = `<p class="flash-empty">${t("flash.emptyGrade")}</p>`;
       $("#flash-progress").textContent = "";
       $("#flash-hint").textContent = "";
+      const actions = $(".flash-actions");
+      if (actions) actions.hidden = true;
       return;
     }
     const tech = currentFlashTech();
@@ -1262,6 +1306,23 @@
     $("#flash-known").checked = known;
     $("#flash-progress").textContent = t("flash.counter", { n: state.flashIndex + 1, total: state.flashOrder.length });
     $("#flash-hint").textContent = flipped ? t("flash.backHint") : t("flash.flipHint");
+    const flipButton = $("#flash-flip");
+    if (flipButton) flipButton.textContent = t(flipped ? "flash.hide" : "flash.show");
+
+    // Phone loop: the action row swaps between "reveal" and the two grades.
+    const actions = $(".flash-actions");
+    if (actions) actions.hidden = false;
+    const primaryM = $("#flash-primary-m");
+    if (primaryM) {
+      primaryM.hidden = flipped;
+      primaryM.textContent = t("flash.show");
+    }
+    const grade = $("#flash-grade");
+    if (grade) grade.hidden = !flipped;
+    const count = $("#flash-count");
+    if (count) count.textContent = `${state.flashIndex + 1} / ${state.flashOrder.length}`;
+    const fill = $("#flash-bar-fill");
+    if (fill) fill.style.width = `${((state.flashIndex + 1) / state.flashOrder.length) * 100}%`;
 
     document.querySelectorAll("#flash-mode button").forEach((button) => {
       const active = button.getAttribute("data-mode") === state.flashMode;
@@ -1279,27 +1340,22 @@
           <p class="flash-prompt">${t("flash.namePrompt")}</p>`;
       } else {
         host.innerHTML = `
-          <div class="flash-images ${stripClass(tech.frames.length)}">
-            ${frameCells(tech, false, 6)}
-          </div>
+          ${flashGallery(tech)}
           <p class="flash-prompt">${t("flash.imagePrompt")}</p>`;
       }
       return;
     }
 
     // On the back, only repeat the frames when the front showed the name.
-    // In "image" mode the frames are already on the front, so repeating them
-    // just makes the card taller than the screen.
+    // In "image" mode the frames are already on the front.
     const showBackImages = hasFrames && state.flashMode === "name";
-    const imageBlock = showBackImages
-      ? `<div class="flash-images ${stripClass(tech.frames.length)}">${frameCells(tech, true, 6)}</div>`
-      : "";
+    const imageBlock = showBackImages ? flashGallery(tech) : "";
 
     const points = pickArray(tech, "key_points");
-    const shownPoints = points.slice(0, 3);
-    const hiddenCount = points.length - shownPoints.length;
-    const moreLine = hiddenCount > 0
-      ? `<p class="flash-more">${escapeHtml(t("flash.morePoints", { n: hiddenCount }))}</p>`
+    const expanded = state.flashPointsExpanded;
+    const visiblePoints = expanded ? points : points.slice(0, 2);
+    const pointsToggle = points.length > 2
+      ? `<button type="button" class="flash-points-more" data-flash-points>${t(expanded ? "flash.pointsLess" : "flash.pointsMore", { n: points.length })}</button>`
       : "";
 
     host.innerHTML = `
@@ -1310,13 +1366,14 @@
       <p class="flash-back-sub">${escapeHtml(pick(tech, "translation"))}</p>
       ${wordChips(tech, { className: "flash-word-chips" })}
       <p class="flash-cue">${escapeHtml(pick(tech, "cue"))}</p>
-      <ul class="flash-points">${shownPoints.map((point) => `<li>${escapeHtml(point)}</li>`).join("")}</ul>
-      ${moreLine}
+      <ul class="flash-points">${visiblePoints.map((point) => `<li>${escapeHtml(point)}</li>`).join("")}</ul>
+      ${pointsToggle}
       <button class="flash-open" data-open-card="${tech.id}">${t("flash.openCard")}</button>`;
   }
 
   function flipFlash() {
     state.flashFlipped = !state.flashFlipped;
+    state.flashPointsExpanded = false;
     renderFlash();
     if (state.flashFlipped) {
       const card = $("#flashcard");
@@ -1328,6 +1385,7 @@
     if (!state.flashOrder.length) return;
     state.flashIndex = (state.flashIndex + delta + state.flashOrder.length) % state.flashOrder.length;
     state.flashFlipped = false;
+    state.flashPointsExpanded = false;
     renderFlash();
   }
 
@@ -1335,6 +1393,7 @@
     state.flashOrder = shuffle(state.flashOrder);
     state.flashIndex = 0;
     state.flashFlipped = false;
+    state.flashPointsExpanded = false;
     renderFlash();
   }
 
@@ -1353,6 +1412,16 @@
     $("#flash-known").checked = next;
     renderBrowse();
     renderFlash();
+  }
+
+  /* Self-assessment on a phone. Marking is the action, so it also advances:
+     "again" keeps the card in the review set, "know it" takes it out. */
+  function gradeFlash(known) {
+    const tech = currentFlashTech();
+    if (!tech) return;
+    setKnown(tech.id, known);
+    renderBrowse();
+    moveFlash(1);
   }
 
   /* ---------------- speed round ---------------- */
@@ -1801,14 +1870,72 @@
     });
 
     // Flashcards
+    let suppressFlip = false;
     $("#flashcard").addEventListener("click", (event) => {
+      if (suppressFlip) return;
       if (event.target.closest("[data-open-card]")) {
         event.stopPropagation();
         openModal(event.target.closest("[data-open-card]").getAttribute("data-open-card"));
         return;
       }
+      if (event.target.closest("[data-flash-points]")) {
+        event.stopPropagation();
+        state.flashPointsExpanded = !state.flashPointsExpanded;
+        renderFlash();
+        return;
+      }
+      const dot = event.target.closest("[data-dot]");
+      if (dot) {
+        event.stopPropagation();
+        const track = $("#flashcard .flash-track");
+        if (track) {
+          track.scrollTo({ left: Number(dot.getAttribute("data-dot")) * track.clientWidth, behavior: "smooth" });
+        }
+        return;
+      }
+      // Reading or swiping the frames must not flip the card.
+      if (event.target.closest("[data-gallery]")) return;
       flipFlash();
     });
+
+    // Keep the dots in step with the swiped frame.
+    $("#flashcard").addEventListener(
+      "scroll",
+      (event) => {
+        const track = event.target;
+        if (track && track.classList && track.classList.contains("flash-track")) {
+          syncGalleryDots(track);
+        }
+      },
+      true
+    );
+
+    // Swiping is the phone's way of moving between cards; the chevrons stay
+    // for desktop and for anyone using a keyboard.
+    let swipeFrom = null;
+    $("#flashcard").addEventListener(
+      "touchstart",
+      (event) => {
+        swipeFrom = event.target.closest("[data-gallery]") ? null : event.changedTouches[0];
+      },
+      { passive: true }
+    );
+    $("#flashcard").addEventListener(
+      "touchend",
+      (event) => {
+        if (!swipeFrom) return;
+        const end = event.changedTouches[0];
+        const dx = end.clientX - swipeFrom.clientX;
+        const dy = end.clientY - swipeFrom.clientY;
+        swipeFrom = null;
+        if (Math.abs(dx) < 55 || Math.abs(dx) < Math.abs(dy) * 1.6) return;
+        // A swipe must not also register as a tap-to-flip.
+        suppressFlip = true;
+        setTimeout(() => { suppressFlip = false; }, 400);
+        moveFlash(dx < 0 ? 1 : -1);
+      },
+      { passive: true }
+    );
 
     $("#flashcard").addEventListener("keydown", (event) => {
       if (event.target !== event.currentTarget) return;
@@ -1821,11 +1948,14 @@
 
     $("#flash-prev").addEventListener("click", () => moveFlash(-1));
     $("#flash-next").addEventListener("click", () => moveFlash(1));
-    $("#flash-prev-m").addEventListener("click", () => moveFlash(-1));
-    $("#flash-next-m").addEventListener("click", () => moveFlash(1));
     $("#flash-flip").addEventListener("click", flipFlash);
     $("#flash-shuffle").addEventListener("click", shuffleFlash);
+    $("#flash-shuffle-m").addEventListener("click", shuffleFlash);
     $("#flash-known").addEventListener("change", toggleFlashKnown);
+    // Phone loop: reveal, then assess; assessing is what moves on.
+    $("#flash-primary-m").addEventListener("click", () => (state.flashFlipped ? moveFlash(1) : flipFlash()));
+    $("#flash-again").addEventListener("click", () => gradeFlash(false));
+    $("#flash-know").addEventListener("click", () => gradeFlash(true));
 
     $("#flash-mode").addEventListener("click", (event) => {
       const button = event.target.closest("[data-mode]");

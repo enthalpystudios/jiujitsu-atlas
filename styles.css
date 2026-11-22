@@ -1500,45 +1500,88 @@ h2 {
   font-size: 0.92rem;
 }
 
-.flash-images {
-  display: grid;
-  gap: 4px;
+/* The answer's frames get a stage, not a strip: one frame at a time, snapped,
+   with dots, sized so a phone can actually read the technique. */
+.flash-gallery {
+  position: relative;
   width: 100%;
-  margin-bottom: 20px;
-  border-radius: 14px;
+  margin-bottom: 18px;
+  border-radius: 16px;
   overflow: hidden;
   background: var(--stage-bg);
 }
 
-.flash-images .strip-cell img { aspect-ratio: 16 / 9; }
-
-.flash-images.empty {
+.flash-track {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  min-height: 140px;
-  color: var(--muted);
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  text-align: center;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+}
+.flash-track::-webkit-scrollbar { display: none; }
+
+.flash-slide {
+  position: relative;
+  flex: 0 0 100%;
+  margin: 0;
+  scroll-snap-align: center;
 }
 
-.flash-images.empty .empty-name {
-  font-size: 1.1rem;
+.flash-slide img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+}
+
+.flash-slide-label {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  padding: 4px 9px;
+  border-radius: 7px;
+  background: rgba(8, 10, 11, 0.78);
+  color: #f2efe6;
+  font-size: 0.66rem;
   font-weight: 600;
-  letter-spacing: 0.02em;
-  text-transform: none;
-  color: color-mix(in srgb, var(--cat-color, var(--accent)) 55%, var(--text));
-  opacity: 0.75;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
 }
 
-.flash-images.empty .empty-note {
-  font-size: 0.68rem;
-  letter-spacing: 0.08em;
-  opacity: 0.6;
+.flash-dots {
+  position: absolute;
+  right: 6px;
+  bottom: 6px;
+  display: flex;
+  align-items: center;
+}
+
+.flash-dot {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.flash-dot::after {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.42);
+  transition: background 150ms var(--ease), transform 150ms var(--ease);
+}
+
+.flash-dot.active::after {
+  background: var(--accent-on-dark);
+  transform: scale(1.3);
 }
 
 .flash-empty {
@@ -1584,8 +1627,7 @@ h2 {
 
 /* Back of the flashcard: compact summary so the answer fits without scrolling. */
 .flashcard.is-back { padding: 20px 20px 28px; }
-.flashcard.is-back .flash-images { margin-bottom: 12px; }
-.flashcard.is-back .flash-images .strip-cell img { aspect-ratio: 16 / 5; }
+.flashcard.is-back .flash-gallery { margin-bottom: 14px; }
 .flashcard.is-back .flash-category { margin-bottom: 8px; }
 .flashcard.is-back .flash-back-title { font-size: clamp(1.35rem, 4.6vw, 2rem); }
 .flashcard.is-back .flash-back-sub { font-size: 0.9rem; }
@@ -1600,13 +1642,23 @@ h2 {
 }
 .flashcard.is-back .flash-points { margin-top: 10px; font-size: 0.8rem; }
 .flashcard.is-back .flash-points li { margin: 3px 0; }
-.flashcard.is-back .flash-open { margin-top: 6px; }
+.flashcard.is-back .flash-open { margin-top: 10px; }
 
-.flash-more {
-  margin: 6px 0 0;
-  color: var(--faint);
-  font-size: 0.74rem;
+.flash-points-more {
+  position: relative;
+  margin-top: 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text);
+  padding: 9px 14px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 150ms var(--ease), border-color 150ms var(--ease);
 }
+
+.flash-points-more:hover { background: var(--panel-2); border-color: var(--accent); }
 
 .flash-open {
   position: relative;
@@ -1642,7 +1694,16 @@ h2 {
   margin-top: 18px;
 }
 
-.mobile-nav { display: inline-flex; }
+/* Phone loop: a counter with a progress bar, and one action row that changes
+   with the state of the card. Desktop keeps the chevrons and the controls row. */
+.flash-hud { display: none; }
+.flash-actions { display: none; }
+
+.flash-grade {
+  display: flex;
+  flex: 1 1 0;
+  gap: 10px;
+}
 
 .progress-text {
   color: var(--faint);
@@ -2345,29 +2406,14 @@ h2 {
 /* ---------- 19. Responsive ---------- */
 
 @media (max-width: 559px) {
-  /* Flashcards: keep the flipped card inside the viewport.
-     Reclaim vertical space from the section head and tighten the back. */
+  /* Reclaim vertical space from the flashcard section head. The card layout
+     itself is owned by the phone block below. */
   #view-flashcards .section-head {
     margin-bottom: 12px;
     gap: 8px;
   }
-  #view-flashcards .section-head .eyebrow { display: none; }
-  #view-flashcards .section-head .lede { display: none; }
   #view-flashcards .section-head h2 { font-size: 1.45rem; }
   #flash-mode { margin-top: 6px; }
-
-  .flashcard { min-height: 340px; padding: 18px 16px 44px; }
-  .flash-content { min-height: 280px; }
-
-  .flashcard.is-back { padding: 12px 16px 20px; }
-  .flashcard.is-back .flash-images { margin-bottom: 10px; }
-  .flashcard.is-back .flash-images .strip-cell img { aspect-ratio: 16 / 5; }
-  .flashcard.is-back .flash-category { margin-bottom: 6px; }
-  .flashcard.is-back .flash-back-title { font-size: 1.2rem; }
-  .flashcard.is-back .flash-cue { margin-top: 8px; font-size: 0.84rem; }
-  .flashcard.is-back .flash-points { margin-top: 8px; font-size: 0.78rem; }
-  .flashcard.is-back .flash-points li { margin: 1px 0; }
-  .flashcard.is-back .flash-open { margin-top: 6px; }
 }
 
 @media (min-width: 560px) {
@@ -2385,7 +2431,6 @@ h2 {
   .glossary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .flash-stage { grid-template-columns: 52px minmax(0, 1fr) 52px; gap: 14px; }
   #flash-prev, #flash-next { display: inline-flex; align-items: center; justify-content: center; }
-  .mobile-nav { display: none; }
 
   .flashcard { padding: 32px 30px 60px; min-height: 460px; }
   .flash-content { min-height: 360px; }
@@ -2483,7 +2528,10 @@ h2 {
 
 @media (max-width: 719px) {
   /* One row of chrome, sticky. Navigation moves to the thumb zone. */
-  :root { --header-h: 60px; }
+  :root {
+    --header-h: 60px;
+    --tabbar-h: calc(64px + env(safe-area-inset-bottom));
+  }
 
   .topbar {
     position: sticky;
@@ -2575,7 +2623,8 @@ h2 {
   /* The prelude is a luxury; the technique is the point. */
   .view .section-head .eyebrow,
   .view .section-head .lede { display: none; }
-  .section-head { gap: 10px; margin-bottom: 14px; }
+  .section-head { gap: 10px; margin-bottom: 14px; align-items: stretch; }
+  .section-head > div { width: 100%; }
   h2 { font-size: 1.5rem; }
 
   /* Search stays reachable while the results scroll. */
@@ -2606,12 +2655,116 @@ h2 {
     padding: 10px 62px 10px 12px;
   }
 
-  /* Flashcards: chevrons flank the card, so the controls drop to three. */
-  .flash-stage { grid-template-columns: 44px minmax(0, 1fr) 44px; gap: 8px; }
+  /* Flashcards become a loop: one card, a counter, and one action row pinned
+     above the tab bar. Swiping moves between cards, so the chevrons go. */
+  .flash-controls { display: none; }
+
+  .flash-stage {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+    margin-top: 0;
+  }
+
   #flash-prev,
-  #flash-next { display: inline-flex; align-items: center; justify-content: center; }
-  .mobile-nav { display: none !important; }
-  .flash-controls { gap: 8px; }
+  #flash-next { display: none; }
+
+  .flash-hud {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 12px;
+  }
+
+  .flash-count {
+    color: var(--muted);
+    font-size: 0.8rem;
+    font-weight: 650;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .flash-bar {
+    flex: 1 1 auto;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--line);
+    overflow: hidden;
+  }
+
+  .flash-bar > i {
+    display: block;
+    width: 0;
+    height: 100%;
+    border-radius: 2px;
+    background: var(--accent);
+    transition: width 220ms var(--ease);
+  }
+
+  .flashcard {
+    display: flex;
+    flex-direction: column;
+    min-height: 300px;
+    padding: 16px 16px 14px;
+  }
+
+  .flash-content {
+    flex: 1 1 auto;
+    min-height: 0;
+    justify-content: center;
+  }
+
+  .flashcard.is-back .flash-content { justify-content: flex-start; }
+
+  /* The hint belongs in the flow, not under the button it used to collide with. */
+  .flash-hint {
+    position: static;
+    margin-top: 16px;
+    padding-top: 12px;
+    border-top: 1px solid var(--line);
+  }
+
+  /* Read, don't squeeze: the notes lose their clamp and the text lines up. */
+  .flashcard.is-back .flash-cue {
+    display: block;
+    -webkit-line-clamp: unset;
+    overflow: visible;
+    margin-top: 12px;
+    font-size: 0.92rem;
+    line-height: 1.6;
+    text-align: left;
+  }
+
+  .flash-points,
+  .flashcard.is-back .flash-points {
+    margin-top: 12px;
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+
+  .flashcard.is-back .flash-points li { margin: 6px 0; }
+
+  .flash-points-more,
+  .flash-open { min-height: 44px; margin-top: 14px; }
+
+  .flash-slide img { aspect-ratio: 4 / 3; }
+  .flashcard.is-back .flash-gallery { margin-bottom: 14px; }
+
+  /* Always within thumb reach, above the tab bar. */
+  .flash-actions {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: var(--tabbar-h);
+    z-index: 50;
+    display: flex;
+    gap: 10px;
+    padding: 10px 14px;
+    border-top: 1px solid var(--line);
+    background: var(--bg);
+  }
+
+  .flash-actions > button { flex: 1 1 0; min-height: 52px; }
+
+  #view-flashcards { padding-bottom: 72px; }
 
   /* Every touch target clears 44px. */
   .speak-btn::after { inset: -10px; }
