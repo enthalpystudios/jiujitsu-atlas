@@ -1004,6 +1004,7 @@ h2 {
   background: var(--backdrop);
   -webkit-backdrop-filter: blur(7px);
   backdrop-filter: blur(7px);
+  touch-action: none;
 }
 
 .modal-panel {
@@ -1644,22 +1645,6 @@ h2 {
 .flashcard.is-back .flash-points li { margin: 3px 0; }
 .flashcard.is-back .flash-open { margin-top: 10px; }
 
-.flash-points-more {
-  position: relative;
-  margin-top: 12px;
-  border: 1px solid var(--line-strong);
-  border-radius: 10px;
-  background: transparent;
-  color: var(--text);
-  padding: 9px 14px;
-  font-size: 0.78rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 150ms var(--ease), border-color 150ms var(--ease);
-}
-
-.flash-points-more:hover { background: var(--panel-2); border-color: var(--accent); }
-
 .flash-open {
   position: relative;
   margin-top: 18px;
@@ -2229,6 +2214,7 @@ h2 {
 
 .icon-btn {
   position: relative;
+  display: grid;
   width: 44px;
   height: 44px;
   flex: 0 0 auto;
@@ -2277,6 +2263,8 @@ h2 {
   -webkit-backdrop-filter: blur(6px);
   backdrop-filter: blur(6px);
   animation: fade-in 200ms var(--ease) both;
+  /* A drag anywhere here belongs to the sheet, not to the document. */
+  touch-action: none;
 }
 
 @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
@@ -2291,7 +2279,9 @@ h2 {
   border-radius: 22px 22px 0 0;
   background: var(--bg-2);
   box-shadow: 0 -24px 60px rgba(0, 0, 0, 0.34);
-  animation: sheet-up 280ms var(--ease) both;
+  /* No fill mode: a retained transform would outrank the inline transform
+     used to drag the sheet down. */
+  animation: sheet-up 280ms var(--ease);
 }
 
 @keyframes sheet-up {
@@ -2306,6 +2296,8 @@ h2 {
   margin: 8px auto 14px;
   border-radius: 3px;
   background: var(--line-strong);
+  /* The grabber owns its gesture outright. */
+  touch-action: none;
 }
 
 .sheet-head {
@@ -2644,7 +2636,7 @@ h2 {
     width: 100%;
     max-height: 94vh;
     border-radius: 22px 22px 0 0;
-    animation: sheet-up 280ms var(--ease) both;
+    animation: sheet-up 280ms var(--ease);
   }
   .modal-content { border-radius: 22px 22px 0 0; }
   .modal-close { top: 12px; right: 12px; }
@@ -2699,6 +2691,11 @@ h2 {
     transition: width 220ms var(--ease);
   }
 
+  .flash-shuffle {
+    flex: 0 0 auto;
+  }
+  .flash-shuffle svg { width: 19px; height: 19px; }
+
   .flashcard {
     display: flex;
     flex-direction: column;
@@ -2742,7 +2739,6 @@ h2 {
 
   .flashcard.is-back .flash-points li { margin: 6px 0; }
 
-  .flash-points-more,
   .flash-open { min-height: 44px; margin-top: 14px; }
 
   .flash-slide img { aspect-ratio: 4 / 3; }

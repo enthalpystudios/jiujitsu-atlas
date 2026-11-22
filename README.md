@@ -40,6 +40,8 @@ reduced and the controls move to where a thumb can reach them:
   "only my review" live behind one button that shows a badge when a filter is on.
 - **Settings sheet.** Theme (auto/light/dark) and language, which are set-once
   preferences, move out of the header entirely.
+- **Drag a sheet down to dismiss it.** The card, the belt picker, the filters and
+  the settings all spring back if the pull is short.
 - **The card opens as a sheet,** with the frames on top and the notes below.
 - **Flashcards become a loop.** One card, a counter with a progress bar, and a
   single action row pinned above the tab bar: "Mostrar respuesta" on the front,
@@ -94,6 +96,9 @@ app.js          rendering, routing, flashcards, speed round, audio
 i18n.js         English/Spanish interface strings
 data.js         all technique, category and glossary content
 cards/<id>/     technique frame images (01.jpg … 05.jpg)
+favicon.png     app icon, from the RFEJYDA Jiu-Jitsu patch (64 px)
+apple-touch-icon.png   home-screen icon (180 px)
+icon-512.png    large icon (512 px)
 ```
 
 `data.js` is the single source of content. Each technique carries its Japanese

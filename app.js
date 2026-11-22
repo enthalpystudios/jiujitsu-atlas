@@ -133,7 +133,6 @@
     flashMode: readRaw(STORAGE.flashMode) || "name",
     flashIndex: 0,
     flashFlipped: false,
-    flashPointsExpanded: false,
     flashOrder: TECH.map((t) => t.id),
     modalId: null,
     modalFrame: 0,
@@ -1109,6 +1108,7 @@
     if (!sheet || openSheetId === id) return;
     if (openSheetId) closeSheet();
     sheet.hidden = false;
+    markDragSurface(sheet.querySelector(".sheet-panel"));
     openSheetId = id;
     const trigger = document.getElementById(SHEET_TRIGGERS[id]);
     if (trigger) trigger.setAttribute("aria-expanded", "true");
@@ -1121,6 +1121,73 @@
     const trigger = document.getElementById(SHEET_TRIGGERS[openSheetId]);
     if (trigger) trigger.setAttribute("aria-expanded", "false");
     openSheetId = null;
+  }
+
+  /* Sheets are pulled, not only tapped. A downward drag on the sheet *or* on
+     the backdrop dismisses it; a shorter pull springs back. Listening on the
+     whole wrapper matters because the backdrop is a big, obvious thing to drag.
+     The drag is ignored while content inside the panel has been scrolled away
+     from its top, so scrolling still works. */
+  function enableDragToClose(wrapper, panel, close) {
+    if (!wrapper || !panel) return;
+    let startY = null;
+    let delta = 0;
+
+    wrapper.addEventListener(
+      "touchstart",
+      (event) => {
+        let node = event.target;
+        while (node && node !== wrapper) {
+          if (node.scrollTop > 0) { startY = null; return; }
+          node = node.parentElement;
+        }
+        startY = event.touches[0].clientY;
+        delta = 0;
+      },
+      { passive: true }
+    );
+
+    wrapper.addEventListener(
+      "touchmove",
+      (event) => {
+        if (startY === null) return;
+        delta = event.touches[0].clientY - startY;
+        if (delta <= 0) { delta = 0; return; }
+        if (event.cancelable) event.preventDefault();
+        panel.style.transform = `translateY(${delta}px)`;
+      },
+      { passive: false }
+    );
+
+    const release = () => {
+      if (startY === null) return;
+      const shouldClose = delta > 90;
+      startY = null;
+      delta = 0;
+      panel.style.transition = "transform 200ms var(--ease)";
+      panel.style.transform = shouldClose ? "translateY(100%)" : "translateY(0)";
+      setTimeout(() => {
+        panel.style.transition = "";
+        panel.style.transform = "";
+        if (shouldClose) close();
+      }, 200);
+    };
+
+    wrapper.addEventListener("touchend", release);
+    wrapper.addEventListener("touchcancel", release);
+  }
+
+  /* touch-action is read once, when a gesture begins, so it has to be set
+     before the finger lands. A panel with nothing to scroll can own the whole
+     gesture up front, which is what makes the drag dependable there. When there
+     is something to scroll — the panel itself, or a scroller inside it like the
+     card layout — the browser keeps the gesture and the drag falls back to
+     measuring movement. */
+  function markDragSurface(panel, scroller) {
+    if (!panel) return;
+    const target = scroller || panel;
+    const scrollable = target.scrollHeight > target.clientHeight + 1;
+    panel.style.touchAction = scrollable ? "" : "none";
   }
 
   // The category filter only means something in Browse.
@@ -1216,6 +1283,7 @@
 
     const modal = $("#modal");
     modal.hidden = false;
+    markDragSurface($(".modal-panel", modal), $(".modal-layout", modal));
     document.body.style.overflow = "hidden";
     if (options.updateHash !== false) writeHash(`#card/${tech.id}`);
     const close = $(".modal-close", modal);
@@ -1281,7 +1349,6 @@
     state.flashOrder = activeTech().map((tech) => tech.id);
     state.flashIndex = 0;
     state.flashFlipped = false;
-    state.flashPointsExpanded = false;
   }
 
   function renderFlash() {
@@ -1291,7 +1358,7 @@
       $("#flash-progress").textContent = "";
       $("#flash-hint").textContent = "";
       const actions = $(".flash-actions");
-      if (actions) actions.hidden = true;
+      if (actions) actions.hidden = state.view !== "flashcards";
       return;
     }
     const tech = currentFlashTech();
@@ -1310,8 +1377,10 @@
     if (flipButton) flipButton.textContent = t(flipped ? "flash.hide" : "flash.show");
 
     // Phone loop: the action row swaps between "reveal" and the two grades.
+    // Visibility follows the view, not this function, because renderFlash also
+    // runs on load and on language or belt changes.
     const actions = $(".flash-actions");
-    if (actions) actions.hidden = false;
+    if (actions) actions.hidden = state.view !== "flashcards";
     const primaryM = $("#flash-primary-m");
     if (primaryM) {
       primaryM.hidden = flipped;
@@ -1352,11 +1421,6 @@
     const imageBlock = showBackImages ? flashGallery(tech) : "";
 
     const points = pickArray(tech, "key_points");
-    const expanded = state.flashPointsExpanded;
-    const visiblePoints = expanded ? points : points.slice(0, 2);
-    const pointsToggle = points.length > 2
-      ? `<button type="button" class="flash-points-more" data-flash-points>${t(expanded ? "flash.pointsLess" : "flash.pointsMore", { n: points.length })}</button>`
-      : "";
 
     host.innerHTML = `
       ${imageBlock}
@@ -1366,14 +1430,12 @@
       <p class="flash-back-sub">${escapeHtml(pick(tech, "translation"))}</p>
       ${wordChips(tech, { className: "flash-word-chips" })}
       <p class="flash-cue">${escapeHtml(pick(tech, "cue"))}</p>
-      <ul class="flash-points">${visiblePoints.map((point) => `<li>${escapeHtml(point)}</li>`).join("")}</ul>
-      ${pointsToggle}
+      <ul class="flash-points">${points.map((point) => `<li>${escapeHtml(point)}</li>`).join("")}</ul>
       <button class="flash-open" data-open-card="${tech.id}">${t("flash.openCard")}</button>`;
   }
 
   function flipFlash() {
     state.flashFlipped = !state.flashFlipped;
-    state.flashPointsExpanded = false;
     renderFlash();
     if (state.flashFlipped) {
       const card = $("#flashcard");
@@ -1385,7 +1447,6 @@
     if (!state.flashOrder.length) return;
     state.flashIndex = (state.flashIndex + delta + state.flashOrder.length) % state.flashOrder.length;
     state.flashFlipped = false;
-    state.flashPointsExpanded = false;
     renderFlash();
   }
 
@@ -1393,7 +1454,6 @@
     state.flashOrder = shuffle(state.flashOrder);
     state.flashIndex = 0;
     state.flashFlipped = false;
-    state.flashPointsExpanded = false;
     renderFlash();
   }
 
@@ -1807,6 +1867,12 @@
       button.addEventListener("click", () => applyTheme(button.getAttribute("data-theme-choice"), true));
     });
 
+    // Pull a sheet or the card down to dismiss it.
+    enableDragToClose($("#modal"), $(".modal-panel"), closeModal);
+    $$(".sheet").forEach((sheet) => {
+      enableDragToClose(sheet, sheet.querySelector(".sheet-panel"), closeSheet);
+    });
+
     const themeToggle = $("#theme-toggle");
     if (themeToggle) {
       themeToggle.addEventListener("click", () => {
@@ -1876,12 +1942,6 @@
       if (event.target.closest("[data-open-card]")) {
         event.stopPropagation();
         openModal(event.target.closest("[data-open-card]").getAttribute("data-open-card"));
-        return;
-      }
-      if (event.target.closest("[data-flash-points]")) {
-        event.stopPropagation();
-        state.flashPointsExpanded = !state.flashPointsExpanded;
-        renderFlash();
         return;
       }
       const dot = event.target.closest("[data-dot]");
