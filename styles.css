@@ -198,12 +198,16 @@ a { color: inherit; }
   flex: 0 0 auto;
   display: grid;
   place-items: center;
-  border-radius: 10px;
-  background: var(--accent);
-  color: var(--accent-ink);
-  font-size: 1.05rem;
-  font-weight: 700;
-  box-shadow: 0 8px 20px var(--accent-soft);
+  border-radius: 50%;
+  overflow: hidden;
+  background: none;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.22);
+}
+
+.brand-mark img {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
 .brand-text { min-width: 0; }
@@ -2414,7 +2418,7 @@ h2 {
   .belt-bar { padding: 0 20px 12px; }
   .footer { padding: 24px 20px 44px; }
 
-  .brand-mark { width: 38px; height: 38px; font-size: 1.15rem; border-radius: 11px; }
+  .brand-mark { width: 38px; height: 38px; }
   .brand { gap: 11px; }
   .brand-text h1 { font-size: 0.94rem; }
   .brand-text p { display: block; }
@@ -2451,7 +2455,7 @@ h2 {
   .tabs { order: 0; grid-column: 2; grid-row: 1; flex: 0 0 auto; max-width: none; justify-self: center; }
   .header-controls { order: 0; grid-column: 3; grid-row: 1; margin-left: 0; justify-self: end; }
   .brand-text p { display: block; }
-  .brand-mark { width: 42px; height: 42px; font-size: 1.3rem; border-radius: 12px; }
+  .brand-mark { width: 42px; height: 42px; }
   .brand { gap: 12px; }
   .brand-text h1 { font-size: 1.02rem; }
 
@@ -2549,7 +2553,7 @@ h2 {
   }
 
   .brand { order: 0; flex: 1 1 auto; min-width: 0; gap: 8px; }
-  .brand-mark { width: 32px; height: 32px; font-size: 0.98rem; border-radius: 9px; }
+  .brand-mark { width: 32px; height: 32px; }
   /* The mark carries the identity; the wordmark would only be truncated. It
      stays in the DOM so the document keeps its heading. */
   .brand-text {
