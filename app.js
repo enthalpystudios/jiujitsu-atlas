@@ -92,13 +92,20 @@
 
   function updateThemeLabel() {
     const button = $("#theme-toggle");
-    if (!button) return;
-    const label = t("theme." + state.theme);
-    button.setAttribute("data-theme-choice", state.theme);
-    button.setAttribute("title", t("theme.title", { label }));
-    button.setAttribute("aria-label", t("theme.aria", { label }));
-    const text = button.querySelector("[data-theme-label]");
-    if (text) text.textContent = label;
+    if (button) {
+      const label = t("theme." + state.theme);
+      button.setAttribute("data-theme-choice", state.theme);
+      button.setAttribute("title", t("theme.title", { label }));
+      button.setAttribute("aria-label", t("theme.aria", { label }));
+      const text = button.querySelector("[data-theme-label]");
+      if (text) text.textContent = label;
+    }
+    // The settings sheet offers the three choices explicitly.
+    $$("#theme-seg button").forEach((btn) => {
+      const active = btn.getAttribute("data-theme-choice") === state.theme;
+      btn.classList.toggle("active", active);
+      btn.setAttribute("aria-pressed", String(active));
+    });
   }
 
   function applyTheme(choice, persist = true) {
@@ -236,11 +243,13 @@
     }
     const footer = $("#footer-meta");
     if (footer) footer.textContent = t("footer.meta", { n: TECH.length, g: GLOSSARY.length });
-    $$("#lang-toggle button").forEach((btn) => {
+    $$("[data-lang]").forEach((btn) => {
       const active = btn.getAttribute("data-lang") === state.lang;
       btn.classList.toggle("active", active);
       btn.setAttribute("aria-pressed", String(active));
     });
+    syncScopeChip();
+    syncFiltersBadge();
     updateThemeLabel();
   }
 
@@ -420,8 +429,8 @@
   }
 
   let voiceCache = [];
-  let speakToken = 0;
   let warnedNoJapanese = false;
+  let speechUnlocked = false;
 
   function refreshVoices() {
     if (!("speechSynthesis" in window)) return voiceCache;
@@ -429,10 +438,38 @@
     return voiceCache;
   }
 
+  function hasJapaneseVoice() {
+    const voices = voiceCache.length ? voiceCache : refreshVoices();
+    return voices.some((voice) => voice.lang && voice.lang.toLowerCase().startsWith("ja"));
+  }
+
+  /* iOS/Android keep getVoices() empty and refuse speech until a real user
+     gesture has happened. A silent utterance on the first gesture unlocks the
+     synth and nudges the browser into loading its voice list. */
+  function primeSpeech() {
+    if (!("speechSynthesis" in window) || speechUnlocked) return;
+    speechUnlocked = true;
+    refreshVoices();
+    const synth = window.speechSynthesis;
+    const primer = new SpeechSynthesisUtterance(" ");
+    primer.volume = 0;
+    primer.lang = "ja-JP";
+    primer.rate = 10;
+    try {
+      synth.speak(primer);
+    } catch (_) {
+      /* priming is best-effort */
+    }
+  }
+
   function initVoices() {
     if (!("speechSynthesis" in window)) return;
     refreshVoices();
     window.speechSynthesis.addEventListener("voiceschanged", refreshVoices);
+    const unlock = () => primeSpeech();
+    window.addEventListener("pointerdown", unlock, { once: true, passive: true });
+    window.addEventListener("touchstart", unlock, { once: true, passive: true });
+    window.addEventListener("click", unlock, { once: true });
   }
 
   const PREFERRED_JA = [
@@ -467,9 +504,8 @@
 
   function maybeWarnNoJapanese() {
     if (warnedNoJapanese) return;
-    const voices = refreshVoices();
-    if (!voices.length) return;
-    if (voices.some((voice) => voice.lang && voice.lang.toLowerCase().startsWith("ja"))) return;
+    if (!refreshVoices().length) return;
+    if (hasJapaneseVoice()) return;
     warnedNoJapanese = true;
     alert(t("noJapaneseVoice"));
   }
@@ -480,36 +516,40 @@
       return null;
     }
     const synth = window.speechSynthesis;
-    synth.cancel();
-    const token = ++speakToken;
     const utterance = new SpeechSynthesisUtterance(japaneseText(text));
     utterance.lang = "ja-JP";
     utterance.rate = 0.85;
     const voice = japaneseVoice();
     if (voice) utterance.voice = voice;
 
-    const start = () => {
-      if (token !== speakToken) return;
-      maybeWarnNoJapanese();
-      synth.speak(utterance);
-    };
+    /* Speak synchronously so the tap's user activation is preserved. Deferring
+       behind voiceschanged/setTimeout dropped the first tap on iOS/Android,
+       where speech must start inside the gesture. */
+    synth.cancel();
+    try {
+      synth.resume();
+    } catch (_) {
+      /* resume is a no-op on desktop browsers */
+    }
+    synth.speak(utterance);
 
-    if (voice || refreshVoices().length) {
-      start();
+    if (voice) {
+      maybeWarnNoJapanese();
     } else {
-      /* Chrome reports no voices until the first voiceschanged event. */
+      /* Voices often only load right after the first speak; warn once known. */
       let done = false;
-      const go = () => {
+      const check = () => {
         if (done) return;
         done = true;
-        synth.removeEventListener("voiceschanged", go);
-        if (token !== speakToken) return;
-        const later = japaneseVoice();
-        if (later) utterance.voice = later;
-        start();
+        synth.removeEventListener("voiceschanged", check);
+        refreshVoices();
+        maybeWarnNoJapanese();
       };
-      synth.addEventListener("voiceschanged", go);
-      setTimeout(go, 800);
+      if (refreshVoices().length) check();
+      else {
+        synth.addEventListener("voiceschanged", check);
+        setTimeout(check, 800);
+      }
     }
     return utterance;
   }
@@ -758,6 +798,8 @@
       stopSpeedToStart();
     }
     state.view = view;
+    closeSheet();
+    syncHeaderForView();
     VIEWS.forEach((name) => {
       const section = document.getElementById(`view-${name}`);
       if (section) section.hidden = name !== view;
@@ -782,8 +824,8 @@
   /* ---------------- browse ---------------- */
 
   function renderCategoryChips() {
-    const host = $("#category-chips");
-    if (!host) return;
+    const hosts = $$("[data-cat-host]");
+    if (!hosts.length) return;
     const pool = activeTech();
     const counts = pool.reduce((acc, tech) => {
       acc[tech.category] = (acc[tech.category] || 0) + 1;
@@ -798,7 +840,21 @@
         `<button class="chip ${state.filterCategory === cat.id ? "active" : ""}" data-cat="${cat.id}" title="${escapeHtml(pick(cat, "meaning"))}">${cat.name} <span class="chip-count">${count}</span></button>`
       );
     });
-    host.innerHTML = items.join("");
+    const html = items.join("");
+    hosts.forEach((host) => { host.innerHTML = html; });
+    syncFiltersBadge();
+  }
+
+  function syncFiltersBadge() {
+    const badge = $("#filters-badge");
+    if (!badge) return;
+    const active = (state.filterCategory !== "all" ? 1 : 0) + (state.onlyUnknown ? 1 : 0);
+    badge.hidden = active === 0;
+    badge.textContent = String(active);
+    const button = $("#filters-btn");
+    if (button) {
+      button.setAttribute("aria-label", t("filters.open") + (active ? " · " + active : ""));
+    }
   }
 
   function activeTech() {
@@ -806,45 +862,51 @@
     return TECH.filter((tech) => tech.grade_id === state.grade);
   }
 
-  function renderBeltBar() {
-    const host = $("#belt-bar");
-    if (!host) return;
+  function beltChipsHTML() {
     const counts = TECH.reduce((acc, tech) => {
       acc[tech.grade_id] = (acc[tech.grade_id] || 0) + 1;
       return acc;
     }, {});
+    const items = [
+      `<button type="button" class="belt-chip" data-grade="all" aria-pressed="false">
+        <span class="belt-chip-dot" style="--belt-color:#8b8b8b"></span>${t("grade.all")}
+        <span class="chip-count">${TECH.length}</span>
+      </button>`,
+    ];
+    GRADES.forEach((grade) => {
+      const count = counts[grade.id] || 0;
+      items.push(
+        `<button type="button" class="belt-chip" data-grade="${grade.id}" aria-pressed="false" style="--belt-color:${grade.color}">
+          <span class="belt-chip-dot"></span>${t("grade." + grade.id)}
+          <span class="chip-count">${count}</span>
+        </button>`
+      );
+    });
+    return items.join("");
+  }
+
+  function renderBeltBar() {
+    const hosts = $$("[data-belt-host]");
+    if (!hosts.length) return;
     // Build once per language; afterwards only sync the active state so the
     // clicked chip keeps keyboard focus instead of being torn out of the DOM.
-    if (host.dataset.built !== state.lang) {
-      const items = [
-        `<button type="button" class="belt-chip" data-grade="all" aria-pressed="false">
-          <span class="belt-chip-dot" style="--belt-color:#8b8b8b"></span>${t("grade.all")}
-          <span class="chip-count">${TECH.length}</span>
-        </button>`,
-      ];
-      GRADES.forEach((grade) => {
-        const count = counts[grade.id] || 0;
-        items.push(
-          `<button type="button" class="belt-chip" data-grade="${grade.id}" aria-pressed="false" style="--belt-color:${grade.color}">
-            <span class="belt-chip-dot"></span>${t("grade." + grade.id)}
-            <span class="chip-count">${count}</span>
-          </button>`
-        );
-      });
-      host.innerHTML = items.join("");
-      host.dataset.built = state.lang;
-    }
+    hosts.forEach((host) => {
+      if (host.dataset.built !== state.lang) {
+        host.innerHTML = beltChipsHTML();
+        host.dataset.built = state.lang;
+      }
+    });
     syncBeltBar();
   }
 
   function syncBeltBar() {
-    $$("#belt-bar .belt-chip").forEach((chip) => {
+    $$("[data-belt-host] .belt-chip").forEach((chip) => {
       const active = chip.getAttribute("data-grade") === state.grade;
       chip.classList.toggle("active", active);
       chip.setAttribute("aria-pressed", String(active));
       if (active) {
-        // Keep the selected belt visible when the bar scrolls horizontally.
-        const bar = $("#belt-bar");
+        // Keep the selected belt visible when the host scrolls horizontally.
+        const bar = chip.closest(".belt-bar");
         if (bar && bar.scrollWidth > bar.clientWidth) {
           const left = chip.offsetLeft;
           const right = left + chip.offsetWidth;
@@ -856,6 +918,7 @@
         }
       }
     });
+    syncScopeChip();
     const lede = $("#browse-lede");
     if (lede) {
       const gradeName = t("grade." + state.grade).split(" · ")[0];
@@ -864,6 +927,15 @@
           ? t("browse.ledeAll")
           : t("browse.ledeGrade", { grade: gradeName });
     }
+  }
+
+  function syncScopeChip() {
+    const label = $("#scope-label");
+    if (!label) return;
+    const grade = GRADES.find((g) => g.id === state.grade);
+    const dot = $("#scope-dot");
+    if (dot) dot.style.setProperty("--belt-color", grade ? grade.color : "#8b8b8b");
+    label.textContent = t("grade." + state.grade);
   }
 
   function renderGlossaryCategories() {
@@ -971,10 +1043,51 @@
     state.search = "";
     state.onlyUnknown = false;
     $("#search").value = "";
-    $("#only-unknown").checked = false;
+    $$("#only-unknown, #only-unknown-sheet").forEach((box) => { box.checked = false; });
     renderCategoryChips();
     renderBeltBar();
     renderBrowse();
+  }
+
+  function setOnlyUnknown(value) {
+    state.onlyUnknown = !!value;
+    $$("#only-unknown, #only-unknown-sheet").forEach((box) => { box.checked = state.onlyUnknown; });
+    syncFiltersBadge();
+    renderBrowse();
+  }
+
+  /* ---------------- phone sheets ---------------- */
+
+  const SHEET_TRIGGERS = {
+    "sheet-belt": "scope-btn",
+    "sheet-filters": "filters-btn",
+    "sheet-settings": "settings-btn",
+  };
+  let openSheetId = null;
+
+  function openSheet(id) {
+    const sheet = document.getElementById(id);
+    if (!sheet || openSheetId === id) return;
+    if (openSheetId) closeSheet();
+    sheet.hidden = false;
+    openSheetId = id;
+    const trigger = document.getElementById(SHEET_TRIGGERS[id]);
+    if (trigger) trigger.setAttribute("aria-expanded", "true");
+  }
+
+  function closeSheet() {
+    if (!openSheetId) return;
+    const sheet = document.getElementById(openSheetId);
+    if (sheet) sheet.hidden = true;
+    const trigger = document.getElementById(SHEET_TRIGGERS[openSheetId]);
+    if (trigger) trigger.setAttribute("aria-expanded", "false");
+    openSheetId = null;
+  }
+
+  // The category filter only means something in Browse.
+  function syncHeaderForView() {
+    const filtersButton = $("#filters-btn");
+    if (filtersButton) filtersButton.hidden = state.view !== "browse";
   }
 
   /* ---------------- modal ---------------- */
@@ -1579,8 +1692,8 @@
       tab.addEventListener("click", () => setView(tab.getAttribute("data-view")));
     });
 
-    // Browse
-    $("#category-chips").addEventListener("click", (event) => {
+    // Browse (delegated, so the inline controls and the sheet stay in step)
+    document.addEventListener("click", (event) => {
       const chip = event.target.closest("[data-cat]");
       if (!chip) return;
       state.filterCategory = chip.getAttribute("data-cat");
@@ -1593,20 +1706,36 @@
       renderBrowse();
     });
 
-    $("#only-unknown").addEventListener("change", (event) => {
-      state.onlyUnknown = event.target.checked;
-      renderBrowse();
+    $$("#only-unknown, #only-unknown-sheet").forEach((box) => {
+      box.addEventListener("change", (event) => setOnlyUnknown(event.target.checked));
     });
 
-    $("#belt-bar").addEventListener("click", (event) => {
+    document.addEventListener("click", (event) => {
       const chip = event.target.closest("[data-grade]");
       if (!chip) return;
       setGrade(chip.getAttribute("data-grade"));
+      closeSheet();
     });
 
-    $("#lang-toggle").addEventListener("click", (event) => {
+    document.addEventListener("click", (event) => {
       const button = event.target.closest("[data-lang]");
       if (button) setLang(button.getAttribute("data-lang"));
+    });
+
+    // Phone sheets
+    [["scope-btn", "sheet-belt"], ["filters-btn", "sheet-filters"], ["settings-btn", "sheet-settings"]]
+      .forEach(([buttonId, sheetId]) => {
+        const button = document.getElementById(buttonId);
+        if (button) button.addEventListener("click", () => openSheet(sheetId));
+      });
+
+    document.addEventListener("click", (event) => {
+      if (event.target.closest("[data-sheet-close]")) closeSheet();
+      if (event.target.closest("#clear-filters-sheet")) closeSheet();
+    });
+
+    $$("#theme-seg [data-theme-choice]").forEach((button) => {
+      button.addEventListener("click", () => applyTheme(button.getAttribute("data-theme-choice"), true));
     });
 
     const themeToggle = $("#theme-toggle");
@@ -1738,6 +1867,10 @@
 
     // Global keyboard shortcuts
     document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && openSheetId) {
+        closeSheet();
+        return;
+      }
       if (event.key === "Escape" && !$("#modal").hidden) {
         closeModal();
         return;

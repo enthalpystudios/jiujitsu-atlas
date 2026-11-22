@@ -20,8 +20,33 @@ The whole app is static: no build step, no server, no dependencies. Open
   score saved locally.
 - **Glossary** — Japanese name parts, basic terms and what each category means.
 
-The belt bar in the header filters every view. The choice is remembered in
+The belt scope filters every view. The choice is remembered in
 `localStorage` and can be set from the URL.
+
+## On a phone
+
+The phone layout is not the desktop layout squeezed down — the chrome is
+reduced and the controls move to where a thumb can reach them:
+
+- **One row of chrome.** The header is a single 60 px bar: the mark, a scope
+  chip showing the active belt, and two icon buttons. On desktop the belt rail
+  and the theme/language controls stay inline; on a phone they move into sheets.
+- **Bottom tab bar.** The four views live in the thumb zone, with 54 px targets
+  and safe-area padding, instead of a rail under the chin.
+- **Scope chip → belt sheet.** Tapping the chip opens a sheet of full-width belt
+  rows with colour dots and counts. Picking one closes the sheet and rescopes
+  every view.
+- **Filters sheet.** Search stays inline and sticky; the category filter and
+  "only my review" live behind one button that shows a badge when a filter is on.
+- **Settings sheet.** Theme (auto/light/dark) and language, which are set-once
+  preferences, move out of the header entirely.
+- **The card opens as a sheet,** with the frames on top and the notes below.
+- **The marketing prelude is dropped** so the first technique appears in the
+  first screen rather than ~635 px down.
+
+Every interactive control has a minimum 44 px touch target. The phone rules live
+in one `@media (max-width: 719px)` block at the end of `styles.css`, so the
+desktop layout is untouched.
 
 ## Run it
 

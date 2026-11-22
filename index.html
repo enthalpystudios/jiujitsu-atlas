@@ -39,14 +39,40 @@
           <p id="tagline">Todos los cinturones · 103 técnicas</p>
         </div>
       </div>
+
+      <button type="button" class="scope-chip" id="scope-btn" aria-haspopup="dialog" aria-expanded="false" aria-label="Elegir cinturón" data-i18n-aria="scope.open">
+        <span class="scope-dot" id="scope-dot" aria-hidden="true"></span>
+        <span class="scope-label" id="scope-label">Todos los cinturones</span>
+        <svg class="scope-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m6 9 6 6 6-6"></path></svg>
+      </button>
+
       <nav class="tabs" role="tablist" aria-label="Secciones" data-i18n-aria="sections">
-        <button class="tab active" role="tab" aria-selected="true" data-view="browse" data-i18n="tab.browse">Explorar</button>
-        <button class="tab" role="tab" aria-selected="false" data-view="flashcards" data-i18n="tab.flashcards">Fichas</button>
-        <button class="tab" role="tab" aria-selected="false" data-view="speed" data-i18n="tab.speed">Ronda rápida</button>
-        <button class="tab" role="tab" aria-selected="false" data-view="glossary" data-i18n="tab.glossary">Glosario</button>
+        <button class="tab active" role="tab" aria-selected="true" data-view="browse">
+          <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="3" width="7.5" height="7.5" rx="2"></rect><rect x="13.5" y="3" width="7.5" height="7.5" rx="2"></rect><rect x="3" y="13.5" width="7.5" height="7.5" rx="2"></rect><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="2"></rect></svg>
+          <span class="tab-label" data-i18n="tab.browse">Explorar</span>
+        </button>
+        <button class="tab" role="tab" aria-selected="false" data-view="flashcards">
+          <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="6" width="14" height="14" rx="3"></rect><path d="M7.5 3H18a3 3 0 0 1 3 3v10.5"></path></svg>
+          <span class="tab-label" data-i18n="tab.flashcards">Fichas</span>
+        </button>
+        <button class="tab" role="tab" aria-selected="false" data-view="speed">
+          <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="13" r="8"></circle><path d="M12 9.5V13l2.4 1.6M9 2.5h6"></path></svg>
+          <span class="tab-label" data-i18n="tab.speed">Ronda rápida</span>
+        </button>
+        <button class="tab" role="tab" aria-selected="false" data-view="glossary">
+          <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H11v16H6.5A2.5 2.5 0 0 0 4 21.5Z"></path><path d="M20 5.5A2.5 2.5 0 0 0 17.5 3H13v16h4.5a2.5 2.5 0 0 1 2.5 2.5Z"></path></svg>
+          <span class="tab-label" data-i18n="tab.glossary">Glosario</span>
+        </button>
       </nav>
       <div class="header-controls">
-        <button type="button" class="theme-toggle" id="theme-toggle" data-theme-choice="auto" title="Tema: Auto" aria-label="Tema: Auto. Cambiar tema.">
+        <button type="button" class="icon-btn" id="filters-btn" aria-haspopup="dialog" aria-expanded="false" aria-label="Filtros" data-i18n-aria="filters.open">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 5.5h18M6 12h12M10 18.5h4"></path></svg>
+          <span class="icon-badge" id="filters-badge" hidden>0</span>
+        </button>
+        <button type="button" class="icon-btn" id="settings-btn" aria-haspopup="dialog" aria-expanded="false" aria-label="Ajustes" data-i18n-aria="settings.open">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="3.1"></circle><path d="M19.5 14.6a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.03 1.55V21a2 2 0 1 1-4 0v-.11a1.7 1.7 0 0 0-1.1-1.55 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.7 1.7 0 0 0 .34-1.87 1.7 1.7 0 0 0-1.55-1.03H3a2 2 0 1 1 0-4h.11a1.7 1.7 0 0 0 1.55-1.1 1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34H9a1.7 1.7 0 0 0 1.03-1.55V3a2 2 0 1 1 4 0v.11a1.7 1.7 0 0 0 1.03 1.55 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87V9a1.7 1.7 0 0 0 1.55 1.03H21a2 2 0 1 1 0 4h-.11a1.7 1.7 0 0 0-1.55 1.03Z"></path></svg>
+        </button>
+        <button type="button" class="theme-toggle desktop-only" id="theme-toggle" data-theme-choice="auto" title="Tema: Auto" aria-label="Tema: Auto. Cambiar tema.">
           <svg class="theme-icon theme-icon-auto" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
             <circle cx="12" cy="12" r="8"></circle>
             <path d="M12 4a8 8 0 0 1 0 16Z" fill="currentColor" stroke="none"></path>
@@ -60,13 +86,13 @@
           </svg>
           <span class="theme-toggle-label" data-theme-label aria-live="polite" aria-atomic="true">Auto</span>
         </button>
-        <div class="segmented lang-toggle" id="lang-toggle" role="group" aria-label="Idioma" data-i18n-aria="language">
+        <div class="segmented lang-toggle desktop-only" id="lang-toggle" role="group" aria-label="Idioma" data-i18n-aria="language">
           <button type="button" data-lang="en" aria-pressed="false">EN</button>
           <button type="button" data-lang="es" class="active" aria-pressed="true">ES</button>
         </div>
       </div>
     </div>
-    <div class="belt-bar" id="belt-bar" role="group" aria-label="Cinturón" data-i18n-aria="belt.selector"></div>
+    <div class="belt-bar desktop-only" id="belt-bar" data-belt-host role="group" aria-label="Cinturón" data-i18n-aria="belt.selector"></div>
   </header>
 
   <main class="page">
@@ -78,7 +104,7 @@
           <h2 data-i18n="browse.title">Conoce el nombre. Ve la forma.</h2>
           <p class="lede" id="browse-lede">Todos los nombres de todos los cinturones, con los fotogramas clave y las palabras japonesas que los forman. Estudia por cinturón o por técnica.</p>
         </div>
-        <label class="checkline">
+        <label class="checkline desktop-only">
           <input type="checkbox" id="only-unknown">
           <span data-i18n="browse.review">Solo mi repaso</span>
         </label>
@@ -89,7 +115,7 @@
           <span class="search-icon" aria-hidden="true">⌕</span>
           <input id="search" type="search" autocomplete="off" placeholder="Busca técnica, significado o palabra…" aria-label="Buscar técnicas" data-i18n-placeholder="browse.searchPlaceholder" data-i18n-aria="browse.searchLabel">
         </div>
-        <div id="category-chips" class="chips" role="group" aria-label="Filtrar por categoría" data-i18n-aria="browse.filterCategory"></div>
+        <div id="category-chips" class="chips desktop-only" role="group" aria-label="Filtrar por categoría" data-i18n-aria="browse.filterCategory" data-cat-host></div>
       </div>
 
       <div id="browse-grid" class="grid" aria-live="polite"></div>
@@ -248,6 +274,65 @@
     <p data-i18n="footer.text">Estudio privado. Los fotogramas son imágenes de las fuentes citadas; sigue el enlace para ver el vídeo completo.</p>
     <p class="footer-meta" id="footer-meta">103 técnicas · 98 términos de glosario · Todos los cinturones.</p>
   </footer>
+
+  <!-- BELT SHEET -->
+  <div class="sheet" id="sheet-belt" hidden>
+    <div class="sheet-backdrop" data-sheet-close></div>
+    <div class="sheet-panel" role="dialog" aria-modal="true" aria-labelledby="sheet-belt-title">
+      <span class="sheet-grip" aria-hidden="true"></span>
+      <div class="sheet-head">
+        <h2 class="sheet-title" id="sheet-belt-title" data-i18n="belt.selector">Cinturón</h2>
+        <button type="button" class="sheet-close" data-sheet-close aria-label="Cerrar" data-i18n-aria="sheet.close">×</button>
+      </div>
+      <div class="belt-list" id="belt-list" data-belt-host role="group" aria-label="Cinturón" data-i18n-aria="belt.selector"></div>
+    </div>
+  </div>
+
+  <!-- FILTERS SHEET -->
+  <div class="sheet" id="sheet-filters" hidden>
+    <div class="sheet-backdrop" data-sheet-close></div>
+    <div class="sheet-panel" role="dialog" aria-modal="true" aria-labelledby="sheet-filters-title">
+      <span class="sheet-grip" aria-hidden="true"></span>
+      <div class="sheet-head">
+        <h2 class="sheet-title" id="sheet-filters-title" data-i18n="filters.title">Filtros</h2>
+        <button type="button" class="sheet-close" data-sheet-close aria-label="Cerrar" data-i18n-aria="sheet.close">×</button>
+      </div>
+      <div class="sheet-body">
+        <p class="sheet-label" data-i18n="filters.category">Categoría</p>
+        <div class="chips sheet-chips" id="category-chips-sheet" role="group" aria-label="Filtrar por categoría" data-i18n-aria="browse.filterCategory" data-cat-host></div>
+        <label class="switch-row">
+          <input type="checkbox" id="only-unknown-sheet">
+          <span data-i18n="browse.review">Solo mi repaso</span>
+        </label>
+        <button type="button" class="ghost sheet-reset" id="clear-filters-sheet" data-i18n="browse.clear">Limpiar filtros</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SETTINGS SHEET -->
+  <div class="sheet" id="sheet-settings" hidden>
+    <div class="sheet-backdrop" data-sheet-close></div>
+    <div class="sheet-panel" role="dialog" aria-modal="true" aria-labelledby="sheet-settings-title">
+      <span class="sheet-grip" aria-hidden="true"></span>
+      <div class="sheet-head">
+        <h2 class="sheet-title" id="sheet-settings-title" data-i18n="settings.title">Ajustes</h2>
+        <button type="button" class="sheet-close" data-sheet-close aria-label="Cerrar" data-i18n-aria="sheet.close">×</button>
+      </div>
+      <div class="sheet-body">
+        <p class="sheet-label" data-i18n="settings.appearance">Apariencia</p>
+        <div class="segmented seg-wide" id="theme-seg" role="group" aria-label="Tema" data-i18n-aria="settings.appearance">
+          <button type="button" data-theme-choice="auto" aria-pressed="true" data-i18n="theme.auto">Auto</button>
+          <button type="button" data-theme-choice="light" aria-pressed="false" data-i18n="theme.light">Claro</button>
+          <button type="button" data-theme-choice="dark" aria-pressed="false" data-i18n="theme.dark">Oscuro</button>
+        </div>
+        <p class="sheet-label" data-i18n="settings.language">Idioma</p>
+        <div class="segmented seg-wide" id="lang-seg" role="group" aria-label="Idioma" data-i18n-aria="language">
+          <button type="button" data-lang="en" aria-pressed="false">EN</button>
+          <button type="button" data-lang="es" class="active" aria-pressed="true">ES</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- DETAIL MODAL -->
   <div id="modal" class="modal" hidden>
