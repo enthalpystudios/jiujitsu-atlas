@@ -1,0 +1,13 @@
+# macOS
+.DS_Store
+._*
+
+# Editors / tooling
+.idea/
+.vscode/
+__pycache__/
+*.py[cod]
+
+# Local scratch
+*.part
+*.log

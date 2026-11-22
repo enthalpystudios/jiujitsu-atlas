@@ -1,0 +1,1846 @@
+/* Jiu-Jitsu Name Atlas — local study app */
+(function () {
+  "use strict";
+
+  const DATA = window.ATLAS_DATA;
+  if (!DATA) {
+    document.body.innerHTML = "<p style='padding:40px;color:#fff'>Falta el archivo de datos. Ejecuta make_data.py primero.</p>";
+    return;
+  }
+
+  const TECH = DATA.techniques;
+  const CATS = Object.fromEntries(DATA.categories.map((c) => [c.id, c]));
+  const GLOSSARY = DATA.glossary;
+  const TECH_BY_ID = Object.fromEntries(TECH.map((t) => [t.id, t]));
+  const I18N = window.ATLAS_I18N || { en: {}, es: {} };
+  const GRADES = DATA.grades || [];
+  const LANGS = DATA.meta.languages || ["en", "es"];
+
+  const STORAGE = {
+    known: "jj_atlas_known",
+    best: "jj_atlas_best",
+    flashMode: "jj_atlas_flash_mode",
+    speedDir: "jj_atlas_speed_dir",
+    lang: "jj_atlas_lang",
+    grade: "jj_atlas_grade",
+    theme: "jj_atlas_theme",
+  };
+
+  const THEME_CHOICES = ["auto", "light", "dark"];
+
+  function readJSON(key, fallback) {
+    try {
+      const raw = localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : fallback;
+    } catch (_) {
+      return fallback;
+    }
+  }
+
+  function readRaw(key) {
+    try {
+      return localStorage.getItem(key);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function writeRaw(key, value) {
+    try {
+      localStorage.setItem(key, value);
+    } catch (_) {
+      /* private mode or file:// restrictions: keep the session in memory */
+    }
+  }
+
+  function queryParam(name) {
+    try {
+      return new URLSearchParams(location.search).get(name);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function initialLang() {
+    const fromUrl = queryParam("lang");
+    if (LANGS.includes(fromUrl)) return fromUrl;
+    const stored = readRaw(STORAGE.lang);
+    if (LANGS.includes(stored)) return stored;
+    // Spanish (Spain) is the default; English stays available in the toggle.
+    return "es";
+  }
+
+  function initialTheme() {
+    const fromUrl = queryParam("theme");
+    if (THEME_CHOICES.includes(fromUrl)) return fromUrl;
+    const stored = readRaw(STORAGE.theme);
+    if (THEME_CHOICES.includes(stored)) return stored;
+    // Follow the OS until the reader chooses otherwise.
+    return "auto";
+  }
+
+  function resolvedTheme(choice) {
+    if (choice === "light" || choice === "dark") return choice;
+    try {
+      return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light";
+    } catch (_) {
+      return "light";
+    }
+  }
+
+  function updateThemeLabel() {
+    const button = $("#theme-toggle");
+    if (!button) return;
+    const label = t("theme." + state.theme);
+    button.setAttribute("data-theme-choice", state.theme);
+    button.setAttribute("title", t("theme.title", { label }));
+    button.setAttribute("aria-label", t("theme.aria", { label }));
+    const text = button.querySelector("[data-theme-label]");
+    if (text) text.textContent = label;
+  }
+
+  function applyTheme(choice, persist = true) {
+    state.theme = THEME_CHOICES.includes(choice) ? choice : "auto";
+    const resolved = resolvedTheme(state.theme);
+    const root = document.documentElement;
+    root.setAttribute("data-theme", resolved);
+    root.setAttribute("data-theme-choice", state.theme);
+    root.style.colorScheme = resolved;
+    if (persist) writeRaw(STORAGE.theme, state.theme);
+    updateThemeLabel();
+  }
+
+  const state = {
+    view: "browse",
+    lang: initialLang(),
+    theme: initialTheme(),
+    filterCategory: "all",
+    grade: ["all", ...(DATA.grades || []).map((g) => g.id)].includes(queryParam("grade"))
+      ? queryParam("grade")
+      : readRaw(STORAGE.grade) || "all",
+    search: "",
+    onlyUnknown: false,
+    known: readJSON(STORAGE.known, {}),
+    flashMode: readRaw(STORAGE.flashMode) || "name",
+    flashIndex: 0,
+    flashFlipped: false,
+    flashOrder: TECH.map((t) => t.id),
+    modalId: null,
+    modalFrame: 0,
+    glossaryGroup: "all",
+    glossarySearch: "",
+    speed: {
+      running: false,
+      score: 0,
+      total: 0,
+      best: Number(readRaw(STORAGE.best) || 0),
+      time: 60,
+      timerId: null,
+      transitionId: null,
+      question: null,
+      answered: false,
+      missed: [],
+      options: [],
+      picked: null,
+      finished: false,
+      newBest: false,
+      dir: readRaw(STORAGE.speedDir) === "picture" ? "picture" : "name",
+    },
+  };
+
+  /* ---------------- helpers ---------------- */
+
+  const $ = (sel, root = document) => root.querySelector(sel);
+  const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
+
+  function saveKnown() {
+    writeRaw(STORAGE.known, JSON.stringify(state.known));
+  }
+
+  function isKnown(id) {
+    return Boolean(state.known[id]);
+  }
+
+  function setKnown(id, value) {
+    if (value) state.known[id] = true;
+    else delete state.known[id];
+    saveKnown();
+  }
+
+  function categoryOf(tech) {
+    return CATS[tech.category] || DATA.categories[0];
+  }
+
+  function sourceUrl(tech) {
+    const source = tech.source;
+    if (!source || !source.url) return "#";
+    if (!source.start) return source.url;
+    return `${source.url}${source.url.includes("?") ? "&" : "?"}t=${source.start}s`;
+  }
+
+  function heroFrame(tech) {
+    if (!tech.frames || !tech.frames.length) return null;
+    return tech.frames[tech.hero - 1] || tech.frames[0];
+  }
+
+  /* ---------------- language ---------------- */
+
+  function t(key, vars) {
+    const table = I18N[state.lang] || I18N.en || {};
+    let str = table[key] || (I18N.en && I18N.en[key]) || key;
+    if (vars) {
+      Object.keys(vars).forEach((name) => {
+        str = str.replace(new RegExp("\\{" + name + "\\}", "g"), vars[name]);
+      });
+    }
+    return str;
+  }
+
+  function pick(obj, field) {
+    if (state.lang === "es" && obj[field + "_es"]) return obj[field + "_es"];
+    return obj[field];
+  }
+
+  function pickArray(obj, field) {
+    if (state.lang === "es" && Array.isArray(obj[field + "_es"])) return obj[field + "_es"];
+    return obj[field] || [];
+  }
+
+  function applyI18n() {
+    document.documentElement.lang = state.lang;
+    $$("[data-i18n]").forEach((el) => {
+      const value = t(el.getAttribute("data-i18n"));
+      if (value) el.textContent = value;
+    });
+    $$("[data-i18n-placeholder]").forEach((el) => {
+      const value = t(el.getAttribute("data-i18n-placeholder"));
+      if (value) el.setAttribute("placeholder", value);
+    });
+    $$("[data-i18n-aria]").forEach((el) => {
+      const value = t(el.getAttribute("data-i18n-aria"));
+      if (value) el.setAttribute("aria-label", value);
+    });
+    $$("[data-i18n-alt]").forEach((el) => {
+      const value = t(el.getAttribute("data-i18n-alt"));
+      if (value) el.setAttribute("alt", value);
+    });
+    document.title = t("app.docTitle");
+    const meta = document.querySelector('meta[name="description"]');
+    if (meta) meta.setAttribute("content", t("app.description"));
+    const tagline = $("#tagline");
+    if (tagline) {
+      const gradeText = state.grade === "all" ? t("grade.all") : t("grade." + state.grade);
+      tagline.textContent = t("tagline", { n: activeTech().length, grade: gradeText });
+    }
+    const footer = $("#footer-meta");
+    if (footer) footer.textContent = t("footer.meta", { n: TECH.length, g: GLOSSARY.length });
+    $$("#lang-toggle button").forEach((btn) => {
+      const active = btn.getAttribute("data-lang") === state.lang;
+      btn.classList.toggle("active", active);
+      btn.setAttribute("aria-pressed", String(active));
+    });
+    updateThemeLabel();
+  }
+
+  function setLang(lang) {
+    if (!LANGS.includes(lang)) return;
+    state.lang = lang;
+    writeRaw(STORAGE.lang, lang);
+    applyI18n();
+    renderBeltBar();
+    renderCategoryChips();
+    renderBrowse();
+    renderFlash();
+    renderGlossaryChips();
+    renderGlossary();
+    renderGlossaryCategories();
+    renderSpeedDir();
+    updateSpeedStats();
+    if (state.speed.finished) renderSpeedEnd();
+    else if (state.speed.question && state.speed.running) renderSpeedQuestion();
+    if (state.modalId) openModal(state.modalId, { updateHash: false, frame: state.modalFrame, keepFocus: true });
+  }
+
+  function setGrade(grade) {
+    state.grade = grade;
+    writeRaw(STORAGE.grade, grade);
+    rebuildFlashOrder();
+    if (state.speed.running) stopSpeedToStart();
+    renderBeltBar();
+    renderCategoryChips();
+    renderBrowse();
+    renderFlash();
+    renderGlossaryCategories();
+    renderSpeedDir();
+    applyI18n();
+    updateSpeedStats();
+    if (state.view === "browse") window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  /* Japanese TTS reads Latin script one letter at a time, and kanji has
+     several readings (前 can be "mae" or "zen"). Hiragana has exactly one
+     reading, so every name is converted to hiragana before speaking. */
+  const HIRAGANA = {
+    age: "あげ",
+    ashi: "あし",
+    ashibo: "あしぼ",
+    atemi: "あてみ",
+    ayumi: "あゆみ",
+    barai: "ばらい",
+    choku: "ちょく",
+    dachi: "だち",
+    dan: "だん",
+    de: "で",
+    dojo: "どうじょう",
+    empi: "えんぴ",
+    eri: "えり",
+    fusegi: "ふせぎ",
+    gaeshi: "がえし",
+    gake: "がけ",
+    garami: "がらみ",
+    gari: "がり",
+    gatame: "がため",
+    gedan: "げだん",
+    geri: "げり",
+    goshi: "ごし",
+    guruma: "ぐるま",
+    gyaku: "ぎゃく",
+    ha: "は",
+    hadaka: "はだか",
+    haito: "はいと",
+    hara: "はら",
+    harai: "はらい",
+    heiko: "へいこう",
+    hiza: "ひざ",
+    hon: "ほん",
+    ikkyo: "いっきょう",
+    irimi: "いりみ",
+    jigo: "じご",
+    jigotai: "じごたい",
+    jime: "じめ",
+    jitsu: "じつ",
+    juji: "じゅうじ",
+    jutsu: "じゅつ",
+    jyodan: "じょうだん",
+    kagi: "かぎ",
+    kakato: "かかと",
+    kake: "かけ",
+    kami: "かみ",
+    kansetsu: "かんせつ",
+    kata: "かた",
+    katame: "かため",
+    kesa: "けさ",
+    kihon: "きほん",
+    kiri: "きり",
+    ko: "こ",
+    kokutsu: "こくつ",
+    komi: "こみ",
+    koshi: "こし",
+    kote: "こて",
+    kubi: "くび",
+    kumikata: "くみかた",
+    kuzure: "くずれ",
+    kuzushi: "くずし",
+    kyu: "きゅう",
+    mae: "まえ",
+    mata: "また",
+    mawari: "まわり",
+    mawashi: "まわし",
+    mikazuki: "みかづき",
+    morote: "もろて",
+    nagashi: "ながし",
+    nage: "なげ",
+    nami: "なみ",
+    ne: "ね",
+    neko: "ねこ",
+    nikyo: "にきょう",
+    no: "の",
+    o: "お",
+    oi: "おい",
+    okuri: "おくり",
+    omote: "おもて",
+    osae: "おさえ",
+    otoshi: "おとし",
+    rei: "れい",
+    ritsu: "りつ",
+    sabaki: "さばき",
+    sankyo: "さんきょう",
+    seiza: "せいざ",
+    seme: "せめ",
+    sensei: "せんせい",
+    seoi: "せおい",
+    shiho: "しほう",
+    shiko: "しこ",
+    shime: "しめ",
+    shintai: "しんたい",
+    shisei: "しせい",
+    shizen: "しぜん",
+    shizentai: "しぜんたい",
+    shuto: "しゅと",
+    soto: "そと",
+    sukui: "すくい",
+    tai: "たい",
+    tate: "たて",
+    teisho: "ていしょ",
+    tetsu: "てつ",
+    tetsui: "てつい",
+    tori: "とり",
+    tsugi: "つぎ",
+    tsuki: "つき",
+    tsukuri: "つくり",
+    tsuri: "つり",
+    uchi: "うち",
+    ude: "うで",
+    uke: "うけ",
+    ukemi: "うけみ",
+    uki: "うき",
+    ura: "うら",
+    uraken: "うらけん",
+    ushiro: "うしろ",
+    waki: "わき",
+    waza: "わざ",
+    yoko: "よこ",
+    za: "ざ",
+    zenkutsu: "ぜんくつ",
+  };
+
+  function japaneseText(text) {
+    const raw = String(text || "").trim();
+    if (!raw) return raw;
+    /* Glossary variants such as "Goshi / Koshi" speak the first form. */
+    const first = raw.split("/")[0].trim();
+    const direct = HIRAGANA[first.toLowerCase()];
+    if (direct) return direct;
+    const words = first.split(/\s+/).filter(Boolean);
+    const mapped = words.map((word) => HIRAGANA[word.toLowerCase()]);
+    if (mapped.length && mapped.every(Boolean)) return mapped.join("");
+    return first;
+  }
+
+  let voiceCache = [];
+  let speakToken = 0;
+  let warnedNoJapanese = false;
+
+  function refreshVoices() {
+    if (!("speechSynthesis" in window)) return voiceCache;
+    voiceCache = window.speechSynthesis.getVoices() || [];
+    return voiceCache;
+  }
+
+  function initVoices() {
+    if (!("speechSynthesis" in window)) return;
+    refreshVoices();
+    window.speechSynthesis.addEventListener("voiceschanged", refreshVoices);
+  }
+
+  const PREFERRED_JA = [
+    "kyoko", "otoya", "haruka", "o-ren", "google 日本語", "google japanese",
+    "microsoft haruka", "microsoft ayumi", "microsoft ichiro", "microsoft nanami",
+  ];
+  const NOVELTY_JA = [
+    "eddy", "flo", "grandma", "grandpa", "reed", "rocko", "sandy", "shelley",
+    "albert", "bad news", "bahh", "bells", "boing", "bubbles", "cellos",
+    "good news", "jester", "organ", "superstar", "trinoids", "whisper",
+    "wobble", "zarvox",
+  ];
+
+  function voiceScore(voice) {
+    const name = (voice.name || "").toLowerCase();
+    const lang = (voice.lang || "").toLowerCase();
+    if (!lang.startsWith("ja")) return -1;
+    let score = 0;
+    if (lang === "ja-jp") score += 10;
+    if (PREFERRED_JA.some((word) => name.includes(word))) score += 100;
+    if (NOVELTY_JA.some((word) => name.includes(word))) score -= 50;
+    if (voice.localService) score += 2;
+    return score;
+  }
+
+  function japaneseVoice() {
+    const voices = voiceCache.length ? voiceCache : refreshVoices();
+    const japanese = voices.filter((voice) => voice.lang && voice.lang.toLowerCase().startsWith("ja"));
+    if (!japanese.length) return null;
+    return japanese.sort((a, b) => voiceScore(b) - voiceScore(a))[0];
+  }
+
+  function maybeWarnNoJapanese() {
+    if (warnedNoJapanese) return;
+    const voices = refreshVoices();
+    if (!voices.length) return;
+    if (voices.some((voice) => voice.lang && voice.lang.toLowerCase().startsWith("ja"))) return;
+    warnedNoJapanese = true;
+    alert(t("noJapaneseVoice"));
+  }
+
+  function speak(text) {
+    if (!("speechSynthesis" in window)) {
+      alert(t("noAudio"));
+      return null;
+    }
+    const synth = window.speechSynthesis;
+    synth.cancel();
+    const token = ++speakToken;
+    const utterance = new SpeechSynthesisUtterance(japaneseText(text));
+    utterance.lang = "ja-JP";
+    utterance.rate = 0.85;
+    const voice = japaneseVoice();
+    if (voice) utterance.voice = voice;
+
+    const start = () => {
+      if (token !== speakToken) return;
+      maybeWarnNoJapanese();
+      synth.speak(utterance);
+    };
+
+    if (voice || refreshVoices().length) {
+      start();
+    } else {
+      /* Chrome reports no voices until the first voiceschanged event. */
+      let done = false;
+      const go = () => {
+        if (done) return;
+        done = true;
+        synth.removeEventListener("voiceschanged", go);
+        if (token !== speakToken) return;
+        const later = japaneseVoice();
+        if (later) utterance.voice = later;
+        start();
+      };
+      synth.addEventListener("voiceschanged", go);
+      setTimeout(go, 800);
+    }
+    return utterance;
+  }
+
+  function speakButton(text, extraClass = "") {
+    return `<button type="button" class="speak-btn ${extraClass}" data-speak="${escapeHtml(text)}" aria-label="${escapeHtml(t("speak"))}" title="${escapeHtml(t("speak"))}">🔊</button>`;
+  }
+
+  /* Break "mae (front) + tsuki (thrust)" into word chips. */
+  const PHASE_ES = {
+    "Approach": "Acercamiento",
+    "Balance": "Equilibrio",
+    "Completion": "Finalización",
+    "Entangle": "Entrelazado",
+    "Final throw": "Proyección final",
+    "Hips In": "Caderas dentro",
+    "Landing": "Aterrizaje",
+    "Lift": "Elevación",
+    "Lock applied": "Luxación aplicada",
+    "Reap": "Siega",
+    "Scoop": "Cuchara",
+    "Swing": "Arco",
+    "Throw 1": "Proyección 1",
+    "Throw 2": "Proyección 2",
+    "Throw 3": "Proyección 3",
+    "Throw 4": "Proyección 4",
+    "Throw 5": "Proyección 5",
+    "Bend": "Flexión",
+    "Block": "Bloqueo",
+    "Bow": "Saludo",
+    "Chamber": "Recogida",
+    "Control": "Control",
+    "Crouch": "Agacharse",
+    "Defensive stance": "Postura defensiva",
+    "Drive": "Impulso",
+    "Drop": "Caída",
+    "Entry": "Entrada",
+    "Face off": "Cara a cara",
+    "Feet together": "Pies juntos",
+    "Finish": "Final",
+    "First thrust": "Primera estocada",
+    "Follow": "Seguimiento",
+    "Front stance": "Postura adelantada",
+    "Grip": "Agarre",
+    "Guard": "Guardia",
+    "Hold": "Control",
+    "Impact": "Impacto",
+    "Kick": "Patada",
+    "Kneel": "Arrodillarse",
+    "Land": "Aterrizaje",
+    "Lapel grip": "Agarre de solapa",
+    "Lock": "Luxación",
+    "Natural stance": "Postura natural",
+    "Pin": "Inmovilización",
+    "Pivot": "Pivote",
+    "Recover": "Recuperación",
+    "Roll": "Rodar",
+    "Roll back": "Rodar atrás",
+    "Second thrust": "Segunda estocada",
+    "Seiza": "Seiza",
+    "Sequence": "Secuencia",
+    "Settle": "Asentarse",
+    "Shiko dachi": "Shiko dachi",
+    "Sink": "Hundirse",
+    "Sit back": "Sentarse atrás",
+    "Sleeve + lapel": "Manga + solapa",
+    "Slide": "Deslizar",
+    "Stand": "De pie",
+    "Stand straight": "De pie recto",
+    "Start": "Inicio",
+    "Step": "Paso",
+    "Step in": "Entrar",
+    "Sweep": "Barrido",
+    "Throw": "Proyección",
+    "Thrown": "Proyectado",
+    "Turn": "Giro",
+    "Turn through": "Giro completo",
+    "Turn to front": "Girar al frente",
+    "Uke down": "Uke en el suelo",
+    "Upright": "Erguido",
+    "Walk": "Caminar",
+    "Widen": "Abrir",
+    "Wind up": "Preparación",
+    "First": "Primera",
+    "Second": "Segunda",
+    "Third": "Tercera",
+    "Fourth": "Cuarta",
+    "Move": "Movimiento",
+    "Retract": "Recogida",
+    "Return": "Vuelta",
+    "Set": "Colocación",
+    "Squeeze": "Apriete",
+    "Stance": "Postura",
+    "Strike": "Golpe",
+    "chamber": "recogida",
+    "choke": "estrangulación",
+    "collar grip": "agarre de solapa",
+    "completion": "finalización",
+    "control": "control",
+    "crescent kick": "patada en medialuna",
+    "cross grip": "agarre cruzado",
+    "entangle": "enganche",
+    "final throw": "proyección final",
+    "finish": "final",
+    "first throw": "primera proyección",
+    "follow through": "seguimiento",
+    "grip": "agarre",
+    "grip arm": "brazo de agarre",
+    "guard": "guardia",
+    "hammer strike": "golpe de martillo",
+    "hook punch": "puñetazo en gancho",
+    "later throw": "proyección posterior",
+    "lift": "elevación",
+    "lock applied": "luxación aplicada",
+    "mount": "montada",
+    "position": "posición",
+    "pull and lift": "tirar y elevar",
+    "raise fist": "alzar el puño",
+    "reaping leg": "pierna de barrido",
+    "recovery": "recuperación",
+    "return": "vuelta",
+    "reverse grip": "agarre inverso",
+    "salute": "saludo",
+    "scoop lift": "elevación de cuchara",
+    "second throw": "segunda proyección",
+    "stance": "postura",
+    "sweeping leg": "pierna de barrido",
+    "third throw": "tercera proyección",
+    "throw": "proyección",
+    "two-handed block": "bloqueo a dos manos"
+  };
+
+  function phaseLabel(frame) {
+    if (state.lang === "es" && PHASE_ES[frame.phase]) return PHASE_ES[frame.phase];
+    return frame.phase;
+  }
+
+  function wordParts(tech) {
+    return String(pick(tech, "literal") || "")
+      .split("+")
+      .map((part) => {
+        const match = part.trim().match(/^(.+?)\s*\((.+)\)$/);
+        if (!match) return { word: part.trim(), meaning: "" };
+        return { word: match[1].trim(), meaning: match[2].trim() };
+      })
+      .filter((part) => part.word);
+  }
+
+  function glossaryForWord(word) {
+    const key = word.toLowerCase();
+    const matches = GLOSSARY.filter((item) => item.term.toLowerCase() === key);
+    return matches.find((item) => item.group === "name-parts") || matches[0] || null;
+  }
+
+  function wordChips(tech, options = {}) {
+    const parts = wordParts(tech);
+    if (!parts.length) return "";
+    const chips = parts
+      .map((part) => {
+        const term = glossaryForWord(part.word);
+        const meaning = part.meaning || (term && pick(term, "meaning")) || "";
+        const reading = term && term.reading ? term.reading : "";
+        const title = term && pick(term, "note") ? pick(term, "note") : "";
+        return `<span class="word-chip" title="${escapeHtml(title)}"><b>${escapeHtml(part.word)}</b>${
+          reading ? `<span class="word-kanji">${escapeHtml(reading)}</span>` : ""
+        }<span class="word-meaning">${escapeHtml(meaning)}</span>${speakButton(part.word, "chip-speak")}</span>`;
+      })
+      .join("");
+    return `<div class="word-chips ${options.className || ""}" aria-label="${escapeHtml(t("modal.wordParts"))}">${chips}</div>`;
+  }
+
+  function frameCells(tech, labels = true, limit = 6) {
+    return tech.frames
+      .slice(0, limit)
+      .map(
+        (frame) => `
+        <div class="strip-cell">
+          <img src="${frame.src}" alt="${escapeHtml(tech.japanese)} — ${escapeHtml(phaseLabel(frame))}" loading="lazy">
+          ${labels ? `<span class="phase">${escapeHtml(phaseLabel(frame))}</span>` : ""}
+        </div>`
+      )
+      .join("");
+  }
+
+  function stripClass(count) {
+    return `strip-${Math.min(Math.max(count, 3), 6)}`;
+  }
+
+  function escapeHtml(value) {
+    return String(value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function matchesSearch(tech, query) {
+    if (!query) return true;
+    const cat = categoryOf(tech);
+    const haystack = [
+      tech.japanese,
+      tech.translation,
+      tech.translation_es,
+      tech.literal,
+      tech.literal_es,
+      tech.cue,
+      tech.cue_es,
+      cat.name,
+      cat.meaning,
+      cat.meaning_es,
+      ...(tech.key_points || []),
+      ...(tech.key_points_es || []),
+      ...(tech.mistakes || []),
+      ...(tech.mistakes_es || []),
+    ]
+      .join(" ")
+      .toLowerCase();
+    return haystack.includes(query);
+  }
+
+  function shuffle(items) {
+    const copy = items.slice();
+    for (let i = copy.length - 1; i > 0; i -= 1) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [copy[i], copy[j]] = [copy[j], copy[i]];
+    }
+    return copy;
+  }
+
+  /* ---------------- view switching ---------------- */
+
+  const VIEWS = ["browse", "flashcards", "speed", "glossary"];
+
+  function writeHash(hash) {
+    if (location.hash === hash) return;
+    try {
+      history.replaceState(null, "", hash);
+    } catch (_) {
+      location.hash = hash;
+    }
+  }
+
+  function setView(view, options = {}) {
+    if (!VIEWS.includes(view)) return;
+    if (state.view === "speed" && view !== "speed" && state.speed.running) {
+      stopSpeedToStart();
+    }
+    state.view = view;
+    VIEWS.forEach((name) => {
+      const section = document.getElementById(`view-${name}`);
+      if (section) section.hidden = name !== view;
+      const tab = document.querySelector(`.tab[data-view="${name}"]`);
+      if (tab) {
+        const active = name === view;
+        tab.classList.toggle("active", active);
+        tab.setAttribute("aria-selected", String(active));
+      }
+    });
+    if (view === "browse") renderBrowse();
+    if (view === "flashcards") renderFlash();
+    if (view === "glossary") renderGlossary();
+    if (view === "speed") {
+      updateSpeedStats();
+      if (!state.speed.running && !state.speed.question) showSpeedStart();
+    }
+    if (options.updateHash !== false) writeHash(`#${view}`);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  /* ---------------- browse ---------------- */
+
+  function renderCategoryChips() {
+    const host = $("#category-chips");
+    if (!host) return;
+    const pool = activeTech();
+    const counts = pool.reduce((acc, tech) => {
+      acc[tech.category] = (acc[tech.category] || 0) + 1;
+      return acc;
+    }, {});
+    const items = [
+      `<button class="chip ${state.filterCategory === "all" ? "active" : ""}" data-cat="all">${t("cat.all")} <span class="chip-count">${pool.length}</span></button>`,
+    ];
+    DATA.categories.forEach((cat) => {
+      const count = counts[cat.id] || 0;
+      items.push(
+        `<button class="chip ${state.filterCategory === cat.id ? "active" : ""}" data-cat="${cat.id}" title="${escapeHtml(pick(cat, "meaning"))}">${cat.name} <span class="chip-count">${count}</span></button>`
+      );
+    });
+    host.innerHTML = items.join("");
+  }
+
+  function activeTech() {
+    if (state.grade === "all") return TECH;
+    return TECH.filter((tech) => tech.grade_id === state.grade);
+  }
+
+  function renderBeltBar() {
+    const host = $("#belt-bar");
+    if (!host) return;
+    const counts = TECH.reduce((acc, tech) => {
+      acc[tech.grade_id] = (acc[tech.grade_id] || 0) + 1;
+      return acc;
+    }, {});
+    // Build once per language; afterwards only sync the active state so the
+    // clicked chip keeps keyboard focus instead of being torn out of the DOM.
+    if (host.dataset.built !== state.lang) {
+      const items = [
+        `<button type="button" class="belt-chip" data-grade="all" aria-pressed="false">
+          <span class="belt-chip-dot" style="--belt-color:#8b8b8b"></span>${t("grade.all")}
+          <span class="chip-count">${TECH.length}</span>
+        </button>`,
+      ];
+      GRADES.forEach((grade) => {
+        const count = counts[grade.id] || 0;
+        items.push(
+          `<button type="button" class="belt-chip" data-grade="${grade.id}" aria-pressed="false" style="--belt-color:${grade.color}">
+            <span class="belt-chip-dot"></span>${t("grade." + grade.id)}
+            <span class="chip-count">${count}</span>
+          </button>`
+        );
+      });
+      host.innerHTML = items.join("");
+      host.dataset.built = state.lang;
+    }
+    syncBeltBar();
+  }
+
+  function syncBeltBar() {
+    $$("#belt-bar .belt-chip").forEach((chip) => {
+      const active = chip.getAttribute("data-grade") === state.grade;
+      chip.classList.toggle("active", active);
+      chip.setAttribute("aria-pressed", String(active));
+      if (active) {
+        // Keep the selected belt visible when the bar scrolls horizontally.
+        const bar = $("#belt-bar");
+        if (bar && bar.scrollWidth > bar.clientWidth) {
+          const left = chip.offsetLeft;
+          const right = left + chip.offsetWidth;
+          const visibleLeft = bar.scrollLeft;
+          const visibleRight = visibleLeft + bar.clientWidth;
+          if (left < visibleLeft || right > visibleRight) {
+            bar.scrollLeft = Math.max(0, left - bar.clientWidth / 2 + chip.offsetWidth / 2);
+          }
+        }
+      }
+    });
+    const lede = $("#browse-lede");
+    if (lede) {
+      const gradeName = t("grade." + state.grade).split(" · ")[0];
+      lede.textContent =
+        state.grade === "all"
+          ? t("browse.ledeAll")
+          : t("browse.ledeGrade", { grade: gradeName });
+    }
+  }
+
+  function renderGlossaryCategories() {
+    const host = $("#glossary-categories-body");
+    if (!host) return;
+    const counts = activeTech().reduce((acc, tech) => {
+      acc[tech.category] = (acc[tech.category] || 0) + 1;
+      return acc;
+    }, {});
+    host.innerHTML = DATA.categories
+      .map(
+        (cat) => `
+        <article class="category-card" style="--cat-color:${cat.color}">
+          <div class="category-card-top">
+            <span class="category-kanji">${cat.kanji}</span>
+            <span class="category-name">${cat.name} ${speakButton(cat.name)}</span>
+            <span class="category-count">${counts[cat.id] || 0}</span>
+          </div>
+          <p class="category-meaning">${escapeHtml(pick(cat, "meaning"))}</p>
+          <p class="category-desc">${escapeHtml(pick(cat, "description"))}</p>
+        </article>`
+      )
+      .join("");
+  }
+
+  function filteredTechniques() {
+    const query = state.search.trim().toLowerCase();
+    const items = activeTech().filter((tech) => {
+      if (state.filterCategory !== "all" && tech.category !== state.filterCategory) return false;
+      if (state.onlyUnknown && isKnown(tech.id)) return false;
+      return matchesSearch(tech, query);
+    });
+    return items.sort((a, b) => a.order - b.order);
+  }
+
+  function formatViews(count) {
+    if (!count) return "";
+    if (count >= 1000000) return `${(count / 1000000).toFixed(1)}M`;
+    if (count >= 1000) return `${(count / 1000).toFixed(1)}k`;
+    return String(count);
+  }
+
+  function gradeLabel(tech) {
+    const key = "grade." + tech.grade_id;
+    const translated = t(key);
+    if (translated && translated !== key) return translated;
+    return `${tech.grade} · ${tech.belt}`;
+  }
+
+  function gradeBadge(tech) {
+    const grade = GRADES.find((g) => g.id === tech.grade_id);
+    const color = grade ? grade.color : "#8b8b8b";
+    return `<span class="grade-badge" style="--belt-color:${color}">${escapeHtml(gradeLabel(tech))}</span>`;
+  }
+
+  function renderBrowse() {
+    const host = $("#browse-grid");
+    const empty = $("#browse-empty");
+    renderBeltBar();
+    const items = filteredTechniques();
+    host.innerHTML = items
+      .map((tech) => {
+        const cat = categoryOf(tech);
+        const known = isKnown(tech.id);
+        const common = tech.common === 1 ? t("common.core") : t("common.also");
+        const hasFrames = tech.frames && tech.frames.length > 0;
+        const strip = hasFrames
+          ? `<div class="card-strip ${stripClass(tech.frames.length)}">${frameCells(tech, true, 6)}</div>`
+          : `<div class="card-strip empty"><span class="empty-name">${escapeHtml(tech.japanese)}</span><span class="empty-note">${t("card.noFrames")}</span></div>`;
+        const frameText = hasFrames ? `${tech.frames.length} ${t("browse.frames")}` : "";
+        const footerLead = [frameText, pick(tech, "literal")].filter(Boolean).join(" · ");
+        return `
+          <article class="tech-card" tabindex="0" role="button" aria-label="${escapeHtml(t("browse.openCard", { name: tech.japanese }))}" style="--cat-color:${cat.color}" data-id="${tech.id}">
+            ${strip}
+            <div class="card-body">
+              <div class="card-topline">
+                <span class="cat-badge">${cat.name}</span>
+                ${gradeBadge(tech)}
+              </div>
+              <h3 class="card-title">${tech.japanese} ${speakButton(tech.japanese)}</h3>
+              <p class="card-translation">${escapeHtml(pick(tech, "translation"))}</p>
+              <p class="card-cue">${escapeHtml(pick(tech, "cue"))}</p>
+              <div class="card-footer">
+                <span>${escapeHtml(footerLead)}</span>
+                <span class="common-badge">${common}</span>
+                <span class="known-mark" ${known ? "" : "hidden"}>✓ ${t("modal.known")}</span>
+              </div>
+            </div>
+          </article>`;
+      })
+      .join("");
+    const gradeEmpty =
+      state.grade !== "all" &&
+      !TECH.some((tech) => tech.grade_id === state.grade);
+    const emptyText = $("#browse-empty-text");
+    if (emptyText) {
+      emptyText.textContent = gradeEmpty ? t("browse.emptyGrade") : t("browse.empty");
+    }
+    empty.hidden = items.length > 0;
+  }
+
+  function clearBrowseFilters() {
+    state.filterCategory = "all";
+    state.grade = "all";
+    state.search = "";
+    state.onlyUnknown = false;
+    $("#search").value = "";
+    $("#only-unknown").checked = false;
+    renderCategoryChips();
+    renderBeltBar();
+    renderBrowse();
+  }
+
+  /* ---------------- modal ---------------- */
+
+  function openModal(id, options = {}) {
+    const tech = TECH_BY_ID[id];
+    if (!tech) return;
+    const cat = categoryOf(tech);
+    const known = isKnown(id);
+    const hasFrames = tech.frames && tech.frames.length > 0;
+    const startFrame = options.frame != null ? options.frame : (tech.hero || 1) - 1;
+    state.modalId = tech.id;
+    state.modalFrame = hasFrames ? Math.max(0, Math.min(startFrame, tech.frames.length - 1)) : 0;
+    const frame = hasFrames ? tech.frames[state.modalFrame] : null;
+    const thumbs = hasFrames
+      ? tech.frames
+          .map(
+            (item, index) => `
+        <button class="stage-thumb ${index === state.modalFrame ? "active" : ""}" data-frame="${index}" role="tab" aria-selected="${index === state.modalFrame}" aria-label="${escapeHtml(phaseLabel(item))}">
+          <img src="${item.src}" alt="" loading="lazy">
+          <span>${escapeHtml(phaseLabel(item))}</span>
+        </button>`
+          )
+          .join("")
+      : "";
+
+    const visual = hasFrames
+      ? `<div class="modal-visual" style="--cat-color:${cat.color}">
+          <div class="modal-stage-wrap">
+            <div class="modal-stage">
+              <div class="stage-actions">
+                <button class="stage-action ${known ? "is-known" : ""}" data-known-toggle="${tech.id}">${known ? "✓ " + t("modal.known") : t("modal.markKnown")}</button>
+                <a class="stage-action" href="${sourceUrl(tech)}" target="_blank" rel="noopener">${t("modal.watch")} ↗</a>
+              </div>
+              <img id="stage-img" src="${frame.src}" alt="${escapeHtml(tech.japanese)} — ${escapeHtml(phaseLabel(frame))}">
+              <span class="stage-phase" id="stage-phase">${escapeHtml(phaseLabel(frame))}</span>
+              <span class="stage-count" id="stage-count">${state.modalFrame + 1} / ${tech.frames.length}</span>
+              <button class="stage-nav prev" data-stage-step="-1" aria-label="${t("modal.prevFrame")}">←</button>
+              <button class="stage-nav next" data-stage-step="1" aria-label="${t("modal.nextFrame")}">→</button>
+            </div>
+            <div class="stage-thumbs" role="tablist" aria-label="${t("modal.phases")}">${thumbs}</div>
+          </div>
+        </div>`
+      : `<div class="modal-visual no-frames" style="--cat-color:${cat.color}">
+          <div class="no-frames-panel">
+            <span class="no-frames-kanji">${cat.kanji}</span>
+            <p>${t("modal.noFrames")}</p>
+            <div class="stage-actions static">
+              <button class="stage-action ${known ? "is-known" : ""}" data-known-toggle="${tech.id}">${known ? "✓ " + t("modal.known") : t("modal.markKnown")}</button>
+            </div>
+          </div>
+        </div>`;
+
+    const sourceLine = tech.source && tech.source.title
+      ? `<div class="modal-source"><span>${t("modal.source")}: <a href="${sourceUrl(tech)}" target="_blank" rel="noopener">${escapeHtml(tech.source.title)}</a> · ${escapeHtml(tech.source.channel)} · ${(tech.frames || []).length} ${t("browse.frames")}</span></div>`
+      : `<div class="modal-source"><span>${t("modal.syllabusEntry")}</span></div>`;
+
+    $("#modal-content").innerHTML = `
+      <div class="modal-layout ${hasFrames ? "" : "no-stage"}" tabindex="0">
+        ${visual}
+        <div class="modal-info">
+          <div class="modal-hero">
+            <div class="modal-badges">
+              <span class="cat-badge">${cat.name} · ${escapeHtml(pick(cat, "meaning"))}</span>
+              ${gradeBadge(tech)}
+            </div>
+            <h2 id="modal-title">${tech.japanese} ${speakButton(tech.japanese)}</h2>
+            <p class="modal-translation">${escapeHtml(pick(tech, "translation"))}</p>
+            ${wordChips(tech, { className: "modal-word-chips" })}
+          </div>
+          <div class="modal-body">
+            <section class="modal-section">
+              <h4>${t("modal.whatToLookFor")}</h4>
+              <p>${escapeHtml(pick(tech, "cue"))}</p>
+              <ul>${pickArray(tech, "key_points").map((point) => `<li>${escapeHtml(point)}</li>`).join("")}</ul>
+            </section>
+            <section class="modal-section">
+              <h4>${t("modal.mistakes")}</h4>
+              <ul>${pickArray(tech, "mistakes").map((mistake) => `<li>${escapeHtml(mistake)}</li>`).join("")}</ul>
+            </section>
+            ${sourceLine}
+          </div>
+        </div>
+      </div>`;
+
+    const modal = $("#modal");
+    modal.hidden = false;
+    document.body.style.overflow = "hidden";
+    if (options.updateHash !== false) writeHash(`#card/${tech.id}`);
+    const close = $(".modal-close", modal);
+    if (close && !options.keepFocus) close.focus({ preventScroll: true });
+  }
+
+  function selectModalFrame(index) {
+    const tech = TECH_BY_ID[state.modalId];
+    if (!tech || !tech.frames || !tech.frames.length) return;
+    const count = tech.frames.length;
+    const next = ((index % count) + count) % count;
+    state.modalFrame = next;
+    const frame = tech.frames[next];
+    const img = $("#stage-img");
+    if (img) {
+      img.src = frame.src;
+      img.alt = `${tech.japanese} — ${phaseLabel(frame)}`;
+    }
+    const phase = $("#stage-phase");
+    if (phase) phase.textContent = phaseLabel(frame);
+    const counter = $("#stage-count");
+    if (counter) counter.textContent = `${next + 1} / ${count}`;
+    $$(".stage-thumb").forEach((thumb, i) => {
+      const active = i === next;
+      thumb.classList.toggle("active", active);
+      thumb.setAttribute("aria-selected", String(active));
+    });
+  }
+
+  function stepModalFrame(delta) {
+    if (!state.modalId) return;
+    selectModalFrame(state.modalFrame + delta);
+  }
+
+  function closeModal() {
+    const modal = $("#modal");
+    modal.hidden = true;
+    document.body.style.overflow = "";
+    $("#modal-content").innerHTML = "";
+    state.modalId = null;
+    state.modalFrame = 0;
+    if (location.hash.startsWith("#card/")) writeHash(`#${state.view}`);
+  }
+
+  function toggleKnownFromModal(button) {
+    const id = button.getAttribute("data-known-toggle");
+    const next = !isKnown(id);
+    setKnown(id, next);
+    button.textContent = next ? "✓ " + t("modal.known") : t("modal.markKnown");
+    button.classList.toggle("is-known", next);
+    renderBrowse();
+    renderFlash();
+  }
+
+  /* ---------------- flashcards ---------------- */
+
+  function currentFlashTech() {
+    const fallback = activeTech()[0] || TECH[0];
+    return TECH_BY_ID[state.flashOrder[state.flashIndex]] || fallback;
+  }
+
+  function rebuildFlashOrder() {
+    state.flashOrder = activeTech().map((tech) => tech.id);
+    state.flashIndex = 0;
+    state.flashFlipped = false;
+  }
+
+  function renderFlash() {
+    const host = $("#flash-content");
+    if (!state.flashOrder.length) {
+      host.innerHTML = `<p class="flash-empty">${t("flash.emptyGrade")}</p>`;
+      $("#flash-progress").textContent = "";
+      $("#flash-hint").textContent = "";
+      return;
+    }
+    const tech = currentFlashTech();
+    if (!tech) return;
+    const cat = categoryOf(tech);
+    const known = isKnown(tech.id);
+    const flipped = state.flashFlipped;
+    const hasFrames = tech.frames && tech.frames.length > 0;
+    const card = $("#flashcard");
+    if (card) card.classList.toggle("is-back", flipped);
+
+    $("#flash-known").checked = known;
+    $("#flash-progress").textContent = t("flash.counter", { n: state.flashIndex + 1, total: state.flashOrder.length });
+    $("#flash-hint").textContent = flipped ? t("flash.backHint") : t("flash.flipHint");
+
+    document.querySelectorAll("#flash-mode button").forEach((button) => {
+      const active = button.getAttribute("data-mode") === state.flashMode;
+      button.classList.toggle("active", active);
+      button.setAttribute("aria-pressed", String(active));
+    });
+
+    if (!flipped) {
+      if (state.flashMode === "name" || !hasFrames) {
+        host.innerHTML = `
+          <span class="cat-badge flash-category" style="--cat-color:${cat.color}">${cat.name}</span>
+          ${gradeBadge(tech)}
+          <h2 class="flash-name">${tech.japanese} ${speakButton(tech.japanese)}</h2>
+          ${wordChips(tech, { className: "flash-word-chips" })}
+          <p class="flash-prompt">${t("flash.namePrompt")}</p>`;
+      } else {
+        host.innerHTML = `
+          <div class="flash-images ${stripClass(tech.frames.length)}">
+            ${frameCells(tech, false, 6)}
+          </div>
+          <p class="flash-prompt">${t("flash.imagePrompt")}</p>`;
+      }
+      return;
+    }
+
+    // On the back, only repeat the frames when the front showed the name.
+    // In "image" mode the frames are already on the front, so repeating them
+    // just makes the card taller than the screen.
+    const showBackImages = hasFrames && state.flashMode === "name";
+    const imageBlock = showBackImages
+      ? `<div class="flash-images ${stripClass(tech.frames.length)}">${frameCells(tech, true, 6)}</div>`
+      : "";
+
+    const points = pickArray(tech, "key_points");
+    const shownPoints = points.slice(0, 3);
+    const hiddenCount = points.length - shownPoints.length;
+    const moreLine = hiddenCount > 0
+      ? `<p class="flash-more">${escapeHtml(t("flash.morePoints", { n: hiddenCount }))}</p>`
+      : "";
+
+    host.innerHTML = `
+      ${imageBlock}
+      <span class="cat-badge flash-category" style="--cat-color:${cat.color}">${cat.name}</span>
+      ${gradeBadge(tech)}
+      <h2 class="flash-back-title">${tech.japanese} ${speakButton(tech.japanese)}</h2>
+      <p class="flash-back-sub">${escapeHtml(pick(tech, "translation"))}</p>
+      ${wordChips(tech, { className: "flash-word-chips" })}
+      <p class="flash-cue">${escapeHtml(pick(tech, "cue"))}</p>
+      <ul class="flash-points">${shownPoints.map((point) => `<li>${escapeHtml(point)}</li>`).join("")}</ul>
+      ${moreLine}
+      <button class="flash-open" data-open-card="${tech.id}">${t("flash.openCard")}</button>`;
+  }
+
+  function flipFlash() {
+    state.flashFlipped = !state.flashFlipped;
+    renderFlash();
+    if (state.flashFlipped) {
+      const card = $("#flashcard");
+      if (card) requestAnimationFrame(() => card.scrollIntoView({ block: "nearest", behavior: "instant" }));
+    }
+  }
+
+  function moveFlash(delta) {
+    if (!state.flashOrder.length) return;
+    state.flashIndex = (state.flashIndex + delta + state.flashOrder.length) % state.flashOrder.length;
+    state.flashFlipped = false;
+    renderFlash();
+  }
+
+  function shuffleFlash() {
+    state.flashOrder = shuffle(state.flashOrder);
+    state.flashIndex = 0;
+    state.flashFlipped = false;
+    renderFlash();
+  }
+
+  function setFlashMode(mode) {
+    state.flashMode = mode;
+    writeRaw(STORAGE.flashMode, mode);
+    state.flashFlipped = false;
+    renderFlash();
+  }
+
+  function toggleFlashKnown() {
+    const tech = currentFlashTech();
+    if (!tech) return;
+    const next = !isKnown(tech.id);
+    setKnown(tech.id, next);
+    $("#flash-known").checked = next;
+    renderBrowse();
+    renderFlash();
+  }
+
+  /* ---------------- speed round ---------------- */
+
+  function updateSpeedStats() {
+    $("#speed-best").textContent = state.speed.best;
+    $("#speed-score").textContent = state.speed.score;
+    $("#speed-timer").textContent = Math.max(0, state.speed.time);
+  }
+
+  function showSpeedStart() {
+    $("#speed-start").hidden = false;
+    $("#speed-game").hidden = true;
+    $("#speed-end").hidden = true;
+  }
+
+  function startSpeed() {
+    if (speedPool().length < 2) {
+      const copy = $("#speed-start-copy");
+      if (copy) copy.textContent = t("speed.emptyGrade");
+      return;
+    }
+    clearInterval(state.speed.timerId);
+    clearTimeout(state.speed.transitionId);
+    state.speed.running = true;
+    state.speed.score = 0;
+    state.speed.total = 0;
+    state.speed.time = 60;
+    state.speed.answered = false;
+    state.speed.missed = [];
+    state.speed.question = null;
+    state.speed.finished = false;
+    updateSpeedStats();
+    $("#speed-start").hidden = true;
+    $("#speed-end").hidden = true;
+    $("#speed-game").hidden = false;
+    nextSpeedQuestion();
+    state.speed.timerId = setInterval(() => {
+      state.speed.time -= 1;
+      updateSpeedStats();
+      if (state.speed.time <= 0) endSpeed();
+    }, 1000);
+  }
+
+  function stopSpeedToStart() {
+    state.speed.running = false;
+    clearInterval(state.speed.timerId);
+    clearTimeout(state.speed.transitionId);
+    state.speed.timerId = null;
+    state.speed.transitionId = null;
+    state.speed.score = 0;
+    state.speed.total = 0;
+    state.speed.time = 60;
+    state.speed.question = null;
+    state.speed.answered = false;
+    state.speed.missed = [];
+    state.speed.finished = false;
+    updateSpeedStats();
+    showSpeedStart();
+  }
+
+  function renderSpeedDir() {
+    const picture = state.speed.dir === "picture";
+    $$("#speed-dir button").forEach((button) => {
+      const active = button.getAttribute("data-dir") === state.speed.dir;
+      button.classList.toggle("active", active);
+      button.setAttribute("aria-pressed", String(active));
+    });
+    const title = $("#speed-start-title");
+    const copy = $("#speed-start-copy");
+    if (title) title.textContent = picture ? t("speed.dirPicture") : t("speed.dirName");
+    if (copy) copy.textContent = picture ? t("speed.copyPicture") : t("speed.copyName");
+    const scopeNote = $("#speed-scope-note");
+    if (scopeNote) {
+      const fallback = speedUsesFallback() && state.grade !== "all";
+      scopeNote.hidden = !fallback;
+      scopeNote.textContent = fallback ? t("speed.fallbackNote") : "";
+    }
+  }
+
+  function setSpeedDir(dir) {
+    state.speed.dir = dir === "picture" ? "picture" : "name";
+    writeRaw(STORAGE.speedDir, state.speed.dir);
+    renderSpeedDir();
+  }
+
+  function speedPool() {
+    const scoped = activeTech().filter((tech) => tech.frames && tech.frames.length > 0);
+    if (scoped.length >= 2) return scoped;
+    // A belt with no frames yet would leave the round empty; fall back to the
+    // whole atlas so the game still works. The start panel explains this.
+    return TECH.filter((tech) => tech.frames && tech.frames.length > 0);
+  }
+
+  function speedUsesFallback() {
+    return activeTech().filter((tech) => tech.frames && tech.frames.length > 0).length < 2;
+  }
+
+  function nextSpeedQuestion() {
+    if (!state.speed.running) return;
+    const all = speedPool();
+    if (all.length < 2) {
+      endSpeed();
+      return;
+    }
+    const pool = all.filter((tech) => !state.speed.question || tech.id !== state.speed.question.id);
+    const correct = pool[Math.floor(Math.random() * pool.length)] || all[0];
+    const others = shuffle(all.filter((tech) => tech.id !== correct.id)).slice(0, 3);
+    state.speed.question = correct;
+    state.speed.options = shuffle([correct, ...others]).map((tech) => tech.id);
+    state.speed.answered = false;
+    state.speed.picked = null;
+    renderSpeedQuestion();
+  }
+
+  function renderSpeedQuestion() {
+    const correct = state.speed.question;
+    if (!correct) return;
+    const picture = state.speed.dir === "picture";
+    const options = state.speed.options.map((id) => TECH_BY_ID[id]).filter(Boolean);
+
+    const name = $("#speed-name");
+    const words = $("#speed-words");
+    const eyebrow = $("#speed-eyebrow");
+    const imgWrap = $("#speed-question-img");
+    const img = $("#speed-img");
+    const hero = heroFrame(correct);
+
+    if (picture) {
+      if (name) name.hidden = true;
+      if (words) words.innerHTML = "";
+      if (eyebrow) eyebrow.textContent = t("speed.whichName");
+      if (imgWrap) imgWrap.hidden = false;
+      if (img && hero) {
+        img.src = hero.src;
+        img.alt = `${correct.japanese} — ${phaseLabel(hero)}`;
+      }
+    } else {
+      if (name) {
+        name.hidden = false;
+        name.innerHTML = `${escapeHtml(correct.japanese)}${speakButton(correct.japanese, "inline-speak")}`;
+      }
+      if (words) words.innerHTML = wordChips(correct, { className: "speed-word-chips" });
+      if (eyebrow) eyebrow.textContent = t("speed.whichTechnique");
+      if (imgWrap) imgWrap.hidden = true;
+    }
+
+    $("#speed-feedback").textContent = "";
+    $("#speed-feedback").className = "speed-feedback";
+    const answerWords = $("#speed-answer-words");
+    if (answerWords) answerWords.innerHTML = "";
+
+    const host = $("#speed-options");
+    host.classList.remove("answered", "picture-options");
+    if (picture) host.classList.add("picture-options");
+    host.innerHTML = options
+      .map((tech, index) => {
+        const letter = String.fromCharCode(65 + index);
+        if (picture) {
+          return `
+          <button class="speed-option name-option" data-id="${tech.id}" aria-label="${escapeHtml(t("speed.option", { letter }))}: ${escapeHtml(tech.japanese)}">
+            <span class="option-key">${letter}</span>
+            <span class="option-name">${tech.japanese}</span>
+            <span class="option-sub">${escapeHtml(pick(tech, "translation"))}</span>
+          </button>`;
+        }
+        const frame = heroFrame(tech);
+        return `
+          <button class="speed-option" data-id="${tech.id}" aria-label="${escapeHtml(t("speed.option", { letter }))}">
+            <img src="${frame.src}" alt="${escapeHtml(t("speed.option", { letter }))}" loading="eager">
+            <span class="option-key">${letter}</span>
+            <span class="option-name">${tech.japanese}</span>
+          </button>`;
+      })
+      .join("");
+
+    if (state.speed.answered) showSpeedAnswer(state.speed.picked);
+  }
+
+  function showSpeedAnswer(optionId) {
+    const correct = state.speed.question;
+    const isCorrect = optionId === correct.id;
+    const host = $("#speed-options");
+    host.classList.add("answered");
+    $$(".speed-option", host).forEach((btn) => {
+      btn.disabled = true;
+    });
+
+    const answerWords = $("#speed-answer-words");
+    if (answerWords) {
+      answerWords.innerHTML =
+        state.speed.dir === "picture" ? wordChips(correct, { className: "speed-word-chips" }) : "";
+    }
+
+    const vars = { name: correct.japanese, translation: pick(correct, "translation") };
+    const button = $(`.speed-option[data-id="${optionId}"]`, host);
+    const feedback = $("#speed-feedback");
+    if (isCorrect) {
+      if (button) button.classList.add("correct");
+      feedback.innerHTML = escapeHtml(t("speed.correctMsg", vars)) + speakButton(correct.japanese, "inline-speak");
+      feedback.className = "speed-feedback good";
+    } else {
+      if (button) button.classList.add("wrong");
+      const correctButton = $(`.speed-option[data-id="${correct.id}"]`, host);
+      if (correctButton) {
+        correctButton.classList.add("correct");
+        if (state.speed.dir === "name" && !correctButton.querySelector(".option-sub")) {
+          const sub = document.createElement("span");
+          sub.className = "option-sub";
+          sub.textContent = pick(correct, "translation");
+          correctButton.appendChild(sub);
+        }
+      }
+      feedback.innerHTML = escapeHtml(t("speed.wrongMsg", vars)) + speakButton(correct.japanese, "inline-speak");
+      feedback.className = "speed-feedback bad";
+    }
+  }
+
+  function answerSpeed(optionId) {
+    if (!state.speed.running || state.speed.answered) return;
+    state.speed.answered = true;
+    state.speed.picked = optionId;
+    state.speed.total += 1;
+    const correct = state.speed.question;
+    const isCorrect = optionId === correct.id;
+    if (isCorrect) state.speed.score += 1;
+    else if (!state.speed.missed.includes(correct.id)) state.speed.missed.push(correct.id);
+    showSpeedAnswer(optionId);
+    updateSpeedStats();
+
+    state.speed.transitionId = setTimeout(() => {
+      if (state.speed.running) nextSpeedQuestion();
+    }, isCorrect ? 520 : 900);
+  }
+
+  function endSpeed() {
+    if (!state.speed.running && state.speed.time > 0) return;
+    state.speed.running = false;
+    clearInterval(state.speed.timerId);
+    clearTimeout(state.speed.transitionId);
+    state.speed.timerId = null;
+    state.speed.transitionId = null;
+    state.speed.time = Math.max(0, state.speed.time);
+    const isNewBest = state.speed.score > state.speed.best;
+    if (isNewBest) {
+      state.speed.best = state.speed.score;
+      writeRaw(STORAGE.best, String(state.speed.best));
+    }
+    state.speed.finished = true;
+    state.speed.newBest = isNewBest;
+    updateSpeedStats();
+    $("#speed-game").hidden = true;
+    $("#speed-end").hidden = false;
+    renderSpeedEnd();
+  }
+
+  function renderSpeedEnd() {
+    $("#speed-end-title").textContent = state.speed.newBest ? t("speed.newBest") : t("speed.timeUp");
+    $("#speed-end-score").textContent = t(state.speed.score === 1 ? "speed.resultOne" : "speed.result", {
+      score: state.speed.score,
+      total: state.speed.total,
+    });
+
+    const missedHost = $("#speed-missed");
+    if (!state.speed.total) {
+      missedHost.innerHTML = `<p class="fineprint">${t("speed.noAnswers")}</p>`;
+    } else if (!state.speed.missed.length) {
+      missedHost.innerHTML = `<p class="fineprint">${t("speed.clean")}</p>`;
+    } else {
+      missedHost.innerHTML = state.speed.missed
+        .map((id) => {
+          const tech = TECH_BY_ID[id];
+          if (!tech) return "";
+          return `<span class="missed-item"><img src="${heroFrame(tech).src}" alt=""><span class="missed-text">${tech.japanese}<small>${escapeHtml(pick(tech, "translation"))}</small></span></span>`;
+        })
+        .join("");
+    }
+  }
+
+  /* ---------------- glossary ---------------- */
+
+  function renderGlossaryChips() {
+    const host = $("#glossary-chips");
+    if (!host) return;
+    const groups = [
+      { id: "all", label: t("glossary.all") },
+      { id: "basics", label: t("glossary.basics") },
+      { id: "categories", label: t("glossary.categories") },
+      { id: "name-parts", label: t("glossary.nameParts") },
+    ];
+    const counts = GLOSSARY.reduce((acc, item) => {
+      acc[item.group] = (acc[item.group] || 0) + 1;
+      return acc;
+    }, {});
+    host.innerHTML = groups
+      .map(
+        (group) =>
+          `<button class="chip ${state.glossaryGroup === group.id ? "active" : ""}" data-group="${group.id}">${group.label} <span class="chip-count">${
+            group.id === "all" ? GLOSSARY.length : counts[group.id] || 0
+          }</span></button>`
+      )
+      .join("");
+  }
+
+  function renderGlossary() {
+    const host = $("#glossary-grid");
+    const empty = $("#glossary-empty");
+    const query = state.glossarySearch.trim().toLowerCase();
+    const items = GLOSSARY.filter((item) => {
+      if (state.glossaryGroup !== "all" && item.group !== state.glossaryGroup) return false;
+      if (!query) return true;
+      return [item.term, item.reading, item.meaning, item.meaning_es, item.note, item.note_es]
+        .join(" ")
+        .toLowerCase()
+        .includes(query);
+    });
+    host.innerHTML = items
+      .map(
+        (item) => `
+        <article class="glossary-card">
+          <div class="glossary-term">
+            <h3>${item.term} ${speakButton(item.term)}</h3>
+            <span class="glossary-reading">${item.reading}</span>
+          </div>
+          <p class="glossary-meaning">${escapeHtml(pick(item, "meaning"))}</p>
+          <p class="glossary-note">${escapeHtml(pick(item, "note"))}</p>
+        </article>`
+      )
+      .join("");
+    empty.hidden = items.length > 0;
+  }
+
+  /* ---------------- events ---------------- */
+
+  function bindEvents() {
+    $$(".tab").forEach((tab) => {
+      tab.addEventListener("click", () => setView(tab.getAttribute("data-view")));
+    });
+
+    // Browse
+    $("#category-chips").addEventListener("click", (event) => {
+      const chip = event.target.closest("[data-cat]");
+      if (!chip) return;
+      state.filterCategory = chip.getAttribute("data-cat");
+      renderCategoryChips();
+      renderBrowse();
+    });
+
+    $("#search").addEventListener("input", (event) => {
+      state.search = event.target.value;
+      renderBrowse();
+    });
+
+    $("#only-unknown").addEventListener("change", (event) => {
+      state.onlyUnknown = event.target.checked;
+      renderBrowse();
+    });
+
+    $("#belt-bar").addEventListener("click", (event) => {
+      const chip = event.target.closest("[data-grade]");
+      if (!chip) return;
+      setGrade(chip.getAttribute("data-grade"));
+    });
+
+    $("#lang-toggle").addEventListener("click", (event) => {
+      const button = event.target.closest("[data-lang]");
+      if (button) setLang(button.getAttribute("data-lang"));
+    });
+
+    const themeToggle = $("#theme-toggle");
+    if (themeToggle) {
+      themeToggle.addEventListener("click", () => {
+        const next = state.theme === "auto" ? "light" : state.theme === "light" ? "dark" : "auto";
+        applyTheme(next, true);
+      });
+    }
+
+    document.addEventListener(
+      "click",
+      (event) => {
+        const button = event.target.closest("[data-speak]");
+        if (!button) return;
+        event.preventDefault();
+        event.stopPropagation();
+        const utterance = speak(button.getAttribute("data-speak"));
+        if (utterance) {
+          button.classList.add("is-speaking");
+          const clear = () => button.classList.remove("is-speaking");
+          utterance.onend = clear;
+          utterance.onerror = clear;
+          setTimeout(clear, 3000);
+        }
+      },
+      true
+    );
+
+    $("#clear-filters").addEventListener("click", clearBrowseFilters);
+
+    $("#browse-grid").addEventListener("click", (event) => {
+      const card = event.target.closest(".tech-card");
+      if (card) openModal(card.getAttribute("data-id"));
+    });
+
+    $("#browse-grid").addEventListener("keydown", (event) => {
+      if (event.key !== "Enter" && event.key !== " ") return;
+      const card = event.target.closest(".tech-card");
+      if (!card) return;
+      event.preventDefault();
+      openModal(card.getAttribute("data-id"));
+    });
+
+    // Modal
+    $("#modal").addEventListener("click", (event) => {
+      if (event.target.closest("[data-close='modal']")) {
+        closeModal();
+        return;
+      }
+      const thumb = event.target.closest("[data-frame]");
+      if (thumb) {
+        selectModalFrame(Number(thumb.getAttribute("data-frame")));
+        return;
+      }
+      const step = event.target.closest("[data-stage-step]");
+      if (step) {
+        stepModalFrame(Number(step.getAttribute("data-stage-step")));
+        return;
+      }
+      const knownButton = event.target.closest("[data-known-toggle]");
+      if (knownButton) toggleKnownFromModal(knownButton);
+    });
+
+    // Flashcards
+    $("#flashcard").addEventListener("click", (event) => {
+      if (event.target.closest("[data-open-card]")) {
+        event.stopPropagation();
+        openModal(event.target.closest("[data-open-card]").getAttribute("data-open-card"));
+        return;
+      }
+      flipFlash();
+    });
+
+    $("#flashcard").addEventListener("keydown", (event) => {
+      if (event.target !== event.currentTarget) return;
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        event.stopPropagation();
+        flipFlash();
+      }
+    });
+
+    $("#flash-prev").addEventListener("click", () => moveFlash(-1));
+    $("#flash-next").addEventListener("click", () => moveFlash(1));
+    $("#flash-prev-m").addEventListener("click", () => moveFlash(-1));
+    $("#flash-next-m").addEventListener("click", () => moveFlash(1));
+    $("#flash-flip").addEventListener("click", flipFlash);
+    $("#flash-shuffle").addEventListener("click", shuffleFlash);
+    $("#flash-known").addEventListener("change", toggleFlashKnown);
+
+    $("#flash-mode").addEventListener("click", (event) => {
+      const button = event.target.closest("[data-mode]");
+      if (button) setFlashMode(button.getAttribute("data-mode"));
+    });
+
+    // Speed
+    $("#speed-start-btn").addEventListener("click", startSpeed);
+    $("#speed-again").addEventListener("click", startSpeed);
+
+    $("#speed-dir").addEventListener("click", (event) => {
+      const button = event.target.closest("[data-dir]");
+      if (!button) return;
+      setSpeedDir(button.getAttribute("data-dir"));
+      if (state.speed.running) {
+        stopSpeedToStart();
+      }
+    });
+
+    $("#speed-options").addEventListener("click", (event) => {
+      const option = event.target.closest(".speed-option");
+      if (!option) return;
+      answerSpeed(option.getAttribute("data-id"));
+    });
+
+    // Glossary
+    $("#glossary-chips").addEventListener("click", (event) => {
+      const chip = event.target.closest("[data-group]");
+      if (!chip) return;
+      state.glossaryGroup = chip.getAttribute("data-group");
+      renderGlossaryChips();
+      renderGlossary();
+    });
+
+    $("#glossary-search").addEventListener("input", (event) => {
+      state.glossarySearch = event.target.value;
+      renderGlossary();
+    });
+
+    // Global keyboard shortcuts
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && !$("#modal").hidden) {
+        closeModal();
+        return;
+      }
+      if (!$("#modal").hidden) {
+        if (event.key === "ArrowLeft") {
+          event.preventDefault();
+          stepModalFrame(-1);
+          return;
+        }
+        if (event.key === "ArrowRight") {
+          event.preventDefault();
+          stepModalFrame(1);
+          return;
+        }
+      }
+      const tag = (event.target.tagName || "").toLowerCase();
+      const typing = tag === "input" || tag === "textarea" || tag === "select";
+      if (typing) return;
+      if (state.view !== "flashcards") return;
+      if (event.key === " " && !event.target.closest("button")) {
+        event.preventDefault();
+        flipFlash();
+      } else if (event.key === "ArrowLeft") {
+        event.preventDefault();
+        moveFlash(-1);
+      } else if (event.key === "ArrowRight") {
+        event.preventDefault();
+        moveFlash(1);
+      }
+    });
+  }
+
+  /* ---------------- init ---------------- */
+
+  function routeFromHash() {
+    const raw = location.hash.replace(/^#/, "");
+    const hash = raw ? decodeURIComponent(raw) : "";
+    if (hash.startsWith("card/")) {
+      const id = hash.slice(5);
+      if (!TECH_BY_ID[id]) return;
+      if (state.view !== "browse") setView("browse", { updateHash: false });
+      openModal(id, { updateHash: false });
+      return;
+    }
+    if (VIEWS.includes(hash)) {
+      closeModal();
+      setView(hash, { updateHash: false });
+    }
+  }
+
+  function preloadHeroes() {
+    TECH.forEach((tech) => {
+      const hero = heroFrame(tech);
+      if (!hero) return;
+      const img = new Image();
+      img.src = hero.src;
+    });
+  }
+
+  function init() {
+    if (LANGS.includes(queryParam("lang"))) writeRaw(STORAGE.lang, state.lang);
+    if (queryParam("grade")) writeRaw(STORAGE.grade, state.grade);
+    applyTheme(state.theme, false);
+    try {
+      const scheme = window.matchMedia("(prefers-color-scheme: dark)");
+      const onSchemeChange = () => {
+        if (state.theme === "auto") applyTheme("auto", false);
+      };
+      if (scheme.addEventListener) scheme.addEventListener("change", onSchemeChange);
+      else if (scheme.addListener) scheme.addListener(onSchemeChange);
+    } catch (_) {
+      /* matchMedia is unavailable in some very old browsers */
+    }
+    applyI18n();
+    renderBeltBar();
+    renderCategoryChips();
+    renderBrowse();
+    renderGlossaryChips();
+    renderGlossary();
+    renderGlossaryCategories();
+    rebuildFlashOrder();
+    renderFlash();
+    renderSpeedDir();
+    updateSpeedStats();
+    bindEvents();
+    routeFromHash();
+    window.addEventListener("hashchange", routeFromHash);
+    initVoices();
+    preloadHeroes();
+  }
+
+  if (queryParam("debug") === "1") {
+    window.ATLAS_DEBUG = {
+      japaneseText,
+      speak,
+      japaneseVoice,
+      refreshVoices,
+      setVoices: (list) => {
+        voiceCache = Array.isArray(list) ? list : [];
+      },
+    };
+  }
+
+  init();
+})();

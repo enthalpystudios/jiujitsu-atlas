@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Atlas de Nombres de Jiu-Jitsu · todos los cinturones</title>
+  <meta name="description" content="Entrenador visual de nombres para el programa de kyus de Jiu-Jitsu de la RFEJYDA.">
+  <script>
+    /* Resolve the theme before the first paint to avoid a flash. */
+    (function () {
+      try {
+        var choice = "auto";
+        var fromUrl = new URLSearchParams(location.search).get("theme");
+        var stored = localStorage.getItem("jj_atlas_theme");
+        if (fromUrl === "light" || fromUrl === "dark" || fromUrl === "auto") choice = fromUrl;
+        else if (stored === "light" || stored === "dark" || stored === "auto") choice = stored;
+        var resolved = choice === "auto"
+          ? (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
+          : choice;
+        var root = document.documentElement;
+        root.setAttribute("data-theme", resolved);
+        root.setAttribute("data-theme-choice", choice);
+        root.style.colorScheme = resolved;
+      } catch (_) {
+        document.documentElement.setAttribute("data-theme", "light");
+        document.documentElement.setAttribute("data-theme-choice", "auto");
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">名</div>
+        <div class="brand-text">
+          <h1 data-i18n="app.title">Atlas de Nombres de Jiu-Jitsu</h1>
+          <p id="tagline">Todos los cinturones · 103 técnicas</p>
+        </div>
+      </div>
+      <nav class="tabs" role="tablist" aria-label="Secciones" data-i18n-aria="sections">
+        <button class="tab active" role="tab" aria-selected="true" data-view="browse" data-i18n="tab.browse">Explorar</button>
+        <button class="tab" role="tab" aria-selected="false" data-view="flashcards" data-i18n="tab.flashcards">Fichas</button>
+        <button class="tab" role="tab" aria-selected="false" data-view="speed" data-i18n="tab.speed">Ronda rápida</button>
+        <button class="tab" role="tab" aria-selected="false" data-view="glossary" data-i18n="tab.glossary">Glosario</button>
+      </nav>
+      <div class="header-controls">
+        <button type="button" class="theme-toggle" id="theme-toggle" data-theme-choice="auto" title="Tema: Auto" aria-label="Tema: Auto. Cambiar tema.">
+          <svg class="theme-icon theme-icon-auto" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+            <circle cx="12" cy="12" r="8"></circle>
+            <path d="M12 4a8 8 0 0 1 0 16Z" fill="currentColor" stroke="none"></path>
+          </svg>
+          <svg class="theme-icon theme-icon-light" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+            <circle cx="12" cy="12" r="4"></circle>
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path>
+          </svg>
+          <svg class="theme-icon theme-icon-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+            <path d="M20.5 14.2A8.5 8.5 0 0 1 9.8 3.5a8.5 8.5 0 1 0 10.7 10.7Z"></path>
+          </svg>
+          <span class="theme-toggle-label" data-theme-label aria-live="polite" aria-atomic="true">Auto</span>
+        </button>
+        <div class="segmented lang-toggle" id="lang-toggle" role="group" aria-label="Idioma" data-i18n-aria="language">
+          <button type="button" data-lang="en" aria-pressed="false">EN</button>
+          <button type="button" data-lang="es" class="active" aria-pressed="true">ES</button>
+        </div>
+      </div>
+    </div>
+    <div class="belt-bar" id="belt-bar" role="group" aria-label="Cinturón" data-i18n-aria="belt.selector"></div>
+  </header>
+
+  <main class="page">
+    <!-- BROWSE -->
+    <section id="view-browse" class="view active" role="tabpanel" aria-label="Explorar técnicas" data-i18n-aria="tab.browse">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow" data-i18n="browse.eyebrow">PROYECTO KATA · EN CASA</p>
+          <h2 data-i18n="browse.title">Conoce el nombre. Ve la forma.</h2>
+          <p class="lede" id="browse-lede">Todos los nombres de todos los cinturones, con los fotogramas clave y las palabras japonesas que los forman. Estudia por cinturón o por técnica.</p>
+        </div>
+        <label class="checkline">
+          <input type="checkbox" id="only-unknown">
+          <span data-i18n="browse.review">Solo mi repaso</span>
+        </label>
+      </div>
+
+      <div class="filters">
+        <div class="search-wrap">
+          <span class="search-icon" aria-hidden="true">⌕</span>
+          <input id="search" type="search" autocomplete="off" placeholder="Busca técnica, significado o palabra…" aria-label="Buscar técnicas" data-i18n-placeholder="browse.searchPlaceholder" data-i18n-aria="browse.searchLabel">
+        </div>
+        <div id="category-chips" class="chips" role="group" aria-label="Filtrar por categoría" data-i18n-aria="browse.filterCategory"></div>
+      </div>
+
+      <div id="browse-grid" class="grid" aria-live="polite"></div>
+      <div id="browse-empty" class="empty" hidden>
+        <p id="browse-empty-text" data-i18n="browse.empty">Ninguna técnica coincide.</p>
+        <button id="clear-filters" class="ghost" data-i18n="browse.clear">Limpiar filtros</button>
+      </div>
+    </section>
+
+    <!-- FLASHCARDS -->
+    <section id="view-flashcards" class="view" role="tabpanel" aria-label="Fichas" data-i18n-aria="tab.flashcards" hidden>
+      <div class="section-head">
+        <div>
+          <p class="eyebrow" data-i18n="flash.eyebrow">PRÁCTICA EN DOS SENTIDOS</p>
+          <h2 data-i18n="flash.title">Fichas</h2>
+          <p class="lede" data-i18n="flash.lede">Nombre → técnica y técnica → nombre. Baraja, revela y marca lo que sabes.</p>
+        </div>
+        <div class="segmented" id="flash-mode" role="group" aria-label="Sentido de las fichas" data-i18n-aria="flash.direction">
+          <button class="active" data-mode="name" aria-pressed="true" data-i18n="flash.dirName">Nombre → técnica</button>
+          <button data-mode="image" aria-pressed="false" data-i18n="flash.dirImage">Técnica → nombre</button>
+        </div>
+      </div>
+
+      <div class="flash-stage">
+        <button id="flash-prev" class="round-btn" aria-label="Anterior" data-i18n-aria="flash.prev">←</button>
+        <div id="flashcard" class="flashcard" tabindex="0" role="button" aria-label="Ficha. Haz clic o pulsa Espacio para girarla." data-i18n-aria="flash.cardAria">
+          <div id="flash-content" class="flash-content"></div>
+          <p class="flash-hint" id="flash-hint" data-i18n="flash.flipHint">Haz clic en la ficha o pulsa Espacio para girarla</p>
+        </div>
+        <button id="flash-next" class="round-btn" aria-label="Siguiente" data-i18n-aria="flash.next">→</button>
+      </div>
+
+      <div class="flash-controls">
+        <button id="flash-flip" class="primary" data-i18n="flash.show">Mostrar respuesta</button>
+        <button id="flash-shuffle" class="ghost" data-i18n="flash.shuffle">Barajar</button>
+        <button id="flash-prev-m" class="ghost mobile-nav" aria-label="Anterior" data-i18n-aria="flash.prev" data-i18n="flash.prevShort">← Ant.</button>
+        <button id="flash-next-m" class="ghost mobile-nav" aria-label="Siguiente" data-i18n-aria="flash.next" data-i18n="flash.nextShort">Sig. →</button>
+        <label class="checkline compact">
+          <input type="checkbox" id="flash-known">
+          <span data-i18n="flash.known">Me la sé</span>
+        </label>
+        <span id="flash-progress" class="progress-text"></span>
+      </div>
+    </section>
+
+    <!-- SPEED ROUND -->
+    <section id="view-speed" class="view" role="tabpanel" aria-label="Ronda rápida" data-i18n-aria="tab.speed" hidden>
+      <div class="section-head speed-head">
+        <div>
+          <p class="eyebrow" data-i18n="speed.eyebrow">JUEGO DEL VIERNES · EN CASA</p>
+          <h2 data-i18n="speed.title">Ronda rápida</h2>
+          <p class="lede" data-i18n="speed.lede">Sesenta segundos. Nombre → imagen o imagen → nombre. Tu mejor marca se guarda en este dispositivo.</p>
+        </div>
+        <div class="stats" aria-label="Estadísticas de la ronda" data-i18n-aria="speed.stats">
+          <div class="stat"><span id="speed-best">0</span><small data-i18n="speed.best">Récord</small></div>
+          <div class="stat"><span id="speed-score">0</span><small data-i18n="speed.score">Puntos</small></div>
+          <div class="stat"><span id="speed-timer">60</span><small data-i18n="speed.time">Tiempo</small></div>
+        </div>
+      </div>
+
+      <div id="speed-start" class="speed-panel start-panel">
+        <div class="start-mark" aria-hidden="true">名</div>
+        <div class="segmented" id="speed-dir" role="group" aria-label="Sentido de la ronda" data-i18n-aria="speed.direction">
+          <button class="active" data-dir="name" aria-pressed="true" data-i18n="speed.dirName">Nombre → imagen</button>
+          <button data-dir="picture" aria-pressed="false" data-i18n="speed.dirPicture">Imagen → nombre</button>
+        </div>
+        <h3 id="speed-start-title">Nombre → imagen</h3>
+        <p id="speed-start-copy">Verás un nombre japonés, sus partes y cuatro fotogramas. Elige el que coincida. Las respuestas incorrectas muestran la ficha correcta antes de continuar.</p>
+        <button id="speed-start-btn" class="primary big" data-i18n="speed.start">Empezar ronda de 60 s</button>
+        <p class="fineprint" data-i18n="speed.tip">Consejo: las primeras preguntas son de calentamiento. El reloj no empieza hasta que pulses el botón.</p>
+        <p class="fineprint" id="speed-scope-note" hidden></p>
+      </div>
+
+      <div id="speed-game" class="speed-panel" hidden>
+        <div class="speed-question">
+          <p class="eyebrow" id="speed-eyebrow">¿Qué técnica es esta?</p>
+          <h3 id="speed-name">Mae Tsuki</h3>
+          <div id="speed-words" class="speed-words"></div>
+          <div id="speed-question-img" class="speed-question-img" hidden>
+            <img id="speed-img" alt="Técnica por identificar" data-i18n-alt="speed.techniqueAlt">
+          </div>
+        </div>
+        <div id="speed-options" class="speed-options" role="group" aria-label="Elige la técnica que coincide" data-i18n-aria="speed.choose"></div>
+        <p id="speed-feedback" class="speed-feedback" aria-live="polite"></p>
+        <div id="speed-answer-words" class="speed-answer-words"></div>
+      </div>
+
+      <div id="speed-end" class="speed-panel end-panel" hidden>
+        <p class="eyebrow" data-i18n="speed.over">Ronda terminada</p>
+        <h3 id="speed-end-title">¡Tiempo!</h3>
+        <p id="speed-end-score" class="big-score"></p>
+        <div id="speed-missed" class="missed"></div>
+        <button id="speed-again" class="primary" data-i18n="speed.again">Jugar otra vez</button>
+      </div>
+    </section>
+
+    <!-- GLOSSARY -->
+    <section id="view-glossary" class="view" role="tabpanel" aria-label="Glosario" data-i18n-aria="tab.glossary" hidden>
+      <div class="section-head">
+        <div>
+          <p class="eyebrow" data-i18n="glossary.eyebrow">PALABRAS DENTRO DE LAS PALABRAS</p>
+          <h2 data-i18n="glossary.title">Glosario</h2>
+          <p class="lede" data-i18n="glossary.lede">Cada palabra japonesa del programa, con su significado y las palabras que forma.</p>
+        </div>
+      </div>
+
+      <section class="glossary-categories" id="glossary-categories">
+        <div class="glossary-categories-head">
+          <p class="eyebrow" data-i18n="glossary.categoriesEyebrow">LAS FAMILIAS DE TÉCNICAS</p>
+          <h3 data-i18n="glossary.categoriesTitle">Qué significa cada categoría</h3>
+          <p data-i18n="glossary.categoriesLede">Cada técnica pertenece a una familia. Aquí tienes qué hace cada una y cómo se reconoce.</p>
+        </div>
+        <div id="glossary-categories-body" class="glossary-categories-body"></div>
+      </section>
+
+      <div class="name-builder">
+        <div class="builder-intro">
+          <p class="eyebrow" data-i18n="glossary.howEyebrow">CÓMO SE FORMA UN NOMBRE</p>
+          <h3 data-i18n="glossary.howTitle">La última palabra nombra la familia</h3>
+          <p data-i18n="glossary.howCopy">La última palabra suele ser la familia; las anteriores describen la forma, la dirección o la parte del cuerpo. Algunos ejemplos:</p>
+        </div>
+        <div class="builder-examples">
+          <div class="builder-row">
+            <span class="builder-name">O Soto Otoshi</span>
+            <span class="builder-parts"><b>o</b> <span data-i18n="glossary.major">grande</span> <i>+</i> <b>soto</b> <span data-i18n="glossary.outside">exterior</span> <i>+</i> <b>otoshi</b> <span data-i18n="glossary.drop">caída</span></span>
+          </div>
+          <div class="builder-row">
+            <span class="builder-name">Kami Shiho Gatame</span>
+            <span class="builder-parts"><b>kami</b> <span data-i18n="glossary.upper">superior</span> <i>+</i> <b>shiho</b> <span data-i18n="glossary.fourDirections">cuatro direcciones</span> <i>+</i> <b>gatame</b> <span data-i18n="glossary.hold">control</span></span>
+          </div>
+          <div class="builder-row">
+            <span class="builder-name">Kote Gaeshi</span>
+            <span class="builder-parts"><b>kote</b> <span data-i18n="glossary.wrist">muñeca</span> <i>+</i> <b>gaeshi</b> <span data-i18n="glossary.reversal">inversión</span></span>
+          </div>
+          <div class="builder-row">
+            <span class="builder-name">Uki Goshi</span>
+            <span class="builder-parts"><b>uki</b> <span data-i18n="glossary.float">flotar</span> <i>+</i> <b>goshi</b> <span data-i18n="glossary.hip">cadera</span></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="filters">
+        <div class="search-wrap">
+          <span class="search-icon" aria-hidden="true">⌕</span>
+          <input id="glossary-search" type="search" autocomplete="off" placeholder="Busca en el glosario…" aria-label="Buscar en el glosario" data-i18n-placeholder="glossary.searchPlaceholder" data-i18n-aria="glossary.searchLabel">
+        </div>
+        <div id="glossary-chips" class="chips" role="group" aria-label="Filtrar el glosario por grupo" data-i18n-aria="glossary.filterGroup"></div>
+      </div>
+
+      <div id="glossary-grid" class="glossary-grid"></div>
+      <div id="glossary-empty" class="empty" hidden><p data-i18n="glossary.empty">Ningún término coincide.</p></div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p data-i18n="footer.text">Estudio privado. Los fotogramas son imágenes de las fuentes citadas; sigue el enlace para ver el vídeo completo.</p>
+    <p class="footer-meta" id="footer-meta">103 técnicas · 98 términos de glosario · Todos los cinturones.</p>
+  </footer>
+
+  <!-- DETAIL MODAL -->
+  <div id="modal" class="modal" hidden>
+    <div class="modal-backdrop" data-close="modal"></div>
+    <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <button class="modal-close" data-close="modal" aria-label="Cerrar ficha" data-i18n-aria="modal.closeAria">×</button>
+      <div id="modal-content" class="modal-content"></div>
+    </div>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="i18n.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
