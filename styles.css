@@ -1953,6 +1953,26 @@ h2 {
 .speed-option.name-option.wrong { border-color: var(--bad); }
 .speed-option.name-option.wrong .option-name { color: var(--bad); }
 
+/* Vocabulary options are sentences, so they read left-aligned and, on a
+   phone, one per row. */
+.speed-options.text-options { grid-template-columns: minmax(0, 1fr); }
+
+.speed-options.text-options .speed-option.name-option {
+  align-items: flex-start;
+  min-height: 0;
+  padding: 14px 16px 14px 46px;
+  text-align: left;
+}
+
+.speed-options.text-options .speed-option.name-option .option-name { text-align: left; }
+
+.speed-term {
+  display: block;
+  margin-top: 6px;
+  color: var(--accent-2);
+  font-size: 1.05rem;
+}
+
 .speed-feedback {
   min-height: 24px;
   margin: 14px 0 0;
@@ -2797,6 +2817,8 @@ h2 {
   .speed-panel { padding: 30px; }
   .speed-options { gap: 12px; }
   .speed-option.name-option { min-height: 96px; padding: 22px 18px; }
+  .speed-options.text-options { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .speed-options.text-options .speed-option.name-option { padding: 18px 18px 18px 48px; }
   .speed-option.name-option .option-name { font-size: 1.02rem; }
 
   .flashcard { padding: 34px 34px 62px; min-height: 480px; }

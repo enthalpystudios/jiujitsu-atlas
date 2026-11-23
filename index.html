@@ -215,9 +215,13 @@
 
       <div id="speed-start" class="speed-panel start-panel">
         <div class="start-mark" aria-hidden="true">名</div>
+        <div class="segmented" id="speed-deck" role="group" aria-label="Mazo" data-i18n-aria="flash.deck">
+          <button class="active" data-deck="techniques" aria-pressed="true" data-i18n="flash.deckTech">Técnicas</button>
+          <button data-deck="glossary" aria-pressed="false" data-i18n="flash.deckGloss">Vocabulario</button>
+        </div>
         <div class="segmented" id="speed-dir" role="group" aria-label="Sentido de la ronda" data-i18n-aria="speed.direction">
-          <button class="active" data-dir="name" aria-pressed="true" data-i18n="speed.dirName">Nombre → imagen</button>
-          <button data-dir="picture" aria-pressed="false" data-i18n="speed.dirPicture">Imagen → nombre</button>
+          <button class="active" data-dir="name" aria-pressed="true">Nombre → imagen</button>
+          <button data-dir="picture" aria-pressed="false">Imagen → nombre</button>
         </div>
         <h3 id="speed-start-title">Nombre → imagen</h3>
         <p id="speed-start-copy">Verás un nombre japonés, sus partes y cuatro fotogramas. Elige el que coincida. Las respuestas incorrectas muestran la ficha correcta antes de continuar.</p>

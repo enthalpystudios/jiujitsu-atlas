@@ -22,6 +22,7 @@
     flashMode: "jj_atlas_flash_mode",
     flashDeck: "jj_atlas_flash_deck",
     speedDir: "jj_atlas_speed_dir",
+    speedDeck: "jj_atlas_speed_deck",
     lang: "jj_atlas_lang",
     grade: "jj_atlas_grade",
     theme: "jj_atlas_theme",
@@ -156,6 +157,7 @@
       finished: false,
       newBest: false,
       dir: readRaw(STORAGE.speedDir) === "picture" ? "picture" : "name",
+      deck: readRaw(STORAGE.speedDeck) === "glossary" ? "glossary" : "techniques",
     },
   };
 
@@ -1792,15 +1794,42 @@
 
   function renderSpeedDir() {
     const picture = state.speed.dir === "picture";
-    $$("#speed-dir button").forEach((button) => {
-      const active = button.getAttribute("data-dir") === state.speed.dir;
+    const glossary = state.speed.deck === "glossary";
+
+    $$("#speed-deck button").forEach((button) => {
+      const active = button.getAttribute("data-deck") === state.speed.deck;
       button.classList.toggle("active", active);
       button.setAttribute("aria-pressed", String(active));
     });
+
+    $$("#speed-dir button").forEach((button) => {
+      const isPicture = button.getAttribute("data-dir") === "picture";
+      const active = isPicture === picture;
+      button.classList.toggle("active", active);
+      button.setAttribute("aria-pressed", String(active));
+      button.textContent = t(
+        glossary
+          ? (isPicture ? "speed.dirMeaning" : "speed.dirTerm")
+          : (isPicture ? "speed.dirPicture" : "speed.dirName")
+      );
+    });
+
     const title = $("#speed-start-title");
     const copy = $("#speed-start-copy");
-    if (title) title.textContent = picture ? t("speed.dirPicture") : t("speed.dirName");
-    if (copy) copy.textContent = picture ? t("speed.copyPicture") : t("speed.copyName");
+    if (title) {
+      title.textContent = t(
+        glossary
+          ? (picture ? "speed.dirMeaning" : "speed.dirTerm")
+          : (picture ? "speed.dirPicture" : "speed.dirName")
+      );
+    }
+    if (copy) {
+      copy.textContent = t(
+        glossary
+          ? (picture ? "speed.copyMeaning" : "speed.copyTerm")
+          : (picture ? "speed.copyPicture" : "speed.copyName")
+      );
+    }
     const scopeNote = $("#speed-scope-note");
     if (scopeNote) {
       const fallback = speedUsesFallback() && state.grade !== "all";
@@ -1809,21 +1838,58 @@
     }
   }
 
+  function setSpeedDeck(deck) {
+    if (deck !== "techniques" && deck !== "glossary") return;
+    state.speed.deck = deck;
+    writeRaw(STORAGE.speedDeck, deck);
+    if (state.speed.running) stopSpeedToStart();
+    renderSpeedDir();
+  }
+
   function setSpeedDir(dir) {
     state.speed.dir = dir === "picture" ? "picture" : "name";
     writeRaw(STORAGE.speedDir, state.speed.dir);
     renderSpeedDir();
   }
 
+  /* The round works on generic items, so the same loop can quiz a technique
+     name against its frames or a Japanese word against its meaning. */
+  function speedItemFromTech(tech) {
+    return {
+      id: tech.id,
+      name: tech.japanese,
+      sub: pick(tech, "translation"),
+      meaning: pick(tech, "translation"),
+      frame: heroFrame(tech) || null,
+      speak: tech.japanese,
+    };
+  }
+
+  function speedItemFromTerm(item) {
+    return {
+      id: item.term,
+      name: item.term,
+      sub: item.reading,
+      meaning: pick(item, "meaning"),
+      frame: null,
+      speak: item.term,
+    };
+  }
+
   function speedPool() {
-    const scoped = activeTech().filter((tech) => tech.frames && tech.frames.length > 0);
+    if (state.speed.deck === "glossary") {
+      const scoped = glossaryDeck().map(speedItemFromTerm);
+      return scoped.length >= 4 ? scoped : GLOSSARY.map(speedItemFromTerm);
+    }
+    const scoped = activeTech().filter((tech) => tech.frames && tech.frames.length > 0).map(speedItemFromTech);
     if (scoped.length >= 2) return scoped;
     // A belt with no frames yet would leave the round empty; fall back to the
     // whole atlas so the game still works. The start panel explains this.
-    return TECH.filter((tech) => tech.frames && tech.frames.length > 0);
+    return TECH.filter((tech) => tech.frames && tech.frames.length > 0).map(speedItemFromTech);
   }
 
   function speedUsesFallback() {
+    if (state.speed.deck === "glossary") return false;
     return activeTech().filter((tech) => tech.frames && tech.frames.length > 0).length < 2;
   }
 
@@ -1834,11 +1900,11 @@
       endSpeed();
       return;
     }
-    const pool = all.filter((tech) => !state.speed.question || tech.id !== state.speed.question.id);
+    const pool = all.filter((item) => !state.speed.question || item.id !== state.speed.question.id);
     const correct = pool[Math.floor(Math.random() * pool.length)] || all[0];
-    const others = shuffle(all.filter((tech) => tech.id !== correct.id)).slice(0, 3);
+    const others = shuffle(all.filter((item) => item.id !== correct.id)).slice(0, 3);
     state.speed.question = correct;
-    state.speed.options = shuffle([correct, ...others]).map((tech) => tech.id);
+    state.speed.options = shuffle([correct, ...others]);
     state.speed.answered = false;
     state.speed.picked = null;
     renderSpeedQuestion();
@@ -1847,31 +1913,42 @@
   function renderSpeedQuestion() {
     const correct = state.speed.question;
     if (!correct) return;
+    const glossary = state.speed.deck === "glossary";
     const picture = state.speed.dir === "picture";
-    const options = state.speed.options.map((id) => TECH_BY_ID[id]).filter(Boolean);
 
     const name = $("#speed-name");
     const words = $("#speed-words");
     const eyebrow = $("#speed-eyebrow");
     const imgWrap = $("#speed-question-img");
     const img = $("#speed-img");
-    const hero = heroFrame(correct);
 
-    if (picture) {
+    if (glossary) {
+      if (name) {
+        name.hidden = false;
+        name.innerHTML = `${escapeHtml(picture ? correct.meaning : correct.name)}${speakButton(correct.speak, "inline-speak")}`;
+      }
+      if (words) {
+        words.innerHTML = picture || !correct.sub
+          ? ""
+          : `<span class="speed-term">${escapeHtml(correct.sub)}</span>`;
+      }
+      if (eyebrow) eyebrow.textContent = picture ? t("speed.whichTerm") : t("speed.whichMeaning");
+      if (imgWrap) imgWrap.hidden = true;
+    } else if (picture) {
       if (name) name.hidden = true;
       if (words) words.innerHTML = "";
       if (eyebrow) eyebrow.textContent = t("speed.whichName");
       if (imgWrap) imgWrap.hidden = false;
-      if (img && hero) {
-        img.src = hero.src;
-        img.alt = `${correct.japanese} — ${phaseLabel(hero)}`;
+      if (img && correct.frame) {
+        img.src = correct.frame.src;
+        img.alt = `${correct.name} — ${phaseLabel(correct.frame)}`;
       }
     } else {
       if (name) {
         name.hidden = false;
-        name.innerHTML = `${escapeHtml(correct.japanese)}${speakButton(correct.japanese, "inline-speak")}`;
+        name.innerHTML = `${escapeHtml(correct.name)}${speakButton(correct.name, "inline-speak")}`;
       }
-      if (words) words.innerHTML = wordChips(correct, { className: "speed-word-chips" });
+      if (words) words.innerHTML = wordChips(TECH_BY_ID[correct.id], { className: "speed-word-chips" });
       if (eyebrow) eyebrow.textContent = t("speed.whichTechnique");
       if (imgWrap) imgWrap.hidden = true;
     }
@@ -1882,25 +1959,35 @@
     if (answerWords) answerWords.innerHTML = "";
 
     const host = $("#speed-options");
-    host.classList.remove("answered", "picture-options");
-    if (picture) host.classList.add("picture-options");
-    host.innerHTML = options
-      .map((tech, index) => {
+    host.classList.remove("answered", "picture-options", "text-options");
+    if (glossary) host.classList.add("text-options");
+    host.innerHTML = state.speed.options
+      .map((item, index) => {
         const letter = String.fromCharCode(65 + index);
-        if (picture) {
+        const label = t("speed.option", { letter });
+        if (glossary) {
+          const text = picture ? item.name : item.meaning;
+          const sub = picture ? item.sub : "";
           return `
-          <button class="speed-option name-option" data-id="${tech.id}" aria-label="${escapeHtml(t("speed.option", { letter }))}: ${escapeHtml(tech.japanese)}">
+          <button class="speed-option name-option" data-id="${escapeHtml(item.id)}" aria-label="${escapeHtml(label)}">
             <span class="option-key">${letter}</span>
-            <span class="option-name">${tech.japanese}</span>
-            <span class="option-sub">${escapeHtml(pick(tech, "translation"))}</span>
+            <span class="option-name">${escapeHtml(text)}</span>
+            ${sub ? `<span class="option-sub">${escapeHtml(sub)}</span>` : ""}
           </button>`;
         }
-        const frame = heroFrame(tech);
-        return `
-          <button class="speed-option" data-id="${tech.id}" aria-label="${escapeHtml(t("speed.option", { letter }))}">
-            <img src="${frame.src}" alt="${escapeHtml(t("speed.option", { letter }))}" loading="eager">
+        if (picture) {
+          return `
+          <button class="speed-option name-option" data-id="${escapeHtml(item.id)}" aria-label="${escapeHtml(label)}: ${escapeHtml(item.name)}">
             <span class="option-key">${letter}</span>
-            <span class="option-name">${tech.japanese}</span>
+            <span class="option-name">${escapeHtml(item.name)}</span>
+            <span class="option-sub">${escapeHtml(item.sub)}</span>
+          </button>`;
+        }
+        return `
+          <button class="speed-option" data-id="${escapeHtml(item.id)}" aria-label="${escapeHtml(label)}">
+            <img src="${item.frame.src}" alt="${escapeHtml(label)}" loading="eager">
+            <span class="option-key">${letter}</span>
+            <span class="option-name">${escapeHtml(item.name)}</span>
           </button>`;
       })
       .join("");
@@ -1910,6 +1997,7 @@
 
   function showSpeedAnswer(optionId) {
     const correct = state.speed.question;
+    const glossary = state.speed.deck === "glossary";
     const isCorrect = optionId === correct.id;
     const host = $("#speed-options");
     host.classList.add("answered");
@@ -1919,30 +2007,30 @@
 
     const answerWords = $("#speed-answer-words");
     if (answerWords) {
-      answerWords.innerHTML =
-        state.speed.dir === "picture" ? wordChips(correct, { className: "speed-word-chips" }) : "";
+      const tech = !glossary && state.speed.dir === "picture" ? TECH_BY_ID[correct.id] : null;
+      answerWords.innerHTML = tech ? wordChips(tech, { className: "speed-word-chips" }) : "";
     }
 
-    const vars = { name: correct.japanese, translation: pick(correct, "translation") };
+    const vars = { name: correct.name, translation: correct.meaning };
     const button = $(`.speed-option[data-id="${optionId}"]`, host);
     const feedback = $("#speed-feedback");
     if (isCorrect) {
       if (button) button.classList.add("correct");
-      feedback.innerHTML = escapeHtml(t("speed.correctMsg", vars)) + speakButton(correct.japanese, "inline-speak");
+      feedback.innerHTML = escapeHtml(t("speed.correctMsg", vars)) + speakButton(correct.speak, "inline-speak");
       feedback.className = "speed-feedback good";
     } else {
       if (button) button.classList.add("wrong");
       const correctButton = $(`.speed-option[data-id="${correct.id}"]`, host);
       if (correctButton) {
         correctButton.classList.add("correct");
-        if (state.speed.dir === "name" && !correctButton.querySelector(".option-sub")) {
+        if (!correctButton.querySelector(".option-sub")) {
           const sub = document.createElement("span");
           sub.className = "option-sub";
-          sub.textContent = pick(correct, "translation");
+          sub.textContent = correct.meaning;
           correctButton.appendChild(sub);
         }
       }
-      feedback.innerHTML = escapeHtml(t("speed.wrongMsg", vars)) + speakButton(correct.japanese, "inline-speak");
+      feedback.innerHTML = escapeHtml(t("speed.wrongMsg", vars)) + speakButton(correct.speak, "inline-speak");
       feedback.className = "speed-feedback bad";
     }
   }
@@ -1955,7 +2043,7 @@
     const correct = state.speed.question;
     const isCorrect = optionId === correct.id;
     if (isCorrect) state.speed.score += 1;
-    else if (!state.speed.missed.includes(correct.id)) state.speed.missed.push(correct.id);
+    else if (!state.speed.missed.some((item) => item.id === correct.id)) state.speed.missed.push(correct);
     showSpeedAnswer(optionId);
     updateSpeedStats();
 
@@ -1999,11 +2087,11 @@
       missedHost.innerHTML = `<p class="fineprint">${t("speed.clean")}</p>`;
     } else {
       missedHost.innerHTML = state.speed.missed
-        .map((id) => {
-          const tech = TECH_BY_ID[id];
-          if (!tech) return "";
-          return `<span class="missed-item"><img src="${heroFrame(tech).src}" alt=""><span class="missed-text">${tech.japanese}<small>${escapeHtml(pick(tech, "translation"))}</small></span></span>`;
-        })
+        .map(
+          (item) => `<span class="missed-item">${
+            item.frame ? `<img src="${item.frame.src}" alt="">` : ""
+          }<span class="missed-text">${escapeHtml(item.name)}<small>${escapeHtml(item.meaning)}</small></span></span>`
+        )
         .join("");
     }
   }
@@ -2397,6 +2485,11 @@
     // Speed
     $("#speed-start-btn").addEventListener("click", startSpeed);
     $("#speed-again").addEventListener("click", startSpeed);
+
+    $("#speed-deck").addEventListener("click", (event) => {
+      const button = event.target.closest("[data-deck]");
+      if (button) setSpeedDeck(button.getAttribute("data-deck"));
+    });
 
     $("#speed-dir").addEventListener("click", (event) => {
       const button = event.target.closest("[data-dir]");
