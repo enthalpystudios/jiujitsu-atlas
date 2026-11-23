@@ -1296,6 +1296,10 @@
   function syncHeaderForView() {
     const filtersButton = $("#filters-btn");
     if (filtersButton) filtersButton.hidden = state.view !== "browse";
+    // The glossary wears its switch in the header, the one strip that never
+    // scrolls away, so the reading is always one tap from the words.
+    const modeButton = $("#glossary-mode");
+    if (modeButton) modeButton.hidden = state.view !== "glossary";
     const actions = $(".flash-actions");
     if (actions) actions.hidden = state.view !== "flashcards";
   }
@@ -2303,6 +2307,7 @@
       </div>`;
 
     host.innerHTML = [
+      `<p class="grammar-lead">${escapeHtml(t("grammar.lead"))}</p>`,
       rule(t("grammar.familyTitle"), t("grammar.familyCopy"), words(endings, 10)),
       rule(t("grammar.leadTitle"), t("grammar.leadCopy"), words(openings, 8)),
       rule(t("grammar.particleTitle"), t("grammar.particleCopy")),
@@ -2341,11 +2346,11 @@
     const guideHost = $("#glossary-guide");
     if (words) words.hidden = guide;
     if (guideHost) guideHost.hidden = !guide;
-    $$("#glossary-mode button").forEach((button) => {
-      const active = button.getAttribute("data-gmode") === state.glossaryMode;
-      button.classList.toggle("active", active);
-      button.setAttribute("aria-pressed", String(active));
-    });
+    const modeButton = $("#glossary-mode");
+    if (modeButton) {
+      modeButton.setAttribute("aria-pressed", String(guide));
+      modeButton.setAttribute("title", t(guide ? "glossary.toWords" : "glossary.toGuide"));
+    }
   }
 
   function setGlossaryMode(mode) {
@@ -2677,10 +2682,11 @@
     });
 
     // Glossary
-    $("#glossary-mode").addEventListener("click", (event) => {
-      const button = event.target.closest("[data-gmode]");
-      if (button) setGlossaryMode(button.getAttribute("data-gmode"));
+    $("#glossary-mode").addEventListener("click", () => {
+      setGlossaryMode(state.glossaryMode === "guide" ? "words" : "guide");
     });
+
+    $("#glossary-back").addEventListener("click", () => setGlossaryMode("words"));
 
     $("#glossary-chips").addEventListener("click", (event) => {
       const chip = event.target.closest("[data-group]");

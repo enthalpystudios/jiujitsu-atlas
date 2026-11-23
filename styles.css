@@ -2476,6 +2476,35 @@ h2 {
   margin-top: 10px;
 }
 
+/* The glossary's switch rides in the header, so it costs no content space. */
+.mode-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+  min-height: 44px;
+  padding: 0 13px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--panel);
+  color: var(--text);
+  font-size: 0.78rem;
+  font-weight: 650;
+  cursor: pointer;
+  transition: background 150ms var(--ease), border-color 150ms var(--ease), color 150ms var(--ease);
+}
+
+.mode-btn svg { width: 17px; height: 17px; flex: 0 0 auto; }
+.mode-btn:hover { border-color: var(--line-strong); }
+
+.mode-btn[aria-pressed="true"] {
+  background: var(--text);
+  border-color: var(--text);
+  color: var(--bg);
+}
+
+.guide-back { margin-top: 24px; }
+
 /* ---------- 16e. Glossary: the dictionary, then the reading ---------- */
 
 .glossary-head {
@@ -2603,7 +2632,17 @@ h2 {
   margin-top: 18px;
 }
 
+.builder-rules { counter-reset: rule; }
+
+.grammar-lead {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.84rem;
+  line-height: 1.55;
+}
+
 .grammar-rule {
+  counter-increment: rule;
   padding: 14px 16px;
   border: 1px solid var(--line);
   border-radius: 14px;
@@ -2611,9 +2650,27 @@ h2 {
 }
 
 .grammar-rule h4 {
+  display: flex;
+  gap: 8px;
   margin: 0;
   font-size: 0.88rem;
   letter-spacing: -0.01em;
+}
+
+/* The order is the point, so it is numbered. */
+.grammar-rule h4::before {
+  content: counter(rule);
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  margin-top: 1px;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 0.7rem;
+  font-weight: 700;
 }
 
 .grammar-rule > p {
@@ -3163,8 +3220,8 @@ h2 {
   #flash-prev,
   #flash-next { display: none; }
 
-  .glossary-head .eyebrow { display: none; }
-  .glossary-head h2 { font-size: 1.45rem; }
+  /* The tab bar names the view and the header holds the switch. */
+  .glossary-head { display: none; }
 
   /* The tab bar already says which view this is, so the heading steps aside. */
   .flash-head .eyebrow,
