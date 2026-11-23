@@ -265,6 +265,7 @@
     renderGlossaryChips();
     renderGlossary();
     renderGlossaryCategories();
+    renderNameGrammar();
     renderSpeedDir();
     updateSpeedStats();
     if (state.speed.finished) renderSpeedEnd();
@@ -1842,6 +1843,57 @@
     setTimeout(() => card.classList.remove("is-target"), 2400);
   }
 
+  /* The grammar behind the four examples: which words end a name, which open
+     it, and what the particle and the numbers are doing. Counts are derived
+     from the atlas, so the panel can never drift from the data. */
+  function renderNameGrammar() {
+    const host = $("#grammar-rules");
+    if (!host) return;
+    const endings = new Map();
+    const openings = new Map();
+    const bump = (map, key) => {
+      const entry = map.get(key) || { n: 0 };
+      entry.n += 1;
+      map.set(key, entry);
+    };
+    TECH.forEach((tech) => {
+      const parts = wordParts(tech);
+      if (!parts.length) return;
+      bump(endings, parts[parts.length - 1].word.toLowerCase());
+      if (parts.length > 1) bump(openings, parts[0].word.toLowerCase());
+    });
+
+    const words = (map, limit) =>
+      Array.from(map.entries())
+        .sort((a, b) => b[1].n - a[1].n)
+        .slice(0, limit)
+        .map(([word, info]) => {
+          const term = glossaryForWord(word);
+          return `<button type="button" class="grammar-word" data-gloss="${escapeHtml(term ? term.term : word)}">
+            <b>${escapeHtml(word)}</b>${
+              term && term.reading ? `<span class="word-kanji">${escapeHtml(term.reading)}</span>` : ""
+            }
+            <span class="grammar-meaning">${escapeHtml(term ? pick(term, "meaning") : "")}</span>
+            <span class="grammar-count" title="${escapeHtml(t("grammar.count", { n: info.n }))}">${info.n}</span>
+          </button>`;
+        })
+        .join("");
+
+    const rule = (title, copy, list) => `
+      <div class="grammar-rule">
+        <h4>${title}</h4>
+        <p>${copy}</p>
+        ${list ? `<div class="grammar-words">${list}</div>` : ""}
+      </div>`;
+
+    host.innerHTML = [
+      rule(t("grammar.familyTitle"), t("grammar.familyCopy"), words(endings, 10)),
+      rule(t("grammar.leadTitle"), t("grammar.leadCopy"), words(openings, 8)),
+      rule(t("grammar.particleTitle"), t("grammar.particleCopy")),
+      rule(t("grammar.numbersTitle"), t("grammar.numbersCopy")),
+    ].join("");
+  }
+
   function renderGlossaryChips() {
     const host = $("#glossary-chips");
     if (!host) return;
@@ -2272,6 +2324,7 @@
     renderGlossaryChips();
     renderGlossary();
     renderGlossaryCategories();
+    renderNameGrammar();
     rebuildFlashOrder();
     renderFlash();
     renderSpeedDir();

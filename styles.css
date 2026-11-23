@@ -2258,6 +2258,68 @@ h2 {
 .footer p { margin: 4px 0; }
 .footer-meta { opacity: 0.8; }
 
+/* The grammar panel: the rules the examples above are instances of. */
+.builder-rules {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.grammar-rule {
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--panel);
+}
+
+.grammar-rule h4 {
+  margin: 0;
+  font-size: 0.88rem;
+  letter-spacing: -0.01em;
+}
+
+.grammar-rule > p {
+  margin: 5px 0 0;
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+.grammar-words {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 11px;
+}
+
+.grammar-word {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+  padding: 4px 6px 4px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--panel-2);
+  color: var(--muted);
+  font-size: 0.72rem;
+  cursor: pointer;
+  transition: border-color 150ms var(--ease), color 150ms var(--ease);
+}
+
+.grammar-word b { color: var(--text); font-weight: 650; }
+.grammar-word:hover { border-color: var(--accent); }
+
+.grammar-count {
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 0.66rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
 /* ---------- 18. Phone shell: scope chip, icon buttons, sheets ---------- */
 
 /* These are the phone counterparts of the inline belt rail and the
