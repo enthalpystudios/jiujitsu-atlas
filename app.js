@@ -20,9 +20,8 @@
     known: "jj_atlas_known",
     best: "jj_atlas_best",
     flashMode: "jj_atlas_flash_mode",
-    flashDeck: "jj_atlas_flash_deck",
     speedDir: "jj_atlas_speed_dir",
-    speedDeck: "jj_atlas_speed_deck",
+    deck: "jj_atlas_deck",
     lang: "jj_atlas_lang",
     grade: "jj_atlas_grade",
     theme: "jj_atlas_theme",
@@ -133,7 +132,7 @@
     onlyUnknown: false,
     known: readJSON(STORAGE.known, {}),
     flashMode: readRaw(STORAGE.flashMode) || "name",
-    flashDeck: readRaw(STORAGE.flashDeck) || "techniques",
+    deck: readRaw(STORAGE.deck) === "glossary" ? "glossary" : "techniques",
     flashIndex: 0,
     flashFlipped: false,
     flashOrder: TECH.map((t) => t.id),
@@ -157,7 +156,6 @@
       finished: false,
       newBest: false,
       dir: readRaw(STORAGE.speedDir) === "picture" ? "picture" : "name",
-      deck: readRaw(STORAGE.speedDeck) === "glossary" ? "glossary" : "techniques",
     },
   };
 
@@ -183,6 +181,11 @@
   function categoryOf(tech) {
     return CATS[tech.category] || DATA.categories[0];
   }
+
+  /* YouTube will not play without a referrer, and a page opened from disk
+     sends none, so there the button stays an ordinary link instead of handing
+     the reader a player that can only fail. */
+  const EMBED_OK = location.protocol === "http:" || location.protocol === "https:";
 
   function videoIdFrom(url) {
     const match = String(url || "").match(/(?:v=|youtu\.be\/|embed\/)([A-Za-z0-9_-]{6,})/);
@@ -1325,7 +1328,7 @@
             <div class="modal-stage">
               <div class="stage-actions">
                 <button class="stage-action ${known ? "is-known" : ""}" data-known-toggle="${tech.id}">${known ? "✓ " + t("modal.known") : t("modal.markKnown")}</button>
-                ${video ? `<button class="stage-action" data-play-source="${video.id}" data-play-start="${video.start}">▶ ${t("modal.play")}</button>` : `<a class="stage-action" href="${sourceUrl(tech)}" target="_blank" rel="noopener">${t("modal.watch")} ↗</a>`}
+                ${video && EMBED_OK ? `<button class="stage-action" data-play-source="${video.id}" data-play-start="${video.start}">▶ ${t("modal.play")}</button>` : `<a class="stage-action" href="${sourceUrl(tech)}" target="_blank" rel="noopener">${t("modal.watch")} ↗</a>`}
               </div>
               <img id="stage-img" src="${frame.src}" alt="${escapeHtml(tech.japanese)} — ${escapeHtml(phaseLabel(frame))}">
               <div class="stage-video" hidden></div>
@@ -1437,6 +1440,7 @@
     const title = t("modal.play");
     host.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${id}?start=${start}&autoplay=1&rel=0&playsinline=1"
       title="${escapeHtml(title)}"
+      referrerpolicy="strict-origin-when-cross-origin"
       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
       allowfullscreen></iframe>`;
     host.hidden = false;
@@ -1528,7 +1532,7 @@
   /* ---------------- flashcards ---------------- */
 
   function isGlossaryDeck() {
-    return state.flashDeck === "glossary";
+    return state.deck === "glossary";
   }
 
   /* The vocabulary deck follows the belt scope: the words the techniques of
@@ -1576,7 +1580,7 @@
     }
 
     $$("#flash-deck button").forEach((button) => {
-      const active = button.getAttribute("data-deck") === state.flashDeck;
+      const active = button.getAttribute("data-deck") === state.deck;
       button.classList.toggle("active", active);
       button.setAttribute("aria-pressed", String(active));
     });
@@ -1744,13 +1748,18 @@
     renderFlash();
   }
 
-  function setFlashDeck(deck) {
+  /* Which of the two decks you are studying is one choice, not a per-screen
+     setting: pick Vocabulary in the cards and the round follows you there. */
+  function setDeck(deck) {
     if (deck !== "techniques" && deck !== "glossary") return;
-    state.flashDeck = deck;
-    writeRaw(STORAGE.flashDeck, deck);
+    if (state.deck === deck) return;
+    state.deck = deck;
+    writeRaw(STORAGE.deck, deck);
+    if (state.speed.running) stopSpeedToStart();
     state.flashFlipped = false;
     rebuildFlashOrder();
     renderFlash();
+    renderSpeedDir();
   }
 
   function toggleFlashKnown() {
@@ -1826,10 +1835,10 @@
 
   function renderSpeedDir() {
     const picture = state.speed.dir === "picture";
-    const glossary = state.speed.deck === "glossary";
+    const glossary = state.deck === "glossary";
 
     $$("#speed-deck button").forEach((button) => {
-      const active = button.getAttribute("data-deck") === state.speed.deck;
+      const active = button.getAttribute("data-deck") === state.deck;
       button.classList.toggle("active", active);
       button.setAttribute("aria-pressed", String(active));
     });
@@ -1870,14 +1879,6 @@
     }
   }
 
-  function setSpeedDeck(deck) {
-    if (deck !== "techniques" && deck !== "glossary") return;
-    state.speed.deck = deck;
-    writeRaw(STORAGE.speedDeck, deck);
-    if (state.speed.running) stopSpeedToStart();
-    renderSpeedDir();
-  }
-
   function setSpeedDir(dir) {
     state.speed.dir = dir === "picture" ? "picture" : "name";
     writeRaw(STORAGE.speedDir, state.speed.dir);
@@ -1909,7 +1910,7 @@
   }
 
   function speedPool() {
-    if (state.speed.deck === "glossary") {
+    if (state.deck === "glossary") {
       const scoped = glossaryDeck().map(speedItemFromTerm);
       return scoped.length >= 4 ? scoped : GLOSSARY.map(speedItemFromTerm);
     }
@@ -1921,7 +1922,7 @@
   }
 
   function speedUsesFallback() {
-    if (state.speed.deck === "glossary") return false;
+    if (state.deck === "glossary") return false;
     return activeTech().filter((tech) => tech.frames && tech.frames.length > 0).length < 2;
   }
 
@@ -1945,7 +1946,7 @@
   function renderSpeedQuestion() {
     const correct = state.speed.question;
     if (!correct) return;
-    const glossary = state.speed.deck === "glossary";
+    const glossary = state.deck === "glossary";
     const picture = state.speed.dir === "picture";
 
     const name = $("#speed-name");
@@ -2029,7 +2030,7 @@
 
   function showSpeedAnswer(optionId) {
     const correct = state.speed.question;
-    const glossary = state.speed.deck === "glossary";
+    const glossary = state.deck === "glossary";
     const isCorrect = optionId === correct.id;
     const host = $("#speed-options");
     host.classList.add("answered");
@@ -2348,7 +2349,7 @@
 
     $("#flash-deck").addEventListener("click", (event) => {
       const button = event.target.closest("[data-deck]");
-      if (button) setFlashDeck(button.getAttribute("data-deck"));
+      if (button) setDeck(button.getAttribute("data-deck"));
     });
 
     // A word chip opens its glossary entry; a glossary entry opens the card.
@@ -2552,7 +2553,7 @@
 
     $("#speed-deck").addEventListener("click", (event) => {
       const button = event.target.closest("[data-deck]");
-      if (button) setSpeedDeck(button.getAttribute("data-deck"));
+      if (button) setDeck(button.getAttribute("data-deck"));
     });
 
     $("#speed-dir").addEventListener("click", (event) => {
