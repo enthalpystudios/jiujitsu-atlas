@@ -34,6 +34,7 @@
   --accent-ink: #ffffff;
   --accent-soft: rgba(164, 27, 18, 0.12);
   --accent-on-dark: #f2af40;
+  --mark: #a41b12;
 
   /* primary actions are ink, so the patch red stays a brand thread rather
      than a warning colour at full-button scale */
@@ -63,12 +64,12 @@
 :root[data-theme="dark"] {
   color-scheme: dark;
 
-  --bg: #0c0f11;
-  --bg-2: #121619;
-  --panel: #171b1f;
-  --panel-2: #1f2429;
+  --bg: #0a0b0c;
+  --bg-2: #101214;
+  --panel: #15181a;
+  --panel-2: #1d2023;
   --stage-bg: #07090a;
-  --topbar-bg: rgba(12, 15, 17, 0.82);
+  --topbar-bg: rgba(10, 11, 12, 0.82);
   --backdrop: rgba(4, 6, 8, 0.76);
 
   --text: #f2efe8;
@@ -79,11 +80,12 @@
   --line: rgba(255, 255, 255, 0.09);
   --line-strong: rgba(255, 255, 255, 0.18);
 
-  --accent: #e7c44b;
-  --accent-2: #f2db87;
-  --accent-ink: #17140a;
-  --accent-soft: rgba(231, 196, 75, 0.16);
-  --accent-on-dark: #e7c44b;
+  --accent: #f2af40;
+  --accent-2: #f7c874;
+  --accent-ink: #241705;
+  --accent-soft: rgba(242, 175, 64, 0.16);
+  --accent-on-dark: #f2af40;
+  --mark: #e0564a;
 
   --primary-bg: var(--accent);
   --primary-bg-hover: var(--accent-2);
@@ -92,8 +94,8 @@
   --good: #6fce9c;
   --bad: #f07a6a;
 
-  --glow-1: rgba(231, 196, 75, 0.07);
-  --glow-2: rgba(79, 143, 224, 0.05);
+  --glow-1: rgba(242, 175, 64, 0.08);
+  --glow-2: rgba(164, 27, 18, 0.14);
 
   --shadow: 0 22px 60px rgba(0, 0, 0, 0.5);
   --shadow-soft: 0 8px 22px rgba(0, 0, 0, 0.28);
@@ -103,12 +105,12 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme]) {
     color-scheme: dark;
-    --bg: #0c0f11;
-    --bg-2: #121619;
-    --panel: #171b1f;
-    --panel-2: #1f2429;
+    --bg: #0a0b0c;
+    --bg-2: #101214;
+    --panel: #15181a;
+    --panel-2: #1d2023;
     --stage-bg: #07090a;
-    --topbar-bg: rgba(12, 15, 17, 0.82);
+    --topbar-bg: rgba(10, 11, 12, 0.82);
     --backdrop: rgba(4, 6, 8, 0.76);
     --text: #f2efe8;
     --text-soft: #d8d3c9;
@@ -116,15 +118,16 @@
     --faint: #8a847a;
     --line: rgba(255, 255, 255, 0.09);
     --line-strong: rgba(255, 255, 255, 0.18);
-    --accent: #e7c44b;
-    --accent-2: #f2db87;
-    --accent-ink: #17140a;
-    --accent-soft: rgba(231, 196, 75, 0.16);
-    --accent-on-dark: #e7c44b;
+    --accent: #f2af40;
+    --accent-2: #f7c874;
+    --accent-ink: #241705;
+    --accent-soft: rgba(242, 175, 64, 0.16);
+    --accent-on-dark: #f2af40;
+  --mark: #e0564a;
     --good: #6fce9c;
     --bad: #f07a6a;
-    --glow-1: rgba(231, 196, 75, 0.07);
-    --glow-2: rgba(79, 143, 224, 0.05);
+    --glow-1: rgba(242, 175, 64, 0.08);
+    --glow-2: rgba(164, 27, 18, 0.14);
     --shadow: 0 22px 60px rgba(0, 0, 0, 0.5);
     --shadow-soft: 0 8px 22px rgba(0, 0, 0, 0.28);
   }
@@ -1817,18 +1820,42 @@ h2 {
 }
 
 .start-mark {
-  width: 56px;
-  height: 56px;
+  width: 64px;
+  height: 64px;
   margin: 0 auto 18px;
   display: grid;
   place-items: center;
-  border-radius: 16px;
-  background: var(--accent);
-  color: var(--accent-ink);
-  font-size: 1.75rem;
-  font-weight: 700;
-  box-shadow: 0 14px 34px var(--accent-soft);
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.28);
 }
+
+.start-mark img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* One button, so a long pair of labels cannot wrap on a phone. */
+.speed-swap {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 44px;
+  margin: 4px auto 0;
+  padding: 0 18px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text);
+  font-size: 0.9rem;
+  font-weight: 650;
+  cursor: pointer;
+  transition: border-color 150ms var(--ease), background 150ms var(--ease);
+}
+
+.speed-swap svg { width: 18px; height: 18px; flex: 0 0 auto; color: var(--muted); }
+.speed-swap:hover { border-color: var(--accent); background: var(--panel-2); }
 
 .start-panel h3 {
   margin: 0;
@@ -2392,7 +2419,7 @@ h2 {
   display: block;
   height: 100%;
   border-radius: 3px;
-  background: var(--accent);
+  background: linear-gradient(90deg, var(--mark), var(--accent));
   transition: width 260ms var(--ease);
 }
 
@@ -2440,7 +2467,7 @@ h2 {
   width: 0;
   height: 100%;
   border-radius: 2px;
-  background: var(--accent);
+  background: linear-gradient(90deg, var(--mark), var(--accent));
   transition: width 220ms var(--ease);
 }
 
@@ -2504,6 +2531,35 @@ h2 {
 }
 
 .guide-back { margin-top: 24px; }
+
+/* Search fields carry their own clear button. */
+.search-wrap input { padding-right: 46px; }
+
+.search-wrap input::-webkit-search-cancel-button,
+.search-wrap input::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.search-clear {
+  position: absolute;
+  right: 2px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--faint);
+  cursor: pointer;
+  transition: color 150ms var(--ease), background 150ms var(--ease);
+}
+
+.search-clear svg { width: 15px; height: 15px; }
+.search-clear:hover { color: var(--text); background: var(--panel-2); }
 
 /* ---------- 16e. Glossary: the dictionary, then the reading ---------- */
 
@@ -3078,7 +3134,7 @@ h2 {
   .lede { font-size: 1rem; }
   .speed-panel { padding: 34px; }
   .start-panel { padding: 64px 30px; }
-  .start-mark { width: 70px; height: 70px; font-size: 2.1rem; border-radius: 20px; }
+  .start-mark { width: 78px; height: 78px; }
   .modal-layout { gap: 26px; padding: 28px 28px 24px; }
 }
 
@@ -3222,6 +3278,8 @@ h2 {
 
   /* The tab bar names the view and the header holds the switch. */
   .glossary-head { display: none; }
+
+  .search-clear { width: 44px; height: 44px; right: 0; }
 
   /* The tab bar already says which view this is, so the heading steps aside. */
   .flash-head .eyebrow,

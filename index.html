@@ -144,6 +144,9 @@
         <div class="search-wrap">
           <span class="search-icon" aria-hidden="true">⌕</span>
           <input id="search" type="search" autocomplete="off" placeholder="Busca técnica, significado o palabra…" aria-label="Buscar técnicas" data-i18n-placeholder="browse.searchPlaceholder" data-i18n-aria="browse.searchLabel">
+          <button type="button" class="search-clear" data-clear="search" aria-label="Limpiar" data-i18n-aria="search.clear" hidden>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M18 6 6 18M6 6l12 12"></path></svg>
+          </button>
         </div>
         <div id="category-chips" class="chips desktop-only" role="group" aria-label="Filtrar por categoría" data-i18n-aria="browse.filterCategory" data-cat-host></div>
       </div>
@@ -214,16 +217,15 @@
       </div>
 
       <div id="speed-start" class="speed-panel start-panel">
-        <div class="start-mark" aria-hidden="true">名</div>
+        <div class="start-mark" aria-hidden="true"><img src="apple-touch-icon.png" alt=""></div>
         <div class="segmented" id="speed-deck" role="group" aria-label="Mazo" data-i18n-aria="flash.deck">
           <button class="active" data-deck="techniques" aria-pressed="true" data-i18n="flash.deckTech">Técnicas</button>
           <button data-deck="glossary" aria-pressed="false" data-i18n="flash.deckGloss">Vocabulario</button>
         </div>
-        <div class="segmented" id="speed-dir" role="group" aria-label="Sentido de la ronda" data-i18n-aria="speed.direction">
-          <button class="active" data-dir="name" aria-pressed="true">Nombre → imagen</button>
-          <button data-dir="picture" aria-pressed="false">Imagen → nombre</button>
-        </div>
-        <h3 id="speed-start-title">Nombre → imagen</h3>
+        <button type="button" class="speed-swap" id="speed-swap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 8h13M13 4l4 4-4 4M20 16H7M11 12l-4 4 4 4"></path></svg>
+          <span id="speed-swap-label">Nombre → imagen</span>
+        </button>
         <p id="speed-start-copy">Verás un nombre japonés, sus partes y cuatro fotogramas. Elige el que coincida. Las respuestas incorrectas muestran la ficha correcta antes de continuar.</p>
         <button id="speed-start-btn" class="primary big" data-i18n="speed.start">Empezar ronda de 60 s</button>
         <p class="fineprint" data-i18n="speed.tip">Consejo: las primeras preguntas son de calentamiento. El reloj no empieza hasta que pulses el botón.</p>
@@ -268,6 +270,9 @@
           <div class="search-wrap">
             <span class="search-icon" aria-hidden="true">⌕</span>
             <input id="glossary-search" type="search" autocomplete="off" placeholder="Busca en el glosario…" aria-label="Buscar en el glosario" data-i18n-placeholder="glossary.searchPlaceholder" data-i18n-aria="glossary.searchLabel">
+          <button type="button" class="search-clear" data-clear="glossary-search" aria-label="Limpiar" data-i18n-aria="search.clear" hidden>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M18 6 6 18M6 6l12 12"></path></svg>
+          </button>
           </div>
           <div id="glossary-chips" class="chips" role="group" aria-label="Filtrar el glosario por grupo" data-i18n-aria="glossary.filterGroup"></div>
         </div>

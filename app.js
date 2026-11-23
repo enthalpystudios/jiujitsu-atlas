@@ -1177,6 +1177,14 @@
     empty.hidden = items.length > 0;
   }
 
+  /* A clear button only earns its space when there is something to clear. */
+  function syncClearButtons() {
+    $$("[data-clear]").forEach((button) => {
+      const input = document.getElementById(button.getAttribute("data-clear"));
+      if (input) button.hidden = !input.value;
+    });
+  }
+
   function clearBrowseFilters() {
     state.filterCategory = "all";
     state.grade = "all";
@@ -1184,6 +1192,7 @@
     state.onlyUnknown = false;
     $("#search").value = "";
     $$("#only-unknown, #only-unknown-sheet").forEach((box) => { box.checked = false; });
+    syncClearButtons();
     renderCategoryChips();
     renderBeltBar();
     renderBrowse();
@@ -1945,27 +1954,22 @@
       button.setAttribute("aria-pressed", String(active));
     });
 
-    $$("#speed-dir button").forEach((button) => {
-      const isPicture = button.getAttribute("data-dir") === "picture";
-      const active = isPicture === picture;
-      button.classList.toggle("active", active);
-      button.setAttribute("aria-pressed", String(active));
-      button.textContent = t(
-        glossary
-          ? (isPicture ? "speed.dirMeaning" : "speed.dirTerm")
-          : (isPicture ? "speed.dirPicture" : "speed.dirName")
-      );
-    });
-
-    const title = $("#speed-start-title");
-    const copy = $("#speed-start-copy");
-    if (title) {
-      title.textContent = t(
+    /* One button that swaps, not a two-way control: the labels are long enough
+       that a phone wraps them, and the round only has two directions anyway. */
+    const swap = $("#speed-swap");
+    if (swap) {
+      const label = t(
         glossary
           ? (picture ? "speed.dirMeaning" : "speed.dirTerm")
           : (picture ? "speed.dirPicture" : "speed.dirName")
       );
+      const swapLabel = $("#speed-swap-label");
+      if (swapLabel) swapLabel.textContent = label;
+      swap.setAttribute("title", `${label} — ${t("speed.swap")}`);
+      swap.setAttribute("aria-label", `${label} — ${t("speed.swap")}`);
     }
+
+    const copy = $("#speed-start-copy");
     if (copy) {
       copy.textContent = t(
         glossary
@@ -2244,6 +2248,7 @@
     if (input) input.value = term;
     renderGlossaryChips();
     renderGlossaryMode();
+    syncClearButtons();
     setView("glossary");
     const card = Array.from(document.querySelectorAll("#glossary-grid .glossary-card"))
       .find((el) => el.getAttribute("data-term") === key);
@@ -2436,6 +2441,21 @@
       state.filterCategory = chip.getAttribute("data-cat");
       renderCategoryChips();
       renderBrowse();
+    });
+
+    document.addEventListener("input", (event) => {
+      const el = event.target;
+      if (el && el.matches && el.matches('input[type="search"]')) syncClearButtons();
+    });
+
+    document.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-clear]");
+      if (!button) return;
+      const input = document.getElementById(button.getAttribute("data-clear"));
+      if (!input) return;
+      input.value = "";
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+      input.focus();
     });
 
     $("#search").addEventListener("input", (event) => {
@@ -2684,10 +2704,8 @@
       if (button) setDeck(button.getAttribute("data-deck"));
     });
 
-    $("#speed-dir").addEventListener("click", (event) => {
-      const button = event.target.closest("[data-dir]");
-      if (!button) return;
-      setSpeedDir(button.getAttribute("data-dir"));
+    $("#speed-swap").addEventListener("click", () => {
+      setSpeedDir(state.speed.dir === "picture" ? "name" : "picture");
       if (state.speed.running) {
         stopSpeedToStart();
       }
@@ -2817,6 +2835,7 @@
     bindEvents();
     routeFromHash();
     window.addEventListener("hashchange", routeFromHash);
+    syncClearButtons();
     initVoices();
     preloadHeroes();
   }
