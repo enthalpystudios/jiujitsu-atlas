@@ -1146,6 +1146,21 @@ h2 {
 }
 
 .word-chip b { color: var(--text); font-weight: 650; }
+
+/* The word itself is the way into its glossary entry. */
+.word-link {
+  cursor: pointer;
+  text-decoration: underline dotted;
+  text-decoration-color: color-mix(in srgb, var(--accent) 50%, transparent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.word-link:hover,
+.word-link:focus-visible {
+  color: var(--accent);
+  text-decoration-color: currentColor;
+}
 .word-kanji { color: var(--accent-2); font-size: 0.78rem; }
 
 .word-chip .chip-speak {
@@ -2185,6 +2200,47 @@ h2 {
   color: var(--muted);
   font-size: 0.8rem;
   line-height: 1.45;
+}
+
+/* A term and the techniques that use it are two views of one thing. */
+.glossary-uses { margin-top: 11px; }
+
+.glossary-uses-label {
+  margin: 0 0 6px;
+  color: var(--faint);
+  font-size: 0.66rem;
+  font-weight: 680;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.glossary-uses-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.glossary-use {
+  padding: 5px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--panel-2);
+  color: var(--muted);
+  font-size: 0.72rem;
+  cursor: pointer;
+  transition: color 150ms var(--ease), border-color 150ms var(--ease), background 150ms var(--ease);
+}
+
+.glossary-use:hover {
+  color: var(--text);
+  border-color: var(--accent);
+  background: var(--panel);
+}
+
+/* Arriving from a word chip: show which card you asked for. */
+.glossary-card.is-target {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
 }
 
 /* ---------- 17. Footer ---------- */

@@ -7327,6 +7327,213 @@ window.ATLAS_DATA = {
       "note_es": "La acción final que completa la proyección."
     },
     {
+      "term": "No",
+      "reading": "の",
+      "group": "basics",
+      "meaning": "Possessive particle: joins two nouns as “A of B”.",
+      "note": "Grammar, not vocabulary. Tsuki Jitsu no Kata is “the form of the striking art”. It never carries meaning on its own.",
+      "meaning_es": "Partícula posesiva: une dos sustantivos como “A de B”.",
+      "note_es": "Es gramática, no vocabulario. Tsuki Jitsu no Kata es «la forma del arte de golpear». Por sí sola no significa nada."
+    },
+    {
+      "term": "Ichi",
+      "reading": "一",
+      "group": "name-parts",
+      "meaning": "One.",
+      "note": "First of the ordinal series ikkyo, nikyo, sankyo.",
+      "meaning_es": "Uno.",
+      "note_es": "Primero de la serie ordinal ikkyo, nikyo, sankyo."
+    },
+    {
+      "term": "Ni",
+      "reading": "二",
+      "group": "name-parts",
+      "meaning": "Two.",
+      "note": "Second of the ordinal series: nikyo, the second teaching.",
+      "meaning_es": "Dos.",
+      "note_es": "Segundo de la serie ordinal: nikyo, la segunda enseñanza."
+    },
+    {
+      "term": "San",
+      "reading": "三",
+      "group": "name-parts",
+      "meaning": "Three.",
+      "note": "Third of the ordinal series: sankyo, the third teaching.",
+      "meaning_es": "Tres.",
+      "note_es": "Tercero de la serie ordinal: sankyo, la tercera enseñanza."
+    },
+    {
+      "term": "Kyo",
+      "reading": "教",
+      "group": "name-parts",
+      "meaning": "Teaching, instruction.",
+      "note": "Ends the ordinal series ikkyo, nikyo, sankyo — first, second and third teaching.",
+      "meaning_es": "Enseñanza, instrucción.",
+      "note_es": "Cierra la serie ordinal ikkyo, nikyo, sankyo: primera, segunda y tercera enseñanza."
+    },
+    {
+      "term": "Gyaku",
+      "reading": "逆",
+      "group": "name-parts",
+      "meaning": "Reverse, opposite, inverted.",
+      "note": "Gyaku Tsuki is a reverse punch: the opposite hand to the leading foot.",
+      "meaning_es": "Inverso, contrario.",
+      "note_es": "Gyaku Tsuki es un puñetazo inverso: la mano contraria al pie adelantado."
+    },
+    {
+      "term": "Oi",
+      "reading": "追",
+      "group": "name-parts",
+      "meaning": "Chasing, following up.",
+      "note": "A technique delivered while stepping forward, as in Oi Tsuki and Oi Geri.",
+      "meaning_es": "Perseguidor, de avance.",
+      "note_es": "Técnica que se ejecuta avanzando, como Oi Tsuki y Oi Geri."
+    },
+    {
+      "term": "Ura",
+      "reading": "裏",
+      "group": "name-parts",
+      "meaning": "Back, reverse, hidden side.",
+      "note": "The reverse or far side of a technique, as in Ura Tsuki and Ura Geri.",
+      "meaning_es": "Reverso, lado oculto.",
+      "note_es": "El lado inverso o lejano de una técnica, como en Ura Tsuki y Ura Geri."
+    },
+    {
+      "term": "Gedan",
+      "reading": "下段",
+      "group": "name-parts",
+      "meaning": "Lower level.",
+      "note": "Gedan Barai sweeps at the lower level, below the belt.",
+      "meaning_es": "Nivel bajo.",
+      "note_es": "Gedan Barai barre a nivel bajo, por debajo del cinturón."
+    },
+    {
+      "term": "Jyodan",
+      "reading": "上段",
+      "group": "name-parts",
+      "meaning": "Upper level.",
+      "note": "Jyodan Uke blocks at the upper level, around the head.",
+      "meaning_es": "Nivel alto.",
+      "note_es": "Jyodan Uke bloquea a nivel alto, a la altura de la cabeza."
+    },
+    {
+      "term": "Nagashi",
+      "reading": "流",
+      "group": "name-parts",
+      "meaning": "Flowing, redirecting.",
+      "note": "Nagashi Uke does not stop a strike, it redirects it past you.",
+      "meaning_es": "Fluido, que redirige.",
+      "note_es": "Nagashi Uke no detiene el golpe, lo desvía a un lado."
+    },
+    {
+      "term": "Morote",
+      "reading": "諸手",
+      "group": "name-parts",
+      "meaning": "Both hands, two-handed.",
+      "note": "Morote Uke supports one forearm with the other hand.",
+      "meaning_es": "Ambas manos, a dos manos.",
+      "note_es": "Morote Uke refuerza un antebrazo con la otra mano."
+    },
+    {
+      "term": "Uki",
+      "reading": "浮",
+      "group": "name-parts",
+      "meaning": "Floating, buoyant.",
+      "note": "Uki Goshi is the floating hip throw: uke rides over the hip rather than being lifted.",
+      "meaning_es": "Flotante.",
+      "note_es": "Uki Goshi es la proyección de cadera flotante: uke pasa por encima de la cadera sin ser levantado."
+    },
+    {
+      "term": "Hadaka",
+      "reading": "裸",
+      "group": "name-parts",
+      "meaning": "Naked, bare, without a gi.",
+      "note": "Hadaka Jime is the bare choke: no lapel and no gi needed.",
+      "meaning_es": "Desnudo, sin gi.",
+      "note_es": "Hadaka Jime es el estrangulamiento a mano desnuda: no necesita solapa."
+    },
+    {
+      "term": "Nami",
+      "reading": "並",
+      "group": "name-parts",
+      "meaning": "Normal, ordinary, regular.",
+      "note": "Nami Juji Jime is the normal cross choke, palm against palm.",
+      "meaning_es": "Normal, corriente.",
+      "note_es": "Nami Juji Jime es el estrangulamiento cruzado normal, palma contra palma."
+    },
+    {
+      "term": "Garami",
+      "reading": "緘",
+      "group": "name-parts",
+      "meaning": "To bind, to entangle.",
+      "note": "Ude Garami entangles the arm; the joint is bound rather than locked straight.",
+      "meaning_es": "Atar, enredar.",
+      "note_es": "Ude Garami enreda el brazo: la articulación queda atada, no estirada."
+    },
+    {
+      "term": "Seme",
+      "reading": "責",
+      "group": "name-parts",
+      "meaning": "Attack, pressure.",
+      "note": "Seme Kata is the attacking form: the pre-arranged offensive sequence.",
+      "meaning_es": "Ataque, presión.",
+      "note_es": "Seme Kata es la forma de ataque: la secuencia ofensiva prefijada."
+    },
+    {
+      "term": "Fusegi",
+      "reading": "防",
+      "group": "name-parts",
+      "meaning": "Defence, prevention.",
+      "note": "Fusegi Kata is the defensive counterpart to Seme Kata.",
+      "meaning_es": "Defensa, prevención.",
+      "note_es": "Fusegi Kata es la forma defensiva, pareja de Seme Kata."
+    },
+    {
+      "term": "Age",
+      "reading": "上げ",
+      "group": "name-parts",
+      "meaning": "Rising, upward.",
+      "note": "Age Tsuki is a rising punch, driven upward from the hip.",
+      "meaning_es": "Ascendente.",
+      "note_es": "Age Tsuki es un puñetazo ascendente, impulsado desde la cadera."
+    },
+    {
+      "term": "Kakato",
+      "reading": "踵",
+      "group": "name-parts",
+      "meaning": "Heel of the foot.",
+      "note": "Kakato Geri strikes with the heel, not the ball of the foot.",
+      "meaning_es": "Talón del pie.",
+      "note_es": "Kakato Geri golpea con el talón, no con la planta."
+    },
+    {
+      "term": "Teisho",
+      "reading": "底掌",
+      "group": "name-parts",
+      "meaning": "Palm heel, the base of the palm.",
+      "note": "Teisho Uchi strikes with the heel of the palm, a short and hard surface.",
+      "meaning_es": "Base de la palma.",
+      "note_es": "Teisho Uchi golpea con el talón de la mano, superficie corta y dura."
+    },
+    {
+      "term": "Tetsui",
+      "reading": "鉄槌",
+      "group": "name-parts",
+      "meaning": "Iron hammer, hammer fist.",
+      "note": "Tetsui Uchi swings the little-finger edge of the fist down like a hammer.",
+      "meaning_es": "Martillo de hierro.",
+      "note_es": "Tetsui Uchi golpea hacia abajo con el borde del meñique, como un martillo."
+    },
+    {
+      "term": "Ken",
+      "reading": "拳",
+      "group": "name-parts",
+      "meaning": "Fist.",
+      "note": "The closed hand. On its own it is the fist; in ken jutsu it is the sword.",
+      "meaning_es": "Puño.",
+      "note_es": "La mano cerrada. Por sí solo es el puño; en ken jutsu, la espada."
+    },
+    {
       "term": "Atemi Waza",
       "reading": "当て身技",
       "group": "categories",

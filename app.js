@@ -700,8 +700,48 @@
 
   function glossaryForWord(word) {
     const key = word.toLowerCase();
-    const matches = GLOSSARY.filter((item) => item.term.toLowerCase() === key);
-    return matches.find((item) => item.group === "name-parts") || matches[0] || null;
+    const exact = GLOSSARY.filter((item) => item.term.toLowerCase() === key);
+    if (exact.length) return exact.find((i) => i.group === "name-parts") || exact[0];
+    // Headwords like "Goshi / Koshi" or "Nage Waza" answer for each of their words.
+    const loose = GLOSSARY.filter((item) =>
+      item.term.toLowerCase().split(/[/\s]+/).filter(Boolean).includes(key));
+    return loose.find((i) => i.group === "name-parts") || loose[0] || null;
+  }
+
+  /* term -> the techniques whose names contain it. Derived from the same
+     resolution the word chips use, so the two views can never disagree. */
+  const TERM_TO_TECHS = (() => {
+    const map = new Map();
+    TECH.forEach((tech) => {
+      wordParts(tech).forEach((part) => {
+        const term = glossaryForWord(part.word);
+        if (!term) return;
+        const key = term.term.toLowerCase();
+        if (!map.has(key)) map.set(key, []);
+        const list = map.get(key);
+        if (!list.includes(tech.id)) list.push(tech.id);
+      });
+    });
+    return map;
+  })();
+
+  function techniquesForTerm(term) {
+    return TERM_TO_TECHS.get(term.trim().toLowerCase()) || [];
+  }
+
+  /* The name breakdown as runnable text. On a browse card these are pointer
+     only on purpose: making 300 words focusable would wreck keyboard order,
+     and the card's own chips are one tap away. */
+  function literalLinks(tech) {
+    return wordParts(tech)
+      .map((part) => {
+        const term = glossaryForWord(part.word);
+        const word = term
+          ? `<span class="word-link" data-gloss="${escapeHtml(term.term)}">${escapeHtml(part.word)}</span>`
+          : `<b>${escapeHtml(part.word)}</b>`;
+        return part.meaning ? `${word} (${escapeHtml(part.meaning)})` : word;
+      })
+      .join(" + ");
   }
 
   function wordChips(tech, options = {}) {
@@ -713,7 +753,12 @@
         const meaning = part.meaning || (term && pick(term, "meaning")) || "";
         const reading = term && term.reading ? term.reading : "";
         const title = term && pick(term, "note") ? pick(term, "note") : "";
-        return `<span class="word-chip" title="${escapeHtml(title)}"><b>${escapeHtml(part.word)}</b>${
+        // The word itself opens its glossary entry; the speaker stays a
+        // separate button, since nesting one button inside another is invalid.
+        const wordMark = term
+          ? `<b class="word-link" role="button" tabindex="0" data-gloss="${escapeHtml(term.term)}" title="${escapeHtml(t("glossary.open"))}">${escapeHtml(part.word)}</b>`
+          : `<b>${escapeHtml(part.word)}</b>`;
+        return `<span class="word-chip" title="${escapeHtml(title)}">${wordMark}${
           reading ? `<span class="word-kanji">${escapeHtml(reading)}</span>` : ""
         }<span class="word-meaning">${escapeHtml(meaning)}</span>${speakButton(part.word, "chip-speak")}</span>`;
       })
@@ -857,6 +902,7 @@
     }
     state.view = view;
     closeSheet();
+    closeModal();
     syncHeaderForView();
     VIEWS.forEach((name) => {
       const section = document.getElementById(`view-${name}`);
@@ -1064,7 +1110,9 @@
           ? `<div class="card-strip ${stripClass(tech.frames.length)}">${frameCells(tech, true, 6)}</div>`
           : `<div class="card-strip empty"><span class="empty-name">${escapeHtml(tech.japanese)}</span><span class="empty-note">${t("card.noFrames")}</span></div>`;
         const frameText = hasFrames ? `${tech.frames.length} ${t("browse.frames")}` : "";
-        const footerLead = [frameText, pick(tech, "literal")].filter(Boolean).join(" · ");
+        const footerLead = [frameText ? escapeHtml(frameText) : "", literalLinks(tech)]
+          .filter(Boolean)
+          .join(" · ");
         return `
           <article class="tech-card" tabindex="0" role="button" aria-label="${escapeHtml(t("browse.openCard", { name: tech.japanese }))}" style="--cat-color:${cat.color}" data-id="${tech.id}">
             ${strip}
@@ -1077,7 +1125,7 @@
               <p class="card-translation">${escapeHtml(pick(tech, "translation"))}</p>
               <p class="card-cue">${escapeHtml(pick(tech, "cue"))}</p>
               <div class="card-footer">
-                <span>${escapeHtml(footerLead)}</span>
+                <span>${footerLead}</span>
                 <span class="common-badge">${common}</span>
                 <span class="known-mark" ${known ? "" : "hidden"}>✓ ${t("modal.known")}</span>
               </div>
@@ -1771,6 +1819,24 @@
 
   /* ---------------- glossary ---------------- */
 
+  /* Opens the glossary on one term and flashes it, so a word chip on a card
+     is a way into the vocabulary rather than a dead end. */
+  function gotoGlossary(term) {
+    const key = term.trim().toLowerCase();
+    state.glossaryGroup = "all";
+    state.glossarySearch = term;
+    const input = $("#glossary-search");
+    if (input) input.value = term;
+    renderGlossaryChips();
+    setView("glossary");
+    const card = Array.from(document.querySelectorAll("#glossary-grid .glossary-card"))
+      .find((el) => el.getAttribute("data-term") === key);
+    if (!card) return;
+    card.classList.add("is-target");
+    card.scrollIntoView({ block: "center", behavior: "smooth" });
+    setTimeout(() => card.classList.remove("is-target"), 2400);
+  }
+
   function renderGlossaryChips() {
     const host = $("#glossary-chips");
     if (!host) return;
@@ -1807,17 +1873,32 @@
         .includes(query);
     });
     host.innerHTML = items
-      .map(
-        (item) => `
-        <article class="glossary-card">
+      .map((item) => {
+        const ids = techniquesForTerm(item.term);
+        const uses = ids.length
+          ? `<div class="glossary-uses">
+              <p class="glossary-uses-label">${escapeHtml(t("glossary.uses", { n: ids.length }))}</p>
+              <div class="glossary-uses-list">${ids
+                .map((id) => {
+                  const tech = TECH_BY_ID[id];
+                  return tech
+                    ? `<button type="button" class="glossary-use" data-open-card="${id}">${escapeHtml(tech.japanese)}</button>`
+                    : "";
+                })
+                .join("")}</div>
+            </div>`
+          : "";
+        return `
+        <article class="glossary-card" data-term="${escapeHtml(item.term.trim().toLowerCase())}">
           <div class="glossary-term">
             <h3>${item.term} ${speakButton(item.term)}</h3>
             <span class="glossary-reading">${item.reading}</span>
           </div>
           <p class="glossary-meaning">${escapeHtml(pick(item, "meaning"))}</p>
           <p class="glossary-note">${escapeHtml(pick(item, "note"))}</p>
-        </article>`
-      )
+          ${uses}
+        </article>`;
+      })
       .join("");
     empty.hidden = items.length > 0;
   }
@@ -1874,6 +1955,39 @@
     $$("#theme-seg [data-theme-choice]").forEach((button) => {
       button.addEventListener("click", () => applyTheme(button.getAttribute("data-theme-choice"), true));
     });
+
+    // A word chip opens its glossary entry; a glossary entry opens the card.
+    document.addEventListener(
+      "click",
+      (event) => {
+        const gloss = event.target.closest("[data-gloss]");
+        if (gloss) {
+          event.stopPropagation();
+          event.preventDefault();
+          gotoGlossary(gloss.getAttribute("data-gloss"));
+          return;
+        }
+        const opener = event.target.closest("[data-open-card]");
+        if (opener) {
+          event.stopPropagation();
+          openModal(opener.getAttribute("data-open-card"));
+        }
+      },
+      true
+    );
+
+    document.addEventListener(
+      "keydown",
+      (event) => {
+        if (event.key !== "Enter" && event.key !== " ") return;
+        const gloss = event.target.closest ? event.target.closest("[data-gloss]") : null;
+        if (!gloss) return;
+        event.preventDefault();
+        event.stopPropagation();
+        gotoGlossary(gloss.getAttribute("data-gloss"));
+      },
+      true
+    );
 
     // Pull a sheet or the card down to dismiss it.
     enableDragToClose($("#modal"), $(".modal-panel"), closeModal);
