@@ -52,7 +52,11 @@
       </button>
 
       <nav class="tabs" role="tablist" aria-label="Secciones" data-i18n-aria="sections">
-        <button class="tab active" role="tab" aria-selected="true" data-view="browse">
+        <button class="tab active" role="tab" aria-selected="true" data-view="today">
+          <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="5" width="18" height="16" rx="3"></rect><path d="M3 10h18M8 3v4M16 3v4"></path><circle cx="12" cy="15.5" r="1.6" fill="currentColor" stroke="none"></circle></svg>
+          <span class="tab-label" data-i18n="tab.today">Hoy</span>
+        </button>
+        <button class="tab" role="tab" aria-selected="false" data-view="browse">
           <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="3" width="7.5" height="7.5" rx="2"></rect><rect x="13.5" y="3" width="7.5" height="7.5" rx="2"></rect><rect x="3" y="13.5" width="7.5" height="7.5" rx="2"></rect><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="2"></rect></svg>
           <span class="tab-label" data-i18n="tab.browse">Explorar</span>
         </button>
@@ -62,7 +66,7 @@
         </button>
         <button class="tab" role="tab" aria-selected="false" data-view="speed">
           <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="13" r="8"></circle><path d="M12 9.5V13l2.4 1.6M9 2.5h6"></path></svg>
-          <span class="tab-label" data-i18n="tab.speed">Ronda rápida</span>
+          <span class="tab-label" data-i18n="tab.speedShort">Ronda</span>
         </button>
         <button class="tab" role="tab" aria-selected="false" data-view="glossary">
           <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H11v16H6.5A2.5 2.5 0 0 0 4 21.5Z"></path><path d="M20 5.5A2.5 2.5 0 0 0 17.5 3H13v16h4.5a2.5 2.5 0 0 1 2.5 2.5Z"></path></svg>
@@ -101,8 +105,25 @@
   </header>
 
   <main class="page">
+    <!-- TODAY -->
+    <section id="view-today" class="view active" role="tabpanel" aria-label="Hoy" data-i18n-aria="tab.today">
+      <div class="today-head">
+        <p class="eyebrow" id="today-date">—</p>
+        <h2 data-i18n="today.title">Hoy</h2>
+        <p class="lede" data-i18n="today.lede">Una palabra y una técnica al día. Cinco minutos y vuelves a lo tuyo.</p>
+      </div>
+
+      <div class="today-grid">
+        <article class="today-card" id="today-word"></article>
+        <article class="today-card" id="today-tech"></article>
+      </div>
+
+      <div class="today-progress" id="today-progress"></div>
+
+    </section>
+
     <!-- BROWSE -->
-    <section id="view-browse" class="view active" role="tabpanel" aria-label="Explorar técnicas" data-i18n-aria="tab.browse">
+    <section id="view-browse" class="view" role="tabpanel" aria-label="Explorar técnicas" data-i18n-aria="tab.browse" hidden>
       <div class="section-head">
         <div>
           <p class="eyebrow" data-i18n="browse.eyebrow">PROYECTO KATA · EN CASA</p>
@@ -145,9 +166,15 @@
             </button>
           </div>
         </div>
-        <div class="segmented" id="flash-mode" role="group" aria-label="Sentido de las fichas" data-i18n-aria="flash.direction">
-          <button class="active" data-mode="name" aria-pressed="true" data-i18n="flash.dirName">Nombre → técnica</button>
-          <button data-mode="image" aria-pressed="false" data-i18n="flash.dirImage">Técnica → nombre</button>
+        <div class="flash-switches">
+          <div class="segmented" id="flash-deck" role="group" aria-label="Mazo" data-i18n-aria="flash.deck">
+            <button class="active" data-deck="techniques" aria-pressed="true" data-i18n="flash.deckTech">Técnicas</button>
+            <button data-deck="glossary" aria-pressed="false" data-i18n="flash.deckGloss">Vocabulario</button>
+          </div>
+          <div class="segmented" id="flash-mode" role="group" aria-label="Sentido de las fichas" data-i18n-aria="flash.direction">
+            <button class="active" data-mode="name" aria-pressed="true" data-i18n="flash.dirName">Nombre → técnica</button>
+            <button data-mode="image" aria-pressed="false" data-i18n="flash.dirImage">Técnica → nombre</button>
+          </div>
         </div>
       </div>
 

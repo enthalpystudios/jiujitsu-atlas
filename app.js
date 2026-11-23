@@ -20,6 +20,7 @@
     known: "jj_atlas_known",
     best: "jj_atlas_best",
     flashMode: "jj_atlas_flash_mode",
+    flashDeck: "jj_atlas_flash_deck",
     speedDir: "jj_atlas_speed_dir",
     lang: "jj_atlas_lang",
     grade: "jj_atlas_grade",
@@ -120,7 +121,7 @@
   }
 
   const state = {
-    view: "browse",
+    view: "today",
     lang: initialLang(),
     theme: initialTheme(),
     filterCategory: "all",
@@ -131,6 +132,7 @@
     onlyUnknown: false,
     known: readJSON(STORAGE.known, {}),
     flashMode: readRaw(STORAGE.flashMode) || "name",
+    flashDeck: readRaw(STORAGE.flashDeck) || "techniques",
     flashIndex: 0,
     flashFlipped: false,
     flashOrder: TECH.map((t) => t.id),
@@ -266,6 +268,7 @@
     renderGlossary();
     renderGlossaryCategories();
     renderNameGrammar();
+    renderToday();
     renderSpeedDir();
     updateSpeedStats();
     if (state.speed.finished) renderSpeedEnd();
@@ -283,6 +286,7 @@
     renderBrowse();
     renderFlash();
     renderGlossaryCategories();
+    renderToday();
     renderSpeedDir();
     applyI18n();
     updateSpeedStats();
@@ -819,17 +823,18 @@
   }
 
   function toggleKnownMark() {
-    const tech = currentFlashTech();
-    if (!tech) return;
-    setKnown(tech.id, !isKnown(tech.id));
+    const key = currentKey();
+    if (!key) return;
+    setKnown(key, !isKnown(key));
     renderBrowse();
     renderFlash();
+    renderToday();
   }
 
   /* Marks a card as known without moving on. It sits on the card because it is
      a statement about the card, not a step in the flow. */
-  function markToggle(tech) {
-    const known = isKnown(tech.id);
+  function markToggle(key) {
+    const known = isKnown(key);
     return `
       <div class="flash-mark-row">
         <button type="button" class="flash-mark ${known ? "is-known" : ""}" data-flash-mark aria-pressed="${known}">
@@ -839,7 +844,8 @@
       </div>`;
   }
 
-  function syncGalleryDots(track) {    const gallery = track.closest("[data-gallery]");
+  function syncGalleryDots(track) {
+    const gallery = track.closest("[data-gallery]");
     if (!gallery || !track.clientWidth) return;
     const index = Math.round(track.scrollLeft / track.clientWidth);
     gallery.querySelectorAll(".flash-dot").forEach((dot, i) => {
@@ -890,7 +896,10 @@
 
   /* ---------------- view switching ---------------- */
 
-  const VIEWS = ["browse", "flashcards", "speed", "glossary"];
+  /* Everything that can be shown, then the subset that owns a tab. The
+     speed round is launched from Hoy rather than sitting in the bar. */
+  const VIEWS = ["today", "browse", "flashcards", "glossary", "speed"];
+  const TABS = ["today", "browse", "flashcards", "speed", "glossary"];
 
   function writeHash(hash) {
     if (location.hash === hash) return;
@@ -913,13 +922,15 @@
     VIEWS.forEach((name) => {
       const section = document.getElementById(`view-${name}`);
       if (section) section.hidden = name !== view;
-      const tab = document.querySelector(`.tab[data-view="${name}"]`);
-      if (tab) {
-        const active = name === view;
-        tab.classList.toggle("active", active);
-        tab.setAttribute("aria-selected", String(active));
-      }
     });
+    TABS.forEach((name) => {
+      const tab = document.querySelector(`.tab[data-view="${name}"]`);
+      if (!tab) return;
+      const active = name === view;
+      tab.classList.toggle("active", active);
+      tab.setAttribute("aria-selected", String(active));
+    });
+    if (view === "today") renderToday();
     if (view === "browse") renderBrowse();
     if (view === "flashcards") renderFlash();
     if (view === "glossary") renderGlossary();
@@ -1412,15 +1423,112 @@
     renderFlash();
   }
 
+  /* ---------------- today ---------------- */
+
+  function dayIndex() {
+    const now = new Date();
+    const start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    return Math.floor((start - new Date(now.getFullYear(), 0, 0)) / 86400000);
+  }
+
+  /* The same pick all day, and the same pick whatever the language: only the
+     copy around it is translated. */
+  function dailyPick(list, offset) {
+    if (!list.length) return null;
+    return list[(dayIndex() * 7 + offset * 13) % list.length];
+  }
+
+  function renderToday() {
+    const date = $("#today-date");
+    if (date) {
+      try {
+        date.textContent = new Date().toLocaleDateString(state.lang === "es" ? "es-ES" : "en-GB", {
+          weekday: "long",
+          day: "numeric",
+          month: "long",
+        });
+      } catch (_) {
+        date.textContent = "";
+      }
+    }
+
+    const word = dailyPick(GLOSSARY, 0);
+    const wordHost = $("#today-word");
+    if (wordHost) {
+      wordHost.innerHTML = word
+        ? `<p class="today-card-label">${escapeHtml(t("today.word"))}</p>
+           <h3 class="today-word">${escapeHtml(word.term)} ${speakButton(word.term)}</h3>
+           <p class="today-reading">${escapeHtml(word.reading)}</p>
+           <p class="today-meaning">${escapeHtml(pick(word, "meaning"))}</p>
+           <p class="today-note">${escapeHtml(pick(word, "note"))}</p>
+           <button type="button" class="ghost today-open" data-gloss="${escapeHtml(word.term)}">${escapeHtml(t("glossary.open"))}</button>`
+        : "";
+    }
+
+    const tech = dailyPick(activeTech(), 3);
+    const techHost = $("#today-tech");
+    if (techHost) {
+      const hero = tech ? heroFrame(tech) : null;
+      techHost.innerHTML = tech
+        ? `<p class="today-card-label">${escapeHtml(t("today.technique"))}</p>
+           ${hero ? `<button type="button" class="today-thumb" data-open-card="${tech.id}"><img src="${hero.src}" alt="" loading="lazy"></button>` : ""}
+           <h3 class="today-word">${escapeHtml(tech.japanese)} ${speakButton(tech.japanese)}</h3>
+           <p class="today-meaning">${escapeHtml(pick(tech, "translation"))}</p>
+           <p class="today-note">${escapeHtml(pick(tech, "cue"))}</p>
+           <button type="button" class="ghost today-open" data-open-card="${tech.id}">${escapeHtml(t("today.openCard"))}</button>`
+        : "";
+    }
+
+    const progress = $("#today-progress");
+    if (progress) {
+      const pool = activeTech();
+      const known = pool.filter((item) => isKnown(item.id)).length;
+      const pct = pool.length ? Math.round((known / pool.length) * 100) : 0;
+      progress.innerHTML = `
+        <div class="today-progress-head">
+          <span>${escapeHtml(t("today.known", { n: known, total: pool.length }))}</span>
+          <span class="today-progress-pct">${pct}%</span>
+        </div>
+        <div class="today-bar"><i style="width:${pct}%"></i></div>
+        <p class="today-best">${escapeHtml(t("today.best", { n: state.speed.best }))}</p>`;
+    }
+  }
+
   /* ---------------- flashcards ---------------- */
 
-  function currentFlashTech() {
+  function isGlossaryDeck() {
+    return state.flashDeck === "glossary";
+  }
+
+  /* The vocabulary deck follows the belt scope: the words the techniques of
+     the selected belt actually use. */
+  function glossaryDeck() {
+    if (state.grade === "all") return GLOSSARY;
+    const ids = new Set(activeTech().map((tech) => tech.id));
+    return GLOSSARY.filter((item) =>
+      (TERM_TO_TECHS.get(item.term.toLowerCase()) || []).some((id) => ids.has(id)));
+  }
+
+  function currentCard() {
+    if (isGlossaryDeck()) {
+      const term = state.flashOrder[state.flashIndex];
+      return GLOSSARY.find((item) => item.term === term) || null;
+    }
     const fallback = activeTech()[0] || TECH[0];
     return TECH_BY_ID[state.flashOrder[state.flashIndex]] || fallback;
   }
 
+  /* The known store is keyed by technique id or by term, depending on the deck. */
+  function currentKey() {
+    const card = currentCard();
+    if (!card) return null;
+    return isGlossaryDeck() ? card.term : card.id;
+  }
+
   function rebuildFlashOrder() {
-    state.flashOrder = activeTech().map((tech) => tech.id);
+    state.flashOrder = isGlossaryDeck()
+      ? glossaryDeck().map((item) => item.term)
+      : activeTech().map((tech) => tech.id);
     state.flashIndex = 0;
     state.flashFlipped = false;
   }
@@ -1428,14 +1536,23 @@
   function renderFlash() {
     const host = $("#flash-content");
     if (!state.flashOrder.length) {
-      host.innerHTML = `<p class="flash-empty">${t("flash.emptyGrade")}</p>`;
+      host.innerHTML = `<p class="flash-empty">${t(isGlossaryDeck() ? "flash.emptyDeck" : "flash.emptyGrade")}</p>`;
       $("#flash-progress").textContent = "";
       $("#flash-hint").textContent = "";
       const actions = $(".flash-actions");
       if (actions) actions.hidden = state.view !== "flashcards";
       return;
     }
-    const tech = currentFlashTech();
+
+    $$("#flash-deck button").forEach((button) => {
+      const active = button.getAttribute("data-deck") === state.flashDeck;
+      button.classList.toggle("active", active);
+      button.setAttribute("aria-pressed", String(active));
+    });
+    const modeSwitch = $("#flash-mode");
+    if (modeSwitch) modeSwitch.hidden = isGlossaryDeck();
+    if (isGlossaryDeck()) return renderGlossaryCard();
+    const tech = currentCard();
     if (!tech) return;
     const cat = categoryOf(tech);
     const known = isKnown(tech.id);
@@ -1471,7 +1588,7 @@
     if (!flipped) {
       if (state.flashMode === "name" || !hasFrames) {
         host.innerHTML = `
-          ${markToggle(tech)}
+          ${markToggle(tech.id)}
           <span class="cat-badge flash-category" style="--cat-color:${cat.color}">${cat.name}</span>
           ${gradeBadge(tech)}
           <h2 class="flash-name">${tech.japanese} ${speakButton(tech.japanese)}</h2>
@@ -1494,7 +1611,7 @@
 
     host.innerHTML = `
       ${imageBlock}
-      ${markToggle(tech)}
+      ${markToggle(tech.id)}
       <span class="cat-badge flash-category" style="--cat-color:${cat.color}">${cat.name}</span>
       ${gradeBadge(tech)}
       <h2 class="flash-back-title">${tech.japanese} ${speakButton(tech.japanese)}</h2>
@@ -1503,6 +1620,64 @@
       <p class="flash-cue">${escapeHtml(pick(tech, "cue"))}</p>
       <ul class="flash-points">${points.map((point) => `<li>${escapeHtml(point)}</li>`).join("")}</ul>
       <button class="flash-open" data-open-card="${tech.id}">${t("flash.openCard")}</button>`;
+  }
+
+  /* A vocabulary card: the term on the front, what it means and where it is
+     used on the back. Same one-button loop as a technique card. */
+  function renderGlossaryCard() {
+    const host = $("#flash-content");
+    const item = currentCard();
+    const flipped = state.flashFlipped;
+    const card = $("#flashcard");
+    if (card) card.classList.toggle("is-back", flipped);
+    if (!item) {
+      host.innerHTML = `<p class="flash-empty">${t("flash.emptyDeck")}</p>`;
+      $("#flash-progress").textContent = "";
+      $("#flash-hint").textContent = "";
+      return;
+    }
+
+    $("#flash-known").checked = isKnown(item.term);
+    $("#flash-progress").textContent = t("flash.counter", { n: state.flashIndex + 1, total: state.flashOrder.length });
+    $("#flash-hint").textContent = flipped ? t("flash.backHint") : t("flash.flipHint");
+    const flipButton = $("#flash-flip");
+    if (flipButton) flipButton.textContent = t(flipped ? "flash.hide" : "flash.show");
+    const primaryM = $("#flash-primary-m");
+    if (primaryM) primaryM.textContent = t(flipped ? "flash.next" : "flash.show");
+    const count = $("#flash-count");
+    if (count) count.textContent = `${state.flashIndex + 1} / ${state.flashOrder.length}`;
+    const fill = $("#flash-bar-fill");
+    if (fill) fill.style.width = `${((state.flashIndex + 1) / state.flashOrder.length) * 100}%`;
+
+    if (!flipped) {
+      host.innerHTML = `
+        ${markToggle(item.term)}
+        <h2 class="flash-name">${escapeHtml(item.term)} ${speakButton(item.term)}</h2>
+        <p class="flash-reading">${escapeHtml(item.reading)}</p>
+        <p class="flash-prompt">${t("flash.wordPrompt")}</p>`;
+      return;
+    }
+
+    const ids = techniquesForTerm(item.term);
+    const uses = ids.length
+      ? `<p class="flash-cue">${escapeHtml(t("glossary.uses", { n: ids.length }))}</p>
+         <div class="flash-uses">${ids
+           .map((id) => {
+             const tech = TECH_BY_ID[id];
+             return tech
+               ? `<button type="button" class="glossary-use" data-open-card="${id}">${escapeHtml(tech.japanese)}</button>`
+               : "";
+           })
+           .join("")}</div>`
+      : "";
+
+    host.innerHTML = `
+      ${markToggle(item.term)}
+      <h2 class="flash-back-title">${escapeHtml(item.term)} ${speakButton(item.term)}</h2>
+      <p class="flash-back-sub">${escapeHtml(item.reading)}</p>
+      <p class="flash-cue">${escapeHtml(pick(item, "meaning"))}</p>
+      <p class="flash-note">${escapeHtml(pick(item, "note"))}</p>
+      ${uses}`;
   }
 
   function flipFlash() {
@@ -1535,14 +1710,24 @@
     renderFlash();
   }
 
+  function setFlashDeck(deck) {
+    if (deck !== "techniques" && deck !== "glossary") return;
+    state.flashDeck = deck;
+    writeRaw(STORAGE.flashDeck, deck);
+    state.flashFlipped = false;
+    rebuildFlashOrder();
+    renderFlash();
+  }
+
   function toggleFlashKnown() {
-    const tech = currentFlashTech();
-    if (!tech) return;
-    const next = !isKnown(tech.id);
-    setKnown(tech.id, next);
+    const key = currentKey();
+    if (!key) return;
+    const next = !isKnown(key);
+    setKnown(key, next);
     $("#flash-known").checked = next;
     renderBrowse();
     renderFlash();
+    renderToday();
   }
 
 
@@ -2013,6 +2198,11 @@
       button.addEventListener("click", () => applyTheme(button.getAttribute("data-theme-choice"), true));
     });
 
+    $("#flash-deck").addEventListener("click", (event) => {
+      const button = event.target.closest("[data-deck]");
+      if (button) setFlashDeck(button.getAttribute("data-deck"));
+    });
+
     // A word chip opens its glossary entry; a glossary entry opens the card.
     document.addEventListener(
       "click",
@@ -2325,6 +2515,7 @@
     renderGlossary();
     renderGlossaryCategories();
     renderNameGrammar();
+    renderToday();
     rebuildFlashOrder();
     renderFlash();
     renderSpeedDir();
