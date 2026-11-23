@@ -1498,7 +1498,25 @@
           },
           events: {
             onReady: (event) => {
-              try { event.target.playVideo(); } catch (_) { /* policy said no */ }
+              const player = event.target;
+              try { player.playVideo(); } catch (_) { /* policy said no */ }
+
+              /* Safari will not let a tap on our page start audio inside a
+                 cross-origin frame, so "play with sound" can silently do
+                 nothing there. Muted playback is always allowed, so if the
+                 player is still cued a moment later, start it muted and let
+                 one tap on its own speaker bring the sound back. */
+              setTimeout(() => {
+                if (!stage.isConnected) return;
+                let state;
+                try { state = player.getPlayerState(); } catch (_) { return; }
+                // -1 unstarted, 2 paused, 5 cued: anything but playing or buffering
+                if (state !== -1 && state !== 2 && state !== 5) return;
+                try {
+                  player.mute();
+                  player.playVideo();
+                } catch (_) { /* nothing more we can do */ }
+              }, 1400);
             },
           },
         });
