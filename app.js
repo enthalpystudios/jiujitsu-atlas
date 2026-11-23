@@ -184,6 +184,11 @@
     return CATS[tech.category] || DATA.categories[0];
   }
 
+  function videoIdFrom(url) {
+    const match = String(url || "").match(/(?:v=|youtu\.be\/|embed\/)([A-Za-z0-9_-]{6,})/);
+    return match ? match[1] : null;
+  }
+
   function sourceUrl(tech) {
     const source = tech.source;
     if (!source || !source.url) return "#";
@@ -270,6 +275,7 @@
     renderGlossary();
     renderGlossaryCategories();
     renderNameGrammar();
+    renderKyuGuide();
     renderToday();
     renderSpeedDir();
     updateSpeedStats();
@@ -288,6 +294,7 @@
     renderBrowse();
     renderFlash();
     renderGlossaryCategories();
+    renderKyuGuide();
     renderToday();
     renderSpeedDir();
     applyI18n();
@@ -1309,15 +1316,19 @@
           .join("")
       : "";
 
+    const video = tech.source && tech.source.url
+      ? { id: videoIdFrom(tech.source.url), start: Number(tech.source.start || 0) }
+      : null;
     const visual = hasFrames
       ? `<div class="modal-visual" style="--cat-color:${cat.color}">
           <div class="modal-stage-wrap">
             <div class="modal-stage">
               <div class="stage-actions">
                 <button class="stage-action ${known ? "is-known" : ""}" data-known-toggle="${tech.id}">${known ? "✓ " + t("modal.known") : t("modal.markKnown")}</button>
-                <a class="stage-action" href="${sourceUrl(tech)}" target="_blank" rel="noopener">${t("modal.watch")} ↗</a>
+                ${video ? `<button class="stage-action" data-play-source="${video.id}" data-play-start="${video.start}">▶ ${t("modal.play")}</button>` : `<a class="stage-action" href="${sourceUrl(tech)}" target="_blank" rel="noopener">${t("modal.watch")} ↗</a>`}
               </div>
               <img id="stage-img" src="${frame.src}" alt="${escapeHtml(tech.japanese)} — ${escapeHtml(phaseLabel(frame))}">
+              <div class="stage-video" hidden></div>
               <span class="stage-phase" id="stage-phase">${escapeHtml(phaseLabel(frame))}</span>
               <span class="stage-count" id="stage-count">${state.modalFrame + 1} / ${tech.frames.length}</span>
               <button class="stage-nav prev" data-stage-step="-1" aria-label="${t("modal.prevFrame")}">←</button>
@@ -1413,6 +1424,24 @@
     state.modalId = null;
     state.modalFrame = 0;
     if (location.hash.startsWith("#card/")) writeHash(`#${state.view}`);
+  }
+
+  /* Playing in place beats throwing the reader into a new tab, and the source
+     credit below still links out for anyone who wants the full page. */
+  function playStageSource(button) {
+    const stage = button.closest(".modal-stage");
+    const host = stage && $(".stage-video", stage);
+    const id = button.getAttribute("data-play-source");
+    if (!stage || !host || !id) return;
+    const start = Number(button.getAttribute("data-play-start") || 0);
+    const title = t("modal.play");
+    host.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${id}?start=${start}&autoplay=1&rel=0&playsinline=1"
+      title="${escapeHtml(title)}"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+      allowfullscreen></iframe>`;
+    host.hidden = false;
+    stage.classList.add("is-playing");
+    button.hidden = true;
   }
 
   function toggleKnownFromModal(button) {
@@ -1551,8 +1580,14 @@
       button.classList.toggle("active", active);
       button.setAttribute("aria-pressed", String(active));
     });
-    const modeSwitch = $("#flash-mode");
-    if (modeSwitch) modeSwitch.hidden = isGlossaryDeck();
+    const swap = $("#flash-swap");
+    if (swap) {
+      // A vocabulary card has one direction, so the swap has nothing to do.
+      swap.hidden = isGlossaryDeck();
+      const label = t(state.flashMode === "image" ? "flash.dirImage" : "flash.dirName");
+      swap.setAttribute("aria-label", label);
+      swap.setAttribute("title", label);
+    }
     if (isGlossaryDeck()) return renderGlossaryCard();
     const tech = currentCard();
     if (!tech) return;
@@ -1581,11 +1616,8 @@
     const fill = $("#flash-bar-fill");
     if (fill) fill.style.width = `${((state.flashIndex + 1) / state.flashOrder.length) * 100}%`;
 
-    document.querySelectorAll("#flash-mode button").forEach((button) => {
-      const active = button.getAttribute("data-mode") === state.flashMode;
-      button.classList.toggle("active", active);
-      button.setAttribute("aria-pressed", String(active));
-    });
+    const swapIcon = $("#flash-swap");
+    if (swapIcon) swapIcon.setAttribute("aria-pressed", String(state.flashMode === "image"));
 
     if (!flipped) {
       if (state.flashMode === "name" || !hasFrames) {
@@ -2119,6 +2151,34 @@
   /* The grammar behind the four examples: which words end a name, which open
      it, and what the particle and the numbers are doing. Counts are derived
      from the atlas, so the panel can never drift from the data. */
+  /* What each kyu is. The description is the federation's programme; the
+     counts and the category chips are derived, so they cannot go stale. */
+  function renderKyuGuide() {
+    const host = $("#kyu-guide-body");
+    if (!host) return;
+    host.innerHTML = GRADES.map((grade) => {
+      const pool = TECH.filter((tech) => tech.grade_id === grade.id);
+      const counts = pool.reduce((acc, tech) => {
+        acc[tech.category] = (acc[tech.category] || 0) + 1;
+        return acc;
+      }, {});
+      const cats = DATA.categories
+        .filter((cat) => counts[cat.id])
+        .map((cat) => `<span class="kyu-cat">${escapeHtml(cat.name)} <b>${counts[cat.id]}</b></span>`)
+        .join("");
+      return `
+        <article class="kyu-card" style="--belt-color:${grade.color}">
+          <div class="kyu-card-top">
+            <span class="kyu-dot" aria-hidden="true"></span>
+            <h4>${escapeHtml(t("grade." + grade.id))}</h4>
+            <span class="kyu-count">${pool.length}</span>
+          </div>
+          <p class="kyu-desc">${escapeHtml(t("kyu." + grade.id))}</p>
+          <div class="kyu-cats">${cats}</div>
+        </article>`;
+    }).join("");
+  }
+
   function renderNameGrammar() {
     const host = $("#grammar-rules");
     if (!host) return;
@@ -2388,6 +2448,11 @@
         stepModalFrame(Number(step.getAttribute("data-stage-step")));
         return;
       }
+      const playButton = event.target.closest("[data-play-source]");
+      if (playButton) {
+        playStageSource(playButton);
+        return;
+      }
       const knownButton = event.target.closest("[data-known-toggle]");
       if (knownButton) toggleKnownFromModal(knownButton);
     });
@@ -2477,9 +2542,8 @@
     // Phone loop: one action that follows the card, plus a quiet mark toggle.
     $("#flash-primary-m").addEventListener("click", () => (state.flashFlipped ? moveFlash(1) : flipFlash()));
 
-    $("#flash-mode").addEventListener("click", (event) => {
-      const button = event.target.closest("[data-mode]");
-      if (button) setFlashMode(button.getAttribute("data-mode"));
+    $("#flash-swap").addEventListener("click", () => {
+      setFlashMode(state.flashMode === "image" ? "name" : "image");
     });
 
     // Speed
@@ -2608,6 +2672,7 @@
     renderGlossary();
     renderGlossaryCategories();
     renderNameGrammar();
+    renderKyuGuide();
     renderToday();
     rebuildFlashOrder();
     renderFlash();

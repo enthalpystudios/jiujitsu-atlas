@@ -1007,8 +1007,7 @@ h2 {
   inset: 0;
   z-index: 60;
   display: grid;
-  place-items: center;
-  padding: 12px;
+  place-items: stretch;
 }
 .modal[hidden] { display: none; }
 
@@ -1025,14 +1024,11 @@ h2 {
   position: relative;
   display: flex;
   flex-direction: column;
-  width: min(1120px, 100%);
-  max-height: 92vh;
+  width: 100%;
+  height: 100%;
   overflow: hidden;
-  border: 1px solid var(--line-strong);
-  border-radius: var(--radius-lg);
   background: var(--bg-2);
-  box-shadow: var(--shadow);
-  animation: rise 200ms var(--ease) both;
+  animation: rise 200ms var(--ease);
 }
 
 .modal-content {
@@ -1202,6 +1198,26 @@ h2 {
   max-height: 46vh;
   margin: 0 auto;
 }
+
+/* The source video plays in the stage rather than in a new tab. */
+.stage-video {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  background: #000;
+}
+
+.stage-video iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+/* While it plays, the stills and their paging get out of the way. */
+.modal-stage.is-playing .stage-nav,
+.modal-stage.is-playing .stage-phase,
+.modal-stage.is-playing .stage-count { display: none; }
 
 .modal-stage img {
   display: block;
@@ -1708,9 +1724,8 @@ h2 {
   margin-top: 18px;
 }
 
-/* Phone loop: a counter with a progress bar, and one action row that changes
-   with the state of the card. Desktop keeps the chevrons and the controls row. */
-.flash-hud { display: none; }
+/* Phone loop: one action row that changes with the state of the card. Desktop
+   keeps the chevrons and the controls row. */
 .flash-actions { display: none; }
 
 /* The mark toggle belongs to the card, and only to the phone. Desktop keeps
@@ -2388,13 +2403,56 @@ h2 {
 }
 
 
-/* Flashcard deck switch */
+/* ---------- 16c. Flashcards header ---------- */
+
+.flash-head {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.flash-head .eyebrow { margin: 0; }
+
+.flash-hud {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.flash-count {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+
+.flash-bar {
+  flex: 1 1 auto;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--line);
+  overflow: hidden;
+}
+
+.flash-bar > i {
+  display: block;
+  width: 0;
+  height: 100%;
+  border-radius: 2px;
+  background: var(--accent);
+  transition: width 220ms var(--ease);
+}
+
 .flash-switches {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
+
+.flash-switches .segmented { flex: 1 1 auto; }
+.flash-shuffle { flex: 0 0 auto; }
+.flash-shuffle svg { width: 19px; height: 19px; }
 
 .flash-reading {
   margin: 8px 0 0;
@@ -2417,6 +2475,93 @@ h2 {
   gap: 6px;
   margin-top: 10px;
 }
+
+/* ---------- 16d. What each kyu is ---------- */
+
+.kyu-guide { margin-top: 22px; }
+
+.kyu-guide-head { margin-bottom: 12px; }
+
+.kyu-guide-head h3 {
+  margin: 0 0 6px;
+  font-size: 1.05rem;
+  letter-spacing: -0.015em;
+}
+
+.kyu-guide-head p {
+  margin: 0;
+  max-width: 60ch;
+  color: var(--muted);
+  font-size: 0.86rem;
+  line-height: 1.5;
+}
+
+.kyu-guide-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 10px;
+}
+
+.kyu-card {
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--panel);
+}
+
+.kyu-card-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.kyu-dot {
+  width: 12px;
+  height: 12px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--belt-color, var(--accent));
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.3);
+}
+
+.kyu-card-top h4 {
+  margin: 0;
+  font-size: 0.95rem;
+  letter-spacing: -0.01em;
+}
+
+.kyu-count {
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+
+.kyu-desc {
+  margin: 8px 0 0;
+  color: var(--text-soft);
+  font-size: 0.86rem;
+  line-height: 1.55;
+}
+
+.kyu-cats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 11px;
+}
+
+.kyu-cat {
+  padding: 3px 9px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--panel-2);
+  color: var(--muted);
+  font-size: 0.7rem;
+}
+
+.kyu-cat b { color: var(--text); font-weight: 650; }
 
 /* ---------- 17. Footer ---------- */
 
@@ -2808,8 +2953,17 @@ h2 {
 
   .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
   .today-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+  .flash-head {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 22px;
+    margin-bottom: 18px;
+  }
+  .flash-head h2 { margin: 0; }
   .glossary-grid { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
   .glossary-categories-body { grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
+  .kyu-guide-body { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
 
   .name-builder { grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); padding: 24px 26px; gap: 26px; }
 
@@ -2971,14 +3125,6 @@ h2 {
   }
 
   /* The card becomes a sheet. */
-  .modal { place-items: end stretch; padding: 0; }
-  .modal-panel {
-    width: 100%;
-    max-height: 94vh;
-    border-radius: 22px 22px 0 0;
-    animation: sheet-up 280ms var(--ease);
-  }
-  .modal-content { border-radius: 22px 22px 0 0; }
   .modal-close { top: 12px; right: 12px; }
   /* Keep the stage actions clear of the floating close button. */
   .stage-actions {
@@ -3000,44 +3146,19 @@ h2 {
   #flash-prev,
   #flash-next { display: none; }
 
-  .flash-hud {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-top: 12px;
-  }
-
-  .flash-count {
-    color: var(--muted);
-    font-size: 0.8rem;
-    font-weight: 650;
-    font-variant-numeric: tabular-nums;
-  }
-
-  .flash-bar {
-    flex: 1 1 auto;
-    height: 4px;
-    border-radius: 2px;
-    background: var(--line);
+  /* The tab bar already says which view this is, so the heading steps aside. */
+  .flash-head .eyebrow,
+  .flash-head h2 {
+    position: absolute;
+    width: 1px;
+    height: 1px;
     overflow: hidden;
-  }
-
-  .flash-bar > i {
-    display: block;
-    width: 0;
-    height: 100%;
-    border-radius: 2px;
-    background: var(--accent);
-    transition: width 220ms var(--ease);
+    clip-path: inset(50%);
+    white-space: nowrap;
   }
 
   .flash-mark-row { display: flex; }
   .flash-mark { min-height: 40px; }
-
-  .flash-shuffle {
-    flex: 0 0 auto;
-  }
-  .flash-shuffle svg { width: 19px; height: 19px; }
 
   .flashcard {
     display: flex;

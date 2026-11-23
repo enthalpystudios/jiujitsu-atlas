@@ -153,28 +153,24 @@
 
     <!-- FLASHCARDS -->
     <section id="view-flashcards" class="view" role="tabpanel" aria-label="Fichas" data-i18n-aria="tab.flashcards" hidden>
-      <div class="section-head">
-        <div>
-          <p class="eyebrow" data-i18n="flash.eyebrow">PRÁCTICA EN DOS SENTIDOS</p>
-          <h2 data-i18n="flash.title">Fichas</h2>
-          <p class="lede" data-i18n="flash.lede">Nombre → técnica y técnica → nombre. Baraja, revela y marca lo que sabes.</p>
-          <div class="flash-hud">
-            <span class="flash-count" id="flash-count">1 / 103</span>
-            <span class="flash-bar" aria-hidden="true"><i id="flash-bar-fill"></i></span>
-            <button type="button" class="icon-btn flash-shuffle" id="flash-shuffle-m" title="Barajar" aria-label="Barajar" data-i18n-aria="flash.shuffle">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5"></path></svg>
-            </button>
-          </div>
+      <div class="flash-head">
+        <p class="eyebrow" data-i18n="flash.eyebrow">PRÁCTICA EN DOS SENTIDOS</p>
+        <h2 data-i18n="flash.title">Fichas</h2>
+        <div class="flash-hud">
+          <span class="flash-count" id="flash-count">1 / 103</span>
+          <span class="flash-bar" aria-hidden="true"><i id="flash-bar-fill"></i></span>
         </div>
         <div class="flash-switches">
           <div class="segmented" id="flash-deck" role="group" aria-label="Mazo" data-i18n-aria="flash.deck">
             <button class="active" data-deck="techniques" aria-pressed="true" data-i18n="flash.deckTech">Técnicas</button>
             <button data-deck="glossary" aria-pressed="false" data-i18n="flash.deckGloss">Vocabulario</button>
           </div>
-          <div class="segmented" id="flash-mode" role="group" aria-label="Sentido de las fichas" data-i18n-aria="flash.direction">
-            <button class="active" data-mode="name" aria-pressed="true" data-i18n="flash.dirName">Nombre → técnica</button>
-            <button data-mode="image" aria-pressed="false" data-i18n="flash.dirImage">Técnica → nombre</button>
-          </div>
+          <button type="button" class="icon-btn" id="flash-swap" title="Cambiar sentido" aria-label="Cambiar sentido">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 8h13M13 4l4 4-4 4M20 16H7M11 12l-4 4 4 4"></path></svg>
+          </button>
+          <button type="button" class="icon-btn flash-shuffle" id="flash-shuffle-m" title="Barajar" aria-label="Barajar" data-i18n-aria="flash.shuffle">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5"></path></svg>
+          </button>
         </div>
       </div>
 
@@ -299,6 +295,15 @@
         <!-- The rules behind those examples, counted from the atlas itself. -->
         <div class="builder-rules" id="grammar-rules"></div>
       </div>
+
+      <section class="kyu-guide">
+        <div class="kyu-guide-head">
+          <p class="eyebrow" data-i18n="kyu.eyebrow">LOS CINCO KYUS</p>
+          <h3 data-i18n="kyu.title">Qué es cada kyu</h3>
+          <p data-i18n="kyu.lede">Cada cinturón añade una capa en lugar de sustituir la anterior. Los números salen del atlas; el resto es el programa oficial de la RFEJYDA.</p>
+        </div>
+        <div class="kyu-guide-body" id="kyu-guide-body"></div>
+      </section>
 
       <div class="filters">
         <div class="search-wrap">
