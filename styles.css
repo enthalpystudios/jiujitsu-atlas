@@ -2476,6 +2476,23 @@ h2 {
   margin-top: 10px;
 }
 
+/* ---------- 16e. Glossary: the dictionary, then the reading ---------- */
+
+.glossary-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.glossary-head-text { min-width: 0; }
+.glossary-head .eyebrow { margin: 0 0 4px; }
+.glossary-head h2 { margin: 0; }
+
+/* The guide is three pieces of writing; give them room to breathe. */
+.glossary-guide > * + * { margin-top: 24px; }
+
 /* ---------- 16d. What each kyu is ---------- */
 
 .kyu-guide { margin-top: 22px; }
@@ -3145,6 +3162,9 @@ h2 {
 
   #flash-prev,
   #flash-next { display: none; }
+
+  .glossary-head .eyebrow { display: none; }
+  .glossary-head h2 { font-size: 1.45rem; }
 
   /* The tab bar already says which view this is, so the heading steps aside. */
   .flash-head .eyebrow,

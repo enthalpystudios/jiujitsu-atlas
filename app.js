@@ -22,6 +22,7 @@
     flashMode: "jj_atlas_flash_mode",
     speedDir: "jj_atlas_speed_dir",
     deck: "jj_atlas_deck",
+    glossaryMode: "jj_atlas_glossary_mode",
     lang: "jj_atlas_lang",
     grade: "jj_atlas_grade",
     theme: "jj_atlas_theme",
@@ -133,6 +134,7 @@
     known: readJSON(STORAGE.known, {}),
     flashMode: readRaw(STORAGE.flashMode) || "name",
     deck: readRaw(STORAGE.deck) === "glossary" ? "glossary" : "techniques",
+    glossaryMode: readRaw(STORAGE.glossaryMode) === "guide" ? "guide" : "words",
     flashIndex: 0,
     flashFlipped: false,
     flashOrder: TECH.map((t) => t.id),
@@ -945,7 +947,10 @@
     if (view === "today") renderToday();
     if (view === "browse") renderBrowse();
     if (view === "flashcards") renderFlash();
-    if (view === "glossary") renderGlossary();
+    if (view === "glossary") {
+      renderGlossaryMode();
+      renderGlossary();
+    }
     if (view === "speed") {
       updateSpeedStats();
       if (!state.speed.running && !state.speed.question) showSpeedStart();
@@ -1300,6 +1305,8 @@
   function openModal(id, options = {}) {
     const tech = TECH_BY_ID[id];
     if (!tech) return;
+    // The body is about to be replaced, taking any player with it.
+    stagePlayer = null;
     const cat = categoryOf(tech);
     const known = isKnown(id);
     const hasFrames = tech.frames && tech.frames.length > 0;
@@ -1394,6 +1401,8 @@
   function selectModalFrame(index) {
     const tech = TECH_BY_ID[state.modalId];
     if (!tech || !tech.frames || !tech.frames.length) return;
+    // Another frame means the video is done with; show the still again.
+    stopStageVideo();
     const count = tech.frames.length;
     const next = ((index % count) + count) % count;
     state.modalFrame = next;
@@ -1420,6 +1429,7 @@
   }
 
   function closeModal() {
+    stopStageVideo();
     const modal = $("#modal");
     modal.hidden = true;
     document.body.style.overflow = "";
@@ -1429,23 +1439,93 @@
     if (location.hash.startsWith("#card/")) writeHash(`#${state.view}`);
   }
 
+  let youTubeApi = null;
+  let stagePlayer = null;
+
+  function loadYouTubeApi() {
+    if (youTubeApi) return youTubeApi;
+    youTubeApi = new Promise((resolve, reject) => {
+      if (window.YT && window.YT.Player) { resolve(window.YT); return; }
+      const previous = window.onYouTubeIframeAPIReady;
+      window.onYouTubeIframeAPIReady = () => {
+        if (typeof previous === "function") previous();
+        resolve(window.YT);
+      };
+      const script = document.createElement("script");
+      script.src = "https://www.youtube.com/iframe_api";
+      script.onerror = reject;
+      document.head.appendChild(script);
+    });
+    return youTubeApi;
+  }
+
   /* Playing in place beats throwing the reader into a new tab, and the source
-     credit below still links out for anyone who wants the full page. */
+     credit below still links out for anyone who wants the full page.
+
+     The player runs through YouTube's own API rather than a bare iframe: a
+     click here is not a gesture the cross-origin frame inherits, so autoplay
+     has to be asked for from inside it. The same handle is what lets us stop
+     playback when the reader moves to another frame. */
   function playStageSource(button) {
     const stage = button.closest(".modal-stage");
     const host = stage && $(".stage-video", stage);
     const id = button.getAttribute("data-play-source");
     if (!stage || !host || !id) return;
     const start = Number(button.getAttribute("data-play-start") || 0);
-    const title = t("modal.play");
-    host.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${id}?start=${start}&autoplay=1&rel=0&playsinline=1"
-      title="${escapeHtml(title)}"
-      referrerpolicy="strict-origin-when-cross-origin"
-      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-      allowfullscreen></iframe>`;
+
+    host.innerHTML = '<div class="stage-video-mount"></div>';
     host.hidden = false;
     stage.classList.add("is-playing");
     button.hidden = true;
+
+    loadYouTubeApi()
+      .then((YT) => {
+        if (!stage.classList.contains("is-playing") || !host.isConnected) return;
+        const mount = $(".stage-video-mount", host);
+        if (!mount) return;
+        stagePlayer = new YT.Player(mount, {
+          videoId: id,
+          playerVars: {
+            start,
+            autoplay: 1,
+            rel: 0,
+            playsinline: 1,
+            origin: location.origin,
+          },
+          events: {
+            onReady: (event) => {
+              try { event.target.playVideo(); } catch (_) { /* policy said no */ }
+            },
+          },
+        });
+      })
+      .catch(() => {
+        // No API (offline, blocked): fall back to a plain embed.
+        host.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${id}?start=${start}&autoplay=1&rel=0&playsinline=1"
+          title="${escapeHtml(t("modal.play"))}"
+          referrerpolicy="strict-origin-when-cross-origin"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen></iframe>`;
+      });
+  }
+
+  /* Put the still back. Called whenever the reader moves on, so a video can
+     never carry on playing behind a different frame. */
+  function stopStageVideo() {
+    const stage = $(".modal-stage.is-playing");
+    if (!stage) return;
+    if (stagePlayer) {
+      try { stagePlayer.destroy(); } catch (_) { /* already gone */ }
+      stagePlayer = null;
+    }
+    const host = $(".stage-video", stage);
+    if (host) {
+      host.innerHTML = "";
+      host.hidden = true;
+    }
+    stage.classList.remove("is-playing");
+    const button = $("[data-play-source]", stage);
+    if (button) button.hidden = false;
   }
 
   function toggleKnownFromModal(button) {
@@ -2135,11 +2215,13 @@
      is a way into the vocabulary rather than a dead end. */
   function gotoGlossary(term) {
     const key = term.trim().toLowerCase();
+    state.glossaryMode = "words";
     state.glossaryGroup = "all";
     state.glossarySearch = term;
     const input = $("#glossary-search");
     if (input) input.value = term;
     renderGlossaryChips();
+    renderGlossaryMode();
     setView("glossary");
     const card = Array.from(document.querySelectorAll("#glossary-grid .glossary-card"))
       .find((el) => el.getAttribute("data-term") === key);
@@ -2249,6 +2331,29 @@
           }</span></button>`
       )
       .join("");
+  }
+
+  /* Two jobs in one view, so they get two modes: looking a word up, and
+     reading about how the names and the belts work. */
+  function renderGlossaryMode() {
+    const guide = state.glossaryMode === "guide";
+    const words = $("#glossary-words");
+    const guideHost = $("#glossary-guide");
+    if (words) words.hidden = guide;
+    if (guideHost) guideHost.hidden = !guide;
+    $$("#glossary-mode button").forEach((button) => {
+      const active = button.getAttribute("data-gmode") === state.glossaryMode;
+      button.classList.toggle("active", active);
+      button.setAttribute("aria-pressed", String(active));
+    });
+  }
+
+  function setGlossaryMode(mode) {
+    if (mode !== "words" && mode !== "guide") return;
+    state.glossaryMode = mode;
+    writeRaw(STORAGE.glossaryMode, mode);
+    renderGlossaryMode();
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   function renderGlossary() {
@@ -2572,6 +2677,11 @@
     });
 
     // Glossary
+    $("#glossary-mode").addEventListener("click", (event) => {
+      const button = event.target.closest("[data-gmode]");
+      if (button) setGlossaryMode(button.getAttribute("data-gmode"));
+    });
+
     $("#glossary-chips").addEventListener("click", (event) => {
       const chip = event.target.closest("[data-group]");
       if (!chip) return;
@@ -2674,6 +2784,7 @@
     renderGlossaryCategories();
     renderNameGrammar();
     renderKyuGuide();
+    renderGlossaryMode();
     renderToday();
     rebuildFlashOrder();
     renderFlash();
@@ -2692,6 +2803,7 @@
       speak,
       japaneseVoice,
       refreshVoices,
+      getPlayer: () => stagePlayer,
       setVoices: (list) => {
         voiceCache = Array.isArray(list) ? list : [];
       },

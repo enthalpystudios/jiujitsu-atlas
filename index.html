@@ -251,14 +251,33 @@
 
     <!-- GLOSSARY -->
     <section id="view-glossary" class="view" role="tabpanel" aria-label="Glosario" data-i18n-aria="tab.glossary" hidden>
-      <div class="section-head">
-        <div>
+      <div class="glossary-head">
+        <div class="glossary-head-text">
           <p class="eyebrow" data-i18n="glossary.eyebrow">PALABRAS DENTRO DE LAS PALABRAS</p>
           <h2 data-i18n="glossary.title">Glosario</h2>
-          <p class="lede" data-i18n="glossary.lede">Cada palabra japonesa del programa, con su significado y las palabras que forma.</p>
+        </div>
+        <div class="segmented" id="glossary-mode" role="group" aria-label="Palabras o guía" data-i18n-aria="glossary.mode">
+          <button class="active" data-gmode="words" aria-pressed="true" data-i18n="glossary.words">Palabras</button>
+          <button data-gmode="guide" aria-pressed="false" data-i18n="glossary.guide">Guía</button>
         </div>
       </div>
 
+      <!-- The dictionary first: looking a word up is what this view is for. -->
+      <div class="glossary-words" id="glossary-words">
+        <div class="filters">
+          <div class="search-wrap">
+            <span class="search-icon" aria-hidden="true">⌕</span>
+            <input id="glossary-search" type="search" autocomplete="off" placeholder="Busca en el glosario…" aria-label="Buscar en el glosario" data-i18n-placeholder="glossary.searchPlaceholder" data-i18n-aria="glossary.searchLabel">
+          </div>
+          <div id="glossary-chips" class="chips" role="group" aria-label="Filtrar el glosario por grupo" data-i18n-aria="glossary.filterGroup"></div>
+        </div>
+
+        <div id="glossary-grid" class="glossary-grid"></div>
+        <div id="glossary-empty" class="empty" hidden><p data-i18n="glossary.empty">Ningún término coincide.</p></div>
+      </div>
+
+      <!-- The reading, behind one tap so it never stands in the doorway. -->
+      <div class="glossary-guide" id="glossary-guide" hidden>
       <section class="glossary-categories" id="glossary-categories">
         <div class="glossary-categories-head">
           <p class="eyebrow" data-i18n="glossary.categoriesEyebrow">LAS FAMILIAS DE TÉCNICAS</p>
@@ -302,19 +321,9 @@
           <h3 data-i18n="kyu.title">Qué es cada kyu</h3>
           <p data-i18n="kyu.lede">Cada cinturón añade una capa en lugar de sustituir la anterior. Los números salen del atlas; el resto es el programa oficial de la RFEJYDA.</p>
         </div>
-        <div class="kyu-guide-body" id="kyu-guide-body"></div>
+        <div id="kyu-guide-body" class="kyu-guide-body"></div>
       </section>
-
-      <div class="filters">
-        <div class="search-wrap">
-          <span class="search-icon" aria-hidden="true">⌕</span>
-          <input id="glossary-search" type="search" autocomplete="off" placeholder="Busca en el glosario…" aria-label="Buscar en el glosario" data-i18n-placeholder="glossary.searchPlaceholder" data-i18n-aria="glossary.searchLabel">
-        </div>
-        <div id="glossary-chips" class="chips" role="group" aria-label="Filtrar el glosario por grupo" data-i18n-aria="glossary.filterGroup"></div>
       </div>
-
-      <div id="glossary-grid" class="glossary-grid"></div>
-      <div id="glossary-empty" class="empty" hidden><p data-i18n="glossary.empty">Ningún término coincide.</p></div>
     </section>
   </main>
 
