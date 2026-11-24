@@ -20,7 +20,7 @@ The whole app is static: no build step, no server, no dependencies. Open
   name, with a best score saved locally. *Training rounds*: the class drill — a
   bell, a clock and a swap. Choose the exercises to drill, the number of rounds,
   the work and the rest in seconds, and whether it is in pairs. The app speaks
-  the 4-3-2-1 in and out (Mónica / Samantha, rendered to clips), names the technique for each round and holds the
+  the 4-3-2-1 in and out from one four-second recording (Mónica / Samantha), names the technique for each round and holds the
   screen awake while you play your own music. It runs offline.
 - **Glossary** — two halves. *Words* is the dictionary: every Japanese term
   with its kanji and its kana reading, and the techniques it builds. *Guide*

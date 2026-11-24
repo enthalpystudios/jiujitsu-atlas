@@ -1663,26 +1663,10 @@
     } catch (_) { /* nothing we can do */ }
   }
 
-  const ROUND_SOUNDS = ["bell", "blip", "es-1", "es-2", "es-3", "es-4", "en-1", "en-2", "en-3", "en-4"];
+  const ROUND_SOUNDS = ["bell", "blip", "es-count", "en-count"];
 
   function preloadRoundAudio() {
     ROUND_SOUNDS.forEach((name) => { try { soundEl(name).load(); } catch (_) { /* ignore */ } });
-  }
-
-  /* Plays every clip silently once so the browser marks them as allowed. It
-     never pauses, unmutes or rewinds afterwards: the real play does all of
-     that on the same element, so a prime can never be heard, nor double a
-     count. Fire and forget. */
-  function primeRoundAudio() {
-    ROUND_SOUNDS.forEach((name) => {
-      const el = soundEl(name);
-      try {
-        el.muted = true;
-        el.volume = 0;
-        const p = el.play();
-        if (p && p.catch) p.catch(() => { /* fine */ });
-      } catch (_) { /* fine */ }
-    });
   }
 
   /* The first ring is immediate; the rest follow, so the bell leads the count. */
@@ -1693,8 +1677,19 @@
 
   function roundBlip() { playSound("blip", 0.6); }
 
-  function playCount(n) {
-    playSound(`${state.lang === "en" ? "en" : "es"}-${n}`);
+  /* One 4-second recording carries the whole count: "cuatro" at 0 s, then one
+     number on each second, so it lands exactly on the 4-3-2-1 on screen. A
+     single file cannot repeat or drift. */
+  function playCountdown() {
+    playSound(`${state.lang === "en" ? "en" : "es"}-count`);
+  }
+
+  function stopCountdown() {
+    ["es-count", "en-count"].forEach((name) => {
+      const el = SOUND_ELS[name];
+      if (!el) return;
+      try { el.pause(); el.currentTime = 0; } catch (_) { /* ignore */ }
+    });
   }
 
   function roundBuzz(pattern) {
@@ -1812,9 +1807,8 @@
     roundWakeLockOn();
     showRoundsSession();
     renderRoundsSession();
-    primeRoundAudio();
     roundBell(1);
-    playCount(4);
+    playCountdown();
     clearInterval(r.timerId);
     r.timerId = setInterval(roundsTick, 1000);
   }
@@ -1860,11 +1854,9 @@
       else if (r.phase === "rest") beginPrep();
       return;
     }
-    // The 4-3-2-1 is spoken through the count-in and the last four seconds of
-    // work. The rest stays silent on purpose.
-    if ((r.phase === "prep" || r.phase === "work") && r.secondsLeft >= 1 && r.secondsLeft <= 4) {
-      playCount(r.secondsLeft);
-    }
+    // The count-in's clip is started when the session opens; during work it is
+    // started once, when four seconds are left. The rest stays silent.
+    if (r.phase === "work" && r.secondsLeft === 4) playCountdown();
     renderRoundsSession();
   }
 
@@ -1875,6 +1867,7 @@
     clearInterval(r.timerId);
     r.timerId = null;
     roundWakeLockOff();
+    stopCountdown();
     roundBell(3);
     const session = $("#rounds-session");
     const end = $("#rounds-end");
@@ -1891,6 +1884,7 @@
     clearInterval(r.timerId);
     r.timerId = null;
     roundWakeLockOff();
+    stopCountdown();
     showRoundsStart();
   }
 
@@ -3214,10 +3208,7 @@
       saveRoundsCfg();
     });
     $("#rounds-start-btn").addEventListener("click", startRounds);
-    $("#rounds-test").addEventListener("click", () => {
-      primeRoundAudio();
-      [4, 3, 2, 1].forEach((n, i) => setTimeout(() => playCount(n), 150 + i * 700));
-    });
+    $("#rounds-test").addEventListener("click", playCountdown);
     $("#rounds-again").addEventListener("click", stopRoundsToStart);
     $("#rounds-stop").addEventListener("click", stopRoundsToStart);
     $("#rounds-pick-btn").addEventListener("click", openRoundsSheet);

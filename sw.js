@@ -1,7 +1,7 @@
 /* Offline for the mat: the shell is served fresh when online and from the
    cache when not; the card images are cache-first, since they never change
    once a technique's frames are set. */
-const CACHE = "jj-atlas-v3";
+const CACHE = "jj-atlas-v4";
 const CORE = [
   "./",
   "./index.html",
@@ -15,14 +15,8 @@ const CORE = [
   "./icon-512.png",
   "./count/bell.wav",
   "./count/blip.wav",
-  "./count/es-1.wav",
-  "./count/es-2.wav",
-  "./count/es-3.wav",
-  "./count/es-4.wav",
-  "./count/en-1.wav",
-  "./count/en-2.wav",
-  "./count/en-3.wav",
-  "./count/en-4.wav",
+  "./count/es-count.wav",
+  "./count/en-count.wav",
 ];
 
 self.addEventListener("install", (event) => {
