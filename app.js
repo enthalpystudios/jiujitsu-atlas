@@ -1653,8 +1653,11 @@
   function playSound(name, volume) {
     const el = soundEl(name);
     try {
-      el.currentTime = 0;
+      // Every real play sets the element audible itself, so an earlier silent
+      // prime on the same element can never leak through or be heard twice.
+      el.muted = false;
       el.volume = volume == null ? 1 : volume;
+      el.currentTime = 0;
       const p = el.play();
       if (p && p.catch) p.catch(() => { /* blocked until a tap */ });
     } catch (_) { /* nothing we can do */ }
@@ -1666,31 +1669,20 @@
     ROUND_SOUNDS.forEach((name) => { try { soundEl(name).load(); } catch (_) { /* ignore */ } });
   }
 
-  /* Called inside the Start tap: plays each clip silently once, which is what
-     permission needs, then rewinds them all. It resolves only once every clip
-     is silent and rewound again, so the real count can never race a still
-     muted element. */
+  /* Plays every clip silently once so the browser marks them as allowed. It
+     never pauses, unmutes or rewinds afterwards: the real play does all of
+     that on the same element, so a prime can never be heard, nor double a
+     count. Fire and forget. */
   function primeRoundAudio() {
-    return Promise.all(
-      ROUND_SOUNDS.map(
-        (name) =>
-          new Promise((resolve) => {
-            const el = soundEl(name);
-            const done = () => {
-              try { el.pause(); el.currentTime = 0; } catch (_) { /* ignore */ }
-              el.muted = false;
-              el.volume = 1;
-              resolve();
-            };
-            try {
-              el.muted = true;
-              el.volume = 0;
-              const p = el.play();
-              if (p && p.then) p.then(done, done); else done();
-            } catch (_) { done(); }
-          })
-      )
-    );
+    ROUND_SOUNDS.forEach((name) => {
+      const el = soundEl(name);
+      try {
+        el.muted = true;
+        el.volume = 0;
+        const p = el.play();
+        if (p && p.catch) p.catch(() => { /* fine */ });
+      } catch (_) { /* fine */ }
+    });
   }
 
   /* The first ring is immediate; the rest follow, so the bell leads the count. */
@@ -1808,7 +1800,7 @@
     return pool;
   }
 
-  async function startRounds() {
+  function startRounds() {
     const r = state.rounds;
     const queue = roundsQueue();
     if (!queue.length) return;
@@ -1820,10 +1812,7 @@
     roundWakeLockOn();
     showRoundsSession();
     renderRoundsSession();
-    // Unlock every clip inside this tap, and wait for it, so the first "four"
-    // is not swallowed by a still-muted element (or heard twice).
-    await primeRoundAudio();
-    if (!r.running) return;
+    primeRoundAudio();
     roundBell(1);
     playCount(4);
     clearInterval(r.timerId);
@@ -3225,6 +3214,10 @@
       saveRoundsCfg();
     });
     $("#rounds-start-btn").addEventListener("click", startRounds);
+    $("#rounds-test").addEventListener("click", () => {
+      primeRoundAudio();
+      [4, 3, 2, 1].forEach((n, i) => setTimeout(() => playCount(n), 150 + i * 700));
+    });
     $("#rounds-again").addEventListener("click", stopRoundsToStart);
     $("#rounds-stop").addEventListener("click", stopRoundsToStart);
     $("#rounds-pick-btn").addEventListener("click", openRoundsSheet);

@@ -2059,6 +2059,8 @@ h2 {
 .rounds-pick:hover { border-color: var(--accent); }
 .rounds-pick b { color: var(--accent); font-weight: 650; }
 
+.rounds-test { margin: 4px auto 0; }
+
 .sheet-note {
   margin: 2px 0 12px;
   color: var(--muted);
