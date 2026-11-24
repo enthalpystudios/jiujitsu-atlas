@@ -1677,6 +1677,57 @@
     roundTone(last ? 990 : 660, ctx.currentTime, 0.12, last ? 0.22 : 0.14);
   }
 
+  /* The 4-3-2-1 spoken by a real voice (Mónica / Samantha), not a tone. The
+     clips are fetched and decoded once per language and played as buffers, so
+     they stay reliable after the Start tap unlocks the audio context. On
+     file:// the fetch is blocked and we fall back to the blip. */
+  const COUNT_CACHE = {};
+
+  function decodeBuffer(ctx, arrayBuffer) {
+    return new Promise((resolve, reject) => {
+      const maybe = ctx.decodeAudioData(arrayBuffer, resolve, reject);
+      if (maybe && maybe.then) maybe.then(resolve, reject);
+    });
+  }
+
+  function loadCountBuffers(lang) {
+    if (COUNT_CACHE[lang]) return COUNT_CACHE[lang];
+    const ctx = roundAudioContext();
+    if (!ctx) return null;
+    COUNT_CACHE[lang] = Promise.all(
+      [1, 2, 3, 4].map((n) =>
+        fetch(`count/${lang}-${n}.wav`)
+          .then((res) => res.arrayBuffer())
+          .then((buf) => decodeBuffer(ctx, buf))
+          .then((audio) => [n, audio])
+      )
+    )
+      .then((pairs) => {
+        const map = Object.fromEntries(pairs);
+        COUNT_CACHE[lang] = { __ready: map };
+        return COUNT_CACHE[lang];
+      })
+      .catch(() => ({}));
+    return COUNT_CACHE[lang];
+  }
+
+  function playCount(n) {
+    const lang = state.lang === "en" ? "en" : "es";
+    const set = COUNT_CACHE[lang] && COUNT_CACHE[lang].__ready;
+    if (set && set[n]) {
+      try {
+        const ctx = roundAudioContext();
+        const src = ctx.createBufferSource();
+        src.buffer = set[n];
+        src.connect(ctx.destination);
+        src.start();
+        return;
+      } catch (_) { /* fall through to the blip */ }
+    }
+    roundBlip(n === 1);
+    loadCountBuffers(lang);
+  }
+
   function roundBuzz(pattern) {
     try { if (navigator.vibrate) navigator.vibrate(pattern); } catch (_) { /* none */ }
   }
@@ -1793,6 +1844,7 @@
     showRoundsSession();
     renderRoundsSession();
     roundBell(1);
+    playCount(4);
     clearInterval(r.timerId);
     r.timerId = setInterval(roundsTick, 1000);
   }
@@ -1838,8 +1890,11 @@
       else if (r.phase === "rest") beginPrep();
       return;
     }
-    // The 4-3-2-1: through the whole count-in, and the last four seconds of work and rest.
-    if (r.phase === "prep" || r.secondsLeft <= 4) roundBlip(r.secondsLeft === 1);
+    // The 4-3-2-1 is spoken through the count-in and the last four seconds of
+    // work. The rest stays silent on purpose.
+    if ((r.phase === "prep" || r.phase === "work") && r.secondsLeft >= 1 && r.secondsLeft <= 4) {
+      playCount(r.secondsLeft);
+    }
     renderRoundsSession();
   }
 
@@ -3329,6 +3384,7 @@
     rebuildFlashOrder();
     renderFlash();
     readRoundsCfg();
+    loadCountBuffers(state.lang === "en" ? "en" : "es");
     renderSpeedDir();
     renderSpeedMode();
     updateSpeedStats();
