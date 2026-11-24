@@ -1665,8 +1665,9 @@
   }
 
   const ROUND_SOUNDS = ["bell", "blip",
-    "es-start", "es-go", "es-rest", "es-stop",
-    "en-start", "en-go", "en-rest", "en-stop"];
+    "es-nums", "es-start", "es-go", "es-rest", "es-stop",
+    "en-nums", "en-start", "en-go", "en-rest", "en-stop"];
+  let cueWordTimer = null;
 
   function preloadRoundAudio() {
     ROUND_SOUNDS.forEach((name) => { try { soundEl(name).load(); } catch (_) { /* ignore */ } });
@@ -1683,19 +1684,21 @@
   /* Each cue is one 4-second recording: "cuatro, tres, dos, uno" on the exact
      second marks, then the word - Start!, Go!, Rest! or Stop!. One file per
      cue, played once, so it lands on the 4-3-2-1 on screen and cannot repeat. */
+  /* The numbers are one recording of 4-3-2-1, shared by every cue, played whole
+     and never cut. The cue's word is a separate recording, started on the beat
+     at 3.5 s - so the numbers are identical everywhere and no word is clipped. */
   function playCue(name) {
-    const wanted = `${state.lang === "en" ? "en" : "es"}-${name}`;
-    // A cue is a whole performance now, so cut any cue still playing first.
-    ROUND_SOUNDS.forEach((other) => {
-      if (other === wanted || other === "bell" || other === "blip") return;
-      const el = SOUND_ELS[other];
-      if (!el) return;
-      try { el.pause(); el.currentTime = 0; } catch (_) { /* ignore */ }
-    });
-    playSound(wanted);
+    stopCue();
+    const lang = state.lang === "en" ? "en" : "es";
+    playSound(`${lang}-nums`);
+    cueWordTimer = setTimeout(() => {
+      cueWordTimer = null;
+      playSound(`${lang}-${name}`);
+    }, 3500);
   }
 
   function stopCue() {
+    if (cueWordTimer) { clearTimeout(cueWordTimer); cueWordTimer = null; }
     ROUND_SOUNDS.forEach((name) => {
       const el = SOUND_ELS[name];
       if (!el) return;
