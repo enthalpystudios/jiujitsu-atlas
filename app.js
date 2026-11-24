@@ -1667,21 +1667,36 @@
   }
 
   /* Called inside the Start tap: plays each clip silently once, which is what
-     permission needs, then rewinds them all. */
+     permission needs, then rewinds them all. It resolves only once every clip
+     is silent and rewound again, so the real count can never race a still
+     muted element. */
   function primeRoundAudio() {
-    ROUND_SOUNDS.forEach((name) => {
-      const el = soundEl(name);
-      try {
-        el.muted = true;
-        const p = el.play();
-        const done = () => { try { el.pause(); el.currentTime = 0; el.muted = false; } catch (_) {} };
-        if (p && p.then) p.then(done, done); else done();
-      } catch (_) { /* ignore */ }
-    });
+    return Promise.all(
+      ROUND_SOUNDS.map(
+        (name) =>
+          new Promise((resolve) => {
+            const el = soundEl(name);
+            const done = () => {
+              try { el.pause(); el.currentTime = 0; } catch (_) { /* ignore */ }
+              el.muted = false;
+              el.volume = 1;
+              resolve();
+            };
+            try {
+              el.muted = true;
+              el.volume = 0;
+              const p = el.play();
+              if (p && p.then) p.then(done, done); else done();
+            } catch (_) { done(); }
+          })
+      )
+    );
   }
 
+  /* The first ring is immediate; the rest follow, so the bell leads the count. */
   function roundBell(rings) {
-    for (let i = 0; i < rings; i += 1) setTimeout(() => playSound("bell"), i * 380);
+    playSound("bell");
+    for (let i = 1; i < rings; i += 1) setTimeout(() => playSound("bell"), i * 380);
   }
 
   function roundBlip() { playSound("blip", 0.6); }
@@ -1793,7 +1808,7 @@
     return pool;
   }
 
-  function startRounds() {
+  async function startRounds() {
     const r = state.rounds;
     const queue = roundsQueue();
     if (!queue.length) return;
@@ -1805,7 +1820,10 @@
     roundWakeLockOn();
     showRoundsSession();
     renderRoundsSession();
-    primeRoundAudio();
+    // Unlock every clip inside this tap, and wait for it, so the first "four"
+    // is not swallowed by a still-muted element (or heard twice).
+    await primeRoundAudio();
+    if (!r.running) return;
     roundBell(1);
     playCount(4);
     clearInterval(r.timerId);
