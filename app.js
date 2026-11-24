@@ -1954,7 +1954,7 @@
     clock.textContent = String(Math.max(0, r.secondsLeft));
     clock.classList.toggle("is-prep", r.phase === "prep");
     clock.classList.toggle("is-rest", r.phase === "rest");
-    clock.classList.toggle("is-count", r.phase === "prep" || (r.phase === "work" && r.secondsLeft <= 4));
+    clock.classList.toggle("is-count", r.phase === "prep" || r.secondsLeft <= COUNT_FROM);
     const meta = $("#rounds-meta");
     if (meta) meta.textContent = t("rounds.roundOf", { n: Math.max(1, r.round), total: r.rounds });
     const word = $("#rounds-word");
@@ -1985,6 +1985,12 @@
       } else {
         target.innerHTML = "";
       }
+    }
+    const fill = $("#rounds-bar-fill");
+    if (fill) {
+      const total = r.phase === "rest" ? r.rest : r.phase === "prep" ? COUNT_FROM : r.work;
+      const done = total > 0 ? Math.min(1, Math.max(0, 1 - r.secondsLeft / total)) : 0;
+      fill.style.width = `${Math.round(done * 100)}%`;
     }
   }
 

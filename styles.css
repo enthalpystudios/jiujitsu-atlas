@@ -1986,6 +1986,26 @@ h2 {
   font-variant-numeric: tabular-nums;
 }
 
+/* The phase bar: how much of the current round is left. */
+.rounds-bar {
+  width: 100%;
+  max-width: 340px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--panel-2);
+  overflow: hidden;
+  margin-top: 4px;
+}
+
+.rounds-bar > i {
+  display: block;
+  height: 100%;
+  width: 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--mark), var(--accent));
+  transition: width 250ms linear;
+}
+
 .rounds-session {
   display: flex;
   flex-direction: column;
