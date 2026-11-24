@@ -1667,8 +1667,9 @@
   /* The cues are spoken in English in both interface languages: a single good
      voice beats a good voice reading Spanish it cannot pronounce. */
   const CUE_LANG = "en";
+  const COUNT_FROM = 5;   // the count runs 5-4-3-2-1
   const ROUND_SOUNDS = ["bell", "blip",
-    "en-n1", "en-n2", "en-n3", "en-n4", "en-start", "en-go", "en-rest", "en-stop"];
+    "en-n1", "en-n2", "en-n3", "en-n4", "en-n5", "en-start", "en-go", "en-rest", "en-stop"];
 
   function preloadRoundAudio() {
     ROUND_SOUNDS.forEach((name) => { try { soundEl(name).load(); } catch (_) { /* ignore */ } });
@@ -1844,7 +1845,7 @@
     r.running = true;
     r.phase = "prep";
     r.round = 0;
-    r.secondsLeft = 4;
+    r.secondsLeft = COUNT_FROM;
     r.prepCue = "start";
     r.queue = queue;
     roundWakeLockOn();
@@ -1852,7 +1853,7 @@
     renderRoundsSession();
     await primeRoundAudio();
     if (!r.running) return;
-    playNum(4);
+    playNum(COUNT_FROM);
     clearInterval(r.timerId);
     r.timerId = setInterval(roundsTick, 1000);
   }
@@ -1861,10 +1862,10 @@
   function beginPrep(cue) {
     const r = state.rounds;
     r.phase = "prep";
-    r.secondsLeft = 4;
+    r.secondsLeft = COUNT_FROM;
     r.prepCue = cue || "go";
     renderRoundsSession();
-    playNum(4);
+    playNum(COUNT_FROM);
   }
 
   function beginRound() {
@@ -1911,7 +1912,7 @@
     }
     // One number on each blink - through the count-in, the last four seconds
     // of work, and the last four seconds of the rest, which counts into "Go!".
-    if (r.phase !== "idle" && r.phase !== "done" && r.secondsLeft <= 4) playNum(r.secondsLeft);
+    if (r.phase !== "idle" && r.phase !== "done" && r.secondsLeft <= COUNT_FROM) playNum(r.secondsLeft);
     renderRoundsSession();
   }
 
@@ -1961,8 +1962,8 @@
     if (word) {
       let key = "";
       if (r.phase === "prep") key = r.prepCue === "go" ? "rounds.sayGo" : "rounds.sayStart";
-      else if (r.phase === "work" && r.secondsLeft <= 4) key = r.round >= r.rounds ? "rounds.sayStop" : "rounds.sayRest";
-      else if (r.phase === "rest" && r.secondsLeft <= 4) key = "rounds.sayGo";
+      else if (r.phase === "work" && r.secondsLeft <= COUNT_FROM) key = r.round >= r.rounds ? "rounds.sayStop" : "rounds.sayRest";
+      else if (r.phase === "rest" && r.secondsLeft <= COUNT_FROM) key = "rounds.sayGo";
       word.hidden = !key;
       if (key) word.textContent = t(key);
     }
