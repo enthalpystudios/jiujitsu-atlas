@@ -1684,7 +1684,15 @@
      second marks, then the word - Start!, Go!, Rest! or Stop!. One file per
      cue, played once, so it lands on the 4-3-2-1 on screen and cannot repeat. */
   function playCue(name) {
-    playSound(`${state.lang === "en" ? "en" : "es"}-${name}`);
+    const wanted = `${state.lang === "en" ? "en" : "es"}-${name}`;
+    // A cue is a whole performance now, so cut any cue still playing first.
+    ROUND_SOUNDS.forEach((other) => {
+      if (other === wanted || other === "bell" || other === "blip") return;
+      const el = SOUND_ELS[other];
+      if (!el) return;
+      try { el.pause(); el.currentTime = 0; } catch (_) { /* ignore */ }
+    });
+    playSound(wanted);
   }
 
   function stopCue() {
