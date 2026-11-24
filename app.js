@@ -1630,9 +1630,8 @@
 
   /* ---------------- training rounds ----------------
 
-     The class drill: a bell, a clock and a swap. You choose the exercises;
-     the app keeps time, counts the 4-3-2-1 in and out, and swaps the roles.
-     The music is yours. */
+     The class drill: a clock, a count and a swap. You choose the exercises;
+     the app keeps time, counts 5-4-3-2-1 in and out, and swaps the roles. */
 
   const ROUNDS_LIMITS = { rounds: [1, 30], work: [10, 300], rest: [0, 300] };
   let roundWakeLock = null;
