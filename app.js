@@ -1666,6 +1666,9 @@
     } catch (_) { /* nothing we can do */ }
   }
 
+  /* leading silence per cue file, so playback can skip it safely */
+  const COUNT_LEAD = {"es-n4": 0.03, "es-n3": 0.03, "es-n2": 0.0, "es-n1": 0.0, "en-n4": 0.0, "en-n3": 0.0, "en-n2": 0.03, "en-n1": 0.0, "es-start": 0.0, "es-go": 0.02, "es-rest": 0.01, "es-stop": 0.04, "en-start": 0.0, "en-go": 0.01, "en-rest": 0.0, "en-stop": 0.0};
+
   const ROUND_SOUNDS = ["bell", "blip",
     "es-n1", "es-n2", "es-n3", "es-n4", "es-start", "es-go", "es-rest", "es-stop",
     "en-n1", "en-n2", "en-n3", "en-n4", "en-start", "en-go", "en-rest", "en-stop"];
