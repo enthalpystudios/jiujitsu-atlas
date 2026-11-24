@@ -1903,9 +1903,9 @@
       }
       return;
     }
-    // One number on each blink, through the count-in and the last four seconds
-    // of work. The rest is silent, as asked.
-    if ((r.phase === "prep" || r.phase === "work") && r.secondsLeft <= 4) playNum(r.secondsLeft);
+    // One number on each blink - through the count-in, the last four seconds
+    // of work, and the last four seconds of the rest, which counts into "Go!".
+    if (r.phase !== "idle" && r.phase !== "done" && r.secondsLeft <= 4) playNum(r.secondsLeft);
     renderRoundsSession();
   }
 
@@ -1916,7 +1916,6 @@
     clearInterval(r.timerId);
     r.timerId = null;
     roundWakeLockOff();
-    stopCue();
     roundBell(3);
     const session = $("#rounds-session");
     const end = $("#rounds-end");
