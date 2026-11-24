@@ -145,6 +145,7 @@
     modalFrame: 0,
     glossaryGroup: "all",
     glossarySearch: "",
+    pickSearch: "",
     videoRate: 1,
     speed: {
       running: false,
@@ -1998,7 +1999,12 @@
     const host = $("#rounds-picks");
     if (!host) return;
     const picks = Array.isArray(state.rounds.picks) ? new Set(state.rounds.picks) : null;
-    const pool = activeTech();
+    const query = state.pickSearch.trim().toLowerCase();
+    const pool = activeTech().filter((tech) => !query || matchesSearch(tech, query));
+    if (!pool.length) {
+      host.innerHTML = `<p class="pick-empty">${escapeHtml(t("rounds.pickEmpty"))}</p>`;
+      return;
+    }
     host.innerHTML = DATA.categories
       .map((cat) => {
         const items = pool.filter((tech) => tech.category === cat.id);
@@ -2017,7 +2023,11 @@
   }
 
   function openRoundsSheet() {
+    state.pickSearch = "";
+    const box = $("#rounds-pick-search");
+    if (box) box.value = "";
     renderRoundsPicks();
+    syncClearButtons();
     openSheet("sheet-rounds");
   }
 
@@ -3280,6 +3290,10 @@
     $("#rounds-again").addEventListener("click", stopRoundsToStart);
     $("#rounds-stop").addEventListener("click", stopRoundsToStart);
     $("#rounds-pick-btn").addEventListener("click", openRoundsSheet);
+    $("#rounds-pick-search").addEventListener("input", (event) => {
+      state.pickSearch = event.target.value || "";
+      renderRoundsPicks();
+    });
     $("#rounds-picks").addEventListener("change", (event) => {
       const input = event.target.closest("[data-pick]");
       if (input) toggleRoundsPick(input);

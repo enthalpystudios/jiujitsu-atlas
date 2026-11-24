@@ -487,6 +487,13 @@
         <button type="button" class="sheet-close" data-sheet-close aria-label="Cerrar" data-i18n-aria="sheet.close">×</button>
       </div>
       <p class="sheet-note" data-i18n="rounds.pickHint">Elige los ejercicios que quieras repetir. La ronda va pasando por ellos en orden.</p>
+      <div class="search-wrap">
+        <span class="search-icon" aria-hidden="true">⌕</span>
+        <input id="rounds-pick-search" type="search" autocomplete="off" placeholder="Busca una técnica…" aria-label="Buscar técnica" data-i18n-placeholder="rounds.pickSearch" data-i18n-aria="browse.searchLabel">
+        <button type="button" class="search-clear" data-clear="rounds-pick-search" aria-label="Limpiar" data-i18n-aria="search.clear" hidden>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M18 6 6 18M6 6l12 12"></path></svg>
+        </button>
+      </div>
       <div class="rounds-pick-actions">
         <button type="button" class="chip" id="rounds-pick-all" data-i18n="rounds.pickAll">Todas</button>
         <button type="button" class="chip" id="rounds-pick-none" data-i18n="rounds.pickNone">Ninguna</button>

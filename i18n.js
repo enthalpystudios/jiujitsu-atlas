@@ -115,6 +115,8 @@ window.ATLAS_I18N = {
     "rounds.pick": "Techniques",
     "rounds.pickTitle": "Which techniques?",
     "rounds.pickHint": "Pick the exercises to drill. The round cycles through them in order.",
+    "rounds.pickSearch": "Search a technique…",
+    "rounds.pickEmpty": "Nothing matches.",
 
     "rounds.selectedAll": "Whole belt ({n})",
     "rounds.selectedSome": "{n} selected",
@@ -350,6 +352,8 @@ window.ATLAS_I18N = {
     "rounds.pick": "Técnicas",
     "rounds.pickTitle": "¿Qué técnicas?",
     "rounds.pickHint": "Elige los ejercicios que quieras repetir. La ronda va pasando por ellos en orden.",
+    "rounds.pickSearch": "Busca una técnica…",
+    "rounds.pickEmpty": "Nada coincide.",
 
     "rounds.selectedAll": "Todo el cinturón ({n})",
     "rounds.selectedSome": "{n} seleccionadas",
