@@ -2037,6 +2037,15 @@ h2 {
 /* The 4-3-2-1 turns the clock to the accent so the eye catches it. */
 .rounds-clock.is-count { color: var(--accent); }
 
+/* The word that matches the cue: Start!, Go!, Rest!, Stop!. */
+.rounds-word {
+  margin: -4px 0 0;
+  color: var(--accent);
+  font-size: 1.6rem;
+  font-weight: 750;
+  letter-spacing: -0.01em;
+}
+
 .rounds-pick {
   display: flex;
   align-items: center;

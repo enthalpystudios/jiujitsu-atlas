@@ -178,6 +178,7 @@
       timerId: null,
       queue: [],
       picks: null,
+      prepCue: "start",
     },
   };
 
@@ -1663,7 +1664,9 @@
     } catch (_) { /* nothing we can do */ }
   }
 
-  const ROUND_SOUNDS = ["bell", "blip", "es-count", "en-count"];
+  const ROUND_SOUNDS = ["bell", "blip",
+    "es-start", "es-go", "es-rest", "es-stop",
+    "en-start", "en-go", "en-rest", "en-stop"];
 
   function preloadRoundAudio() {
     ROUND_SOUNDS.forEach((name) => { try { soundEl(name).load(); } catch (_) { /* ignore */ } });
@@ -1677,15 +1680,15 @@
 
   function roundBlip() { playSound("blip", 0.6); }
 
-  /* One 4-second recording carries the whole count: "cuatro" at 0 s, then one
-     number on each second, so it lands exactly on the 4-3-2-1 on screen. A
-     single file cannot repeat or drift. */
-  function playCountdown() {
-    playSound(`${state.lang === "en" ? "en" : "es"}-count`);
+  /* Each cue is one 4-second recording: "cuatro, tres, dos, uno" on the exact
+     second marks, then the word - Start!, Go!, Rest! or Stop!. One file per
+     cue, played once, so it lands on the 4-3-2-1 on screen and cannot repeat. */
+  function playCue(name) {
+    playSound(`${state.lang === "en" ? "en" : "es"}-${name}`);
   }
 
-  function stopCountdown() {
-    ["es-count", "en-count"].forEach((name) => {
+  function stopCue() {
+    ROUND_SOUNDS.forEach((name) => {
       const el = SOUND_ELS[name];
       if (!el) return;
       try { el.pause(); el.currentTime = 0; } catch (_) { /* ignore */ }
@@ -1803,21 +1806,23 @@
     r.phase = "prep";
     r.round = 0;
     r.secondsLeft = 4;
+    r.prepCue = "start";
     r.queue = queue;
     roundWakeLockOn();
     showRoundsSession();
     renderRoundsSession();
-    roundBell(1);
-    playCountdown();
+    playCue("start");
     clearInterval(r.timerId);
     r.timerId = setInterval(roundsTick, 1000);
   }
 
-  function beginPrep() {
+  function beginPrep(cue) {
     const r = state.rounds;
     r.phase = "prep";
     r.secondsLeft = 4;
+    r.prepCue = cue || "go";
     renderRoundsSession();
+    playCue(r.prepCue);
   }
 
   function beginRound() {
@@ -1825,23 +1830,22 @@
     r.round += 1;
     r.phase = "work";
     r.secondsLeft = r.work;
-    roundBell(2);
     roundBuzz([120, 60, 120]);
     renderRoundsSession();
   }
 
   function finishRound() {
     const r = state.rounds;
-    roundBell(3);
     roundBuzz([160, 80, 160, 80, 160]);
     if (r.round >= r.rounds) { endRounds(); return; }
-    if (r.rest > 0) {
+    if (r.rest >= 4) {
       r.phase = "rest";
       r.secondsLeft = r.rest;
+      renderRoundsSession();
     } else {
-      beginPrep();
+      // No room for a count inside the rest: count in with "Go!" instead.
+      beginPrep("go");
     }
-    renderRoundsSession();
   }
 
   function roundsTick() {
@@ -1851,12 +1855,17 @@
     if (r.secondsLeft <= 0) {
       if (r.phase === "prep") beginRound();
       else if (r.phase === "work") finishRound();
-      else if (r.phase === "rest") beginPrep();
+      // The rest's last four seconds were the count-in, so it goes straight in.
+      else if (r.phase === "rest") beginRound();
       return;
     }
-    // The count-in's clip is started when the session opens; during work it is
-    // started once, when four seconds are left. The rest stays silent.
-    if (r.phase === "work" && r.secondsLeft === 4) playCountdown();
+    // One cue per count: "Rest!" or "Stop!" as the work runs out, "Go!" as the
+    // rest does. Nothing else sounds - the rest is not counted down.
+    if (r.phase === "work" && r.secondsLeft === 4) {
+      playCue(r.round >= r.rounds ? "stop" : "rest");
+    } else if (r.phase === "rest" && r.secondsLeft === 4) {
+      playCue("go");
+    }
     renderRoundsSession();
   }
 
@@ -1867,14 +1876,14 @@
     clearInterval(r.timerId);
     r.timerId = null;
     roundWakeLockOff();
-    stopCountdown();
+    stopCue();
     roundBell(3);
     const session = $("#rounds-session");
     const end = $("#rounds-end");
     if (session) session.hidden = true;
     if (end) end.hidden = false;
     const score = $("#rounds-end-score");
-    if (score) score.textContent = t("rounds.roundsDone", { n: r.rounds });
+    if (score) score.textContent = r.rounds === 1 ? t("rounds.roundsDoneOne") : t("rounds.roundsDone", { n: r.rounds });
   }
 
   function stopRoundsToStart() {
@@ -1884,7 +1893,7 @@
     clearInterval(r.timerId);
     r.timerId = null;
     roundWakeLockOff();
-    stopCountdown();
+    stopCue();
     showRoundsStart();
   }
 
@@ -1903,6 +1912,15 @@
     clock.classList.toggle("is-count", r.phase === "prep" || (r.phase === "work" && r.secondsLeft <= 4));
     const meta = $("#rounds-meta");
     if (meta) meta.textContent = t("rounds.roundOf", { n: Math.max(1, r.round), total: r.rounds });
+    const word = $("#rounds-word");
+    if (word) {
+      let key = "";
+      if (r.phase === "prep") key = r.prepCue === "go" ? "rounds.sayGo" : "rounds.sayStart";
+      else if (r.phase === "work" && r.secondsLeft <= 4) key = r.round >= r.rounds ? "rounds.sayStop" : "rounds.sayRest";
+      else if (r.phase === "rest" && r.secondsLeft <= 4) key = "rounds.sayGo";
+      word.hidden = !key;
+      if (key) word.textContent = t(key);
+    }
     const role = $("#rounds-role");
     if (role) {
       if (r.pairs && r.phase === "work") {
@@ -3208,7 +3226,7 @@
       saveRoundsCfg();
     });
     $("#rounds-start-btn").addEventListener("click", startRounds);
-    $("#rounds-test").addEventListener("click", playCountdown);
+    $("#rounds-test").addEventListener("click", () => playCue("start"));
     $("#rounds-again").addEventListener("click", stopRoundsToStart);
     $("#rounds-stop").addEventListener("click", stopRoundsToStart);
     $("#rounds-pick-btn").addEventListener("click", openRoundsSheet);
