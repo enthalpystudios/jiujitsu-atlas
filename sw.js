@@ -1,7 +1,7 @@
 /* Offline for the mat: the shell is served fresh when online and from the
    cache when not; the card images are cache-first, since they never change
    once a technique's frames are set. */
-const CACHE = "jj-atlas-v2";
+const CACHE = "jj-atlas-v3";
 const CORE = [
   "./",
   "./index.html",
@@ -13,6 +13,8 @@ const CORE = [
   "./favicon.png",
   "./apple-touch-icon.png",
   "./icon-512.png",
+  "./count/bell.wav",
+  "./count/blip.wav",
   "./count/es-1.wav",
   "./count/es-2.wav",
   "./count/es-3.wav",

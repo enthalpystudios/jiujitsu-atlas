@@ -1634,98 +1634,60 @@
      The music is yours. */
 
   const ROUNDS_LIMITS = { rounds: [1, 30], work: [10, 300], rest: [0, 300] };
-  let roundAudio = null;
   let roundWakeLock = null;
+  const SOUND_ELS = {};
 
-  function roundTone(freq, at, length, loud) {
-    const osc = roundAudio.createOscillator();
-    const gain = roundAudio.createGain();
-    osc.type = "sine";
-    osc.frequency.value = freq;
-    gain.gain.setValueAtTime(0.0001, at);
-    gain.gain.exponentialRampToValueAtTime(loud, at + 0.01);
-    gain.gain.exponentialRampToValueAtTime(0.0001, at + length);
-    osc.connect(gain).connect(roundAudio.destination);
-    osc.start(at);
-    osc.stop(at + length + 0.05);
-  }
-
-  function roundAudioContext() {
-    if (!roundAudio) {
-      const Ctx = window.AudioContext || window.webkitAudioContext;
-      if (!Ctx) return null;
-      roundAudio = new Ctx();
+  /* Round audio is played through media elements, not Web Audio: iOS mutes a
+     Web Audio context with the ringer switch, while media (the same path the
+     YouTube player takes) still sounds. One Audio per clip, primed on the
+     Start tap so the count can then play itself on the beat. */
+  function soundEl(name) {
+    if (!SOUND_ELS[name]) {
+      const el = new Audio(`count/${name}.wav`);
+      el.preload = "auto";
+      SOUND_ELS[name] = el;
     }
-    if (roundAudio.state === "suspended") roundAudio.resume();
-    return roundAudio;
+    return SOUND_ELS[name];
   }
 
-  function roundBell(rings) {
-    const ctx = roundAudioContext();
-    if (!ctx) return;
-    const base = ctx.currentTime;
-    for (let i = 0; i < rings; i += 1) {
-      roundTone(880, base + i * 0.5, 0.45, 0.35);
-      roundTone(1318, base + i * 0.5 + 0.16, 0.4, 0.28);
-    }
+  function playSound(name, volume) {
+    const el = soundEl(name);
+    try {
+      el.currentTime = 0;
+      el.volume = volume == null ? 1 : volume;
+      const p = el.play();
+      if (p && p.catch) p.catch(() => { /* blocked until a tap */ });
+    } catch (_) { /* nothing we can do */ }
   }
 
-  /* The short blip of the 4-3-2-1 count. */
-  function roundBlip(last) {
-    const ctx = roundAudioContext();
-    if (!ctx) return;
-    roundTone(last ? 990 : 660, ctx.currentTime, 0.12, last ? 0.22 : 0.14);
+  const ROUND_SOUNDS = ["bell", "blip", "es-1", "es-2", "es-3", "es-4", "en-1", "en-2", "en-3", "en-4"];
+
+  function preloadRoundAudio() {
+    ROUND_SOUNDS.forEach((name) => { try { soundEl(name).load(); } catch (_) { /* ignore */ } });
   }
 
-  /* The 4-3-2-1 spoken by a real voice (Mónica / Samantha), not a tone. The
-     clips are fetched and decoded once per language and played as buffers, so
-     they stay reliable after the Start tap unlocks the audio context. On
-     file:// the fetch is blocked and we fall back to the blip. */
-  const COUNT_CACHE = {};
-
-  function decodeBuffer(ctx, arrayBuffer) {
-    return new Promise((resolve, reject) => {
-      const maybe = ctx.decodeAudioData(arrayBuffer, resolve, reject);
-      if (maybe && maybe.then) maybe.then(resolve, reject);
+  /* Called inside the Start tap: plays each clip silently once, which is what
+     permission needs, then rewinds them all. */
+  function primeRoundAudio() {
+    ROUND_SOUNDS.forEach((name) => {
+      const el = soundEl(name);
+      try {
+        el.muted = true;
+        const p = el.play();
+        const done = () => { try { el.pause(); el.currentTime = 0; el.muted = false; } catch (_) {} };
+        if (p && p.then) p.then(done, done); else done();
+      } catch (_) { /* ignore */ }
     });
   }
 
-  function loadCountBuffers(lang) {
-    if (COUNT_CACHE[lang]) return COUNT_CACHE[lang];
-    const ctx = roundAudioContext();
-    if (!ctx) return null;
-    COUNT_CACHE[lang] = Promise.all(
-      [1, 2, 3, 4].map((n) =>
-        fetch(`count/${lang}-${n}.wav`)
-          .then((res) => res.arrayBuffer())
-          .then((buf) => decodeBuffer(ctx, buf))
-          .then((audio) => [n, audio])
-      )
-    )
-      .then((pairs) => {
-        const map = Object.fromEntries(pairs);
-        COUNT_CACHE[lang] = { __ready: map };
-        return COUNT_CACHE[lang];
-      })
-      .catch(() => ({}));
-    return COUNT_CACHE[lang];
+  function roundBell(rings) {
+    for (let i = 0; i < rings; i += 1) setTimeout(() => playSound("bell"), i * 380);
   }
 
+  function roundBlip() { playSound("blip", 0.6); }
+
   function playCount(n) {
-    const lang = state.lang === "en" ? "en" : "es";
-    const set = COUNT_CACHE[lang] && COUNT_CACHE[lang].__ready;
-    if (set && set[n]) {
-      try {
-        const ctx = roundAudioContext();
-        const src = ctx.createBufferSource();
-        src.buffer = set[n];
-        src.connect(ctx.destination);
-        src.start();
-        return;
-      } catch (_) { /* fall through to the blip */ }
-    }
-    roundBlip(n === 1);
-    loadCountBuffers(lang);
+    playSound(`${state.lang === "en" ? "en" : "es"}-${n}`);
   }
 
   function roundBuzz(pattern) {
@@ -1843,6 +1805,7 @@
     roundWakeLockOn();
     showRoundsSession();
     renderRoundsSession();
+    primeRoundAudio();
     roundBell(1);
     playCount(4);
     clearInterval(r.timerId);
@@ -3384,7 +3347,7 @@
     rebuildFlashOrder();
     renderFlash();
     readRoundsCfg();
-    loadCountBuffers(state.lang === "en" ? "en" : "es");
+    preloadRoundAudio();
     renderSpeedDir();
     renderSpeedMode();
     updateSpeedStats();
