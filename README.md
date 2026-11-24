@@ -2,8 +2,8 @@
 
 A small, offline-friendly web app for learning the names in the RFEJYDA
 Jiu-Jitsu kyu syllabus. It covers all five kyu belts (5th yellow → 1st brown):
-**111 techniques** across 8 categories, with **393 technique frames** and a
-**122-term glossary**. The interface is bilingual (Spanish from Spain by
+**112 techniques** across 8 categories, with **393 technique frames** and a
+**124-term glossary**. The interface is bilingual (Spanish from Spain by
 default, English toggle); Japanese names stay Japanese.
 
 The whole app is static: no build step, no server, no dependencies. Open
@@ -16,8 +16,11 @@ The whole app is static: no build step, no server, no dependencies. Open
   selectable phase thumbnails, key points, mistakes and the source video.
 - **Flashcards** — name → technique and technique → name, with shuffle and a
   saved "known" list.
-- **Speed Round** — 60 seconds, name → picture or picture → name, with a best
-  score saved locally.
+- **Ronda** — two modes. *Quick round*: 60 seconds, name → picture or picture →
+  name, with a best score saved locally. *Training rounds*: the class drill — a
+  bell, a clock and a swap. Set the number of rounds, the work and the rest in
+  seconds, and whether it is in pairs; the app keeps time, rings and counts your
+  reps while you play your own music. It runs offline and keeps the screen awake.
 - **Glossary** — two halves. *Words* is the dictionary: every Japanese term
   with its kanji and its kana reading, and the techniques it builds. *Guide*
   holds the technique families, how a name is read, and the five kyus as a

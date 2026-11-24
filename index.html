@@ -206,6 +206,13 @@
 
     <!-- SPEED ROUND -->
     <section id="view-speed" class="view" role="tabpanel" aria-label="Ronda rápida" data-i18n-aria="tab.speed" hidden>
+
+      <div class="segmented speed-mode" id="speed-mode" role="group" aria-label="Modo" data-i18n-aria="speed.mode">
+        <button class="active" data-smode="quick" aria-pressed="true" data-i18n="speed.modeQuick">Ronda rápida</button>
+        <button data-smode="rounds" aria-pressed="false" data-i18n="speed.modeRounds">Entrenamiento</button>
+      </div>
+
+      <div id="speed-quick">
       <div class="section-head speed-head">
         <div>
           <p class="eyebrow" data-i18n="speed.eyebrow">JUEGO DEL VIERNES · EN CASA</p>
@@ -255,6 +262,62 @@
         <p id="speed-end-score" class="big-score"></p>
         <div id="speed-missed" class="missed"></div>
         <button id="speed-again" class="primary" data-i18n="speed.again">Jugar otra vez</button>
+      </div>
+      </div>
+
+      <div id="speed-rounds" hidden>
+        <div id="rounds-start" class="speed-panel start-panel">
+          <div class="start-mark" aria-hidden="true"><img src="apple-touch-icon.png" alt=""></div>
+          <h3 data-i18n="rounds.title">Rondas de entrenamiento</h3>
+          <p class="lede" data-i18n="rounds.lede">El reloj marca las rondas como en clase: tori repite la técnica hasta la campana y después se cambia.</p>
+          <div class="rounds-config">
+            <div class="rounds-row">
+              <span data-i18n="rounds.rounds">Rondas</span>
+              <span class="stepper">
+                <button type="button" data-cfg="rounds" data-delta="-1" aria-label="Quitar una ronda">−</button>
+                <b id="cfg-rounds">8</b>
+                <button type="button" data-cfg="rounds" data-delta="1" aria-label="Añadir una ronda">+</button>
+              </span>
+            </div>
+            <div class="rounds-row">
+              <span data-i18n="rounds.work">Trabajo</span>
+              <span class="stepper">
+                <button type="button" data-cfg="work" data-delta="-15" aria-label="Menos trabajo">−</button>
+                <b id="cfg-work">60s</b>
+                <button type="button" data-cfg="work" data-delta="15" aria-label="Más trabajo">+</button>
+              </span>
+            </div>
+            <div class="rounds-row">
+              <span data-i18n="rounds.rest">Descanso</span>
+              <span class="stepper">
+                <button type="button" data-cfg="rest" data-delta="-15" aria-label="Menos descanso">−</button>
+                <b id="cfg-rest">15s</b>
+                <button type="button" data-cfg="rest" data-delta="15" aria-label="Más descanso">+</button>
+              </span>
+            </div>
+            <label class="checkline rounds-pairs"><input type="checkbox" id="cfg-pairs"> <span data-i18n="rounds.pairs">En pareja (Tori / Uke)</span></label>
+          </div>
+          <p class="fineprint" id="rounds-scope"></p>
+          <button id="rounds-start-btn" class="primary big" data-i18n="rounds.start">Empezar la sesión</button>
+          <p class="fineprint" data-i18n="rounds.tip">La campana suena sola, así que puedes dejar el móvil en el tatami. El audio del móvil sigue sonando donde esté la música que pongas tú.</p>
+        </div>
+
+        <div id="rounds-session" class="speed-panel rounds-session" hidden>
+          <p class="eyebrow" id="rounds-phase">Prepárate</p>
+          <div class="rounds-clock" id="rounds-clock">5</div>
+          <p class="rounds-meta" id="rounds-meta"></p>
+          <p class="rounds-role" id="rounds-role" hidden></p>
+          <div class="rounds-target" id="rounds-target"></div>
+          <button type="button" id="rounds-rep" class="rounds-rep"><b id="rounds-rep-count">0</b><span data-i18n="rounds.repsShort">repeticiones</span></button>
+          <button type="button" id="rounds-stop" class="ghost" data-i18n="rounds.stop">Parar</button>
+        </div>
+
+        <div id="rounds-end" class="speed-panel end-panel" hidden>
+          <p class="eyebrow" data-i18n="rounds.over">Sesión terminada</p>
+          <h3 data-i18n="rounds.done">¡Buen trabajo!</h3>
+          <p id="rounds-end-score" class="big-score"></p>
+          <button id="rounds-again" class="primary" data-i18n="rounds.again">Otra sesión</button>
+        </div>
       </div>
     </section>
 
@@ -340,7 +403,7 @@
 
   <footer class="footer">
     <p data-i18n="footer.text">Estudio privado. Los fotogramas son imágenes de las fuentes citadas; sigue el enlace para ver el vídeo completo.</p>
-    <p class="footer-meta" id="footer-meta">111 técnicas · 122 términos de glosario · Todos los cinturones.</p>
+    <p class="footer-meta" id="footer-meta">112 técnicas · 124 términos de glosario · Todos los cinturones.</p>
   </footer>
 
   <!-- Phone loop for the flashcards: one action that follows the card and

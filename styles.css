@@ -859,6 +859,19 @@ h2 {
   opacity: 0.75;
 }
 
+.card-pending {
+  display: inline-block;
+  padding: 1px 7px;
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--line));
+  border-radius: 999px;
+  color: var(--accent);
+  font-size: 0.66rem;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  vertical-align: 1px;
+}
+
 .card-strip.empty .empty-note {
   font-size: 0.66rem;
   letter-spacing: 0.08em;
@@ -1915,6 +1928,128 @@ h2 {
 
 .speed-swap svg { width: 18px; height: 18px; flex: 0 0 auto; color: var(--muted); }
 .speed-swap:hover { border-color: var(--accent); background: var(--panel-2); }
+
+/* ---------- Training rounds ---------- */
+.speed-mode {
+  display: flex;
+  width: fit-content;
+  margin: 0 auto 18px;
+}
+
+.rounds-config {
+  width: 100%;
+  max-width: 340px;
+  margin: 2px auto 0;
+  display: grid;
+  gap: 10px;
+}
+
+.rounds-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.92rem;
+}
+
+.stepper {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: var(--bg-2);
+}
+
+.stepper button {
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--panel-2);
+  color: var(--text);
+  font-size: 1.15rem;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.stepper button:disabled { opacity: 0.35; cursor: default; }
+
+.stepper b {
+  min-width: 58px;
+  text-align: center;
+  font-size: 0.95rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.rounds-session {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+}
+
+.rounds-clock {
+  font-size: clamp(4rem, 22vw, 7rem);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+
+.rounds-clock.is-prep { color: var(--muted); }
+.rounds-clock.is-rest { color: var(--accent); }
+
+.rounds-meta {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.rounds-role { margin: 0; color: var(--accent); font-size: 0.95rem; font-weight: 700; }
+
+.rounds-target {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-height: 92px;
+}
+
+.rounds-target img {
+  width: 132px;
+  height: 99px;
+  object-fit: cover;
+  border-radius: 12px;
+  background: var(--bg-2);
+}
+
+.rounds-target-name { font-size: 1.15rem; font-weight: 650; }
+.rounds-target-sub { color: var(--muted); font-size: 0.85rem; }
+
+.rounds-rep {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  min-height: 88px;
+  padding: 8px 30px;
+  border: 1px solid var(--accent);
+  border-radius: 20px;
+  background: var(--accent-soft);
+  color: var(--text);
+  cursor: pointer;
+  transition: transform 90ms var(--ease), background 150ms var(--ease);
+}
+
+.rounds-rep:active { transform: scale(0.97); }
+.rounds-rep b { font-size: 2.6rem; font-weight: 750; font-variant-numeric: tabular-nums; }
+.rounds-rep span { color: var(--muted); font-size: 0.85rem; }
+.rounds-rep.is-idle { opacity: 0.45; }
 
 .start-panel h3 {
   margin: 0;
@@ -3515,6 +3650,7 @@ h2 {
   .chip { min-height: 42px; padding: 9px 14px; font-size: 0.82rem; }
   .kyu-tick { width: 36px; height: 36px; }
   .kyu-name { min-height: 40px; }
+  .stepper button { width: 46px; height: 46px; }
 }
 
 /* ---------- 21. Reduced motion ---------- */

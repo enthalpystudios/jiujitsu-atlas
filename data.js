@@ -2,7 +2,7 @@ window.ATLAS_DATA = {
   "meta": {
     "title": "Jiu-Jitsu Name Atlas",
     "subtitle": "RFEJYDA kyu syllabus · all belts",
-    "version": 5,
+    "version": 6,
     "updated": "2026-11-24",
     "note": "Five belts, with frame cards and source videos for most entries; the few added from the official programme are syllabus entries pending frames.",
     "languages": [
@@ -3103,12 +3103,12 @@ window.ATLAS_DATA = {
       "frames_ok": "ok"
     },
     {
-      "id": "uke.jyodan-uke",
-      "japanese": "Jyodan Uke",
+      "id": "uke.jodan-uke",
+      "japanese": "Jodan Uke",
       "translation": "High block",
       "translation_es": "Bloqueo alto",
-      "literal": "jyodan (upper) + uke (block)",
-      "literal_es": "jyodan (alto) + uke (bloqueo)",
+      "literal": "jodan (upper) + uke (block)",
+      "literal_es": "jodan (alto) + uke (bloqueo)",
       "category": "uke",
       "grade": "4th kyu",
       "grade_id": "4th",
@@ -6489,8 +6489,8 @@ window.ATLAS_DATA = {
       "japanese": "Ashibo Uke",
       "translation": "Leg block",
       "translation_es": "Bloqueo con la pierna",
-      "literal": "ashi (leg) + uke (block)",
-      "literal_es": "ashi (pierna) + uke (bloqueo)",
+      "literal": "ashi (leg) + bo (rod) + uke (block)",
+      "literal_es": "ashi (pierna) + bo (barra) + uke (bloqueo)",
       "category": "uke",
       "grade": "1st kyu",
       "grade_id": "1st",
@@ -7470,6 +7470,47 @@ window.ATLAS_DATA = {
         "Soltar el control mientras uke cae."
       ],
       "frames_ok": "pending"
+    },
+    {
+      "id": "katame.kannuki-gatame",
+      "japanese": "Kannuki Gatame",
+      "translation": "Barred arm-lock",
+      "translation_es": "Luxación de barra",
+      "literal": "kannuki (door bolt) + gatame (hold)",
+      "literal_es": "kannuki (barra) + gatame (control)",
+      "category": "katame",
+      "grade": "3rd kyu",
+      "belt": "Green",
+      "cue": "A barred arm-lock: tori traps uke's bent arm against the body and levers the elbow, in the manner of a door bolt. A variant of the entangled arm-lock.",
+      "cue_es": "Una luxación de barra: tori atrapa el brazo flexionado de uke contra el cuerpo y hace palanca sobre el codo, como una barra de puerta. Variante de la luxación enredada.",
+      "key_points": [
+        "Trap uke's bent arm tight against your chest; the lock comes from the body.",
+        "Thread your forearms so the figure-four closes the bar over the elbow.",
+        "Lever the joint slowly and stop the moment uke taps."
+      ],
+      "key_points_es": [
+        "Atrapa el brazo flexionado de uke pegado a tu pecho; la llave nace del cuerpo.",
+        "Enlaza los antebrazos de modo que la «figura cuatro» cierre la barra sobre el codo.",
+        "Haz palanca despacio y detente en cuanto uke abandone."
+      ],
+      "mistakes": [
+        "Leaving space so the arm slips out of the bar.",
+        "Pulling with the arms instead of closing the body over the elbow.",
+        "Rushing the lever, which risks the joint."
+      ],
+      "mistakes_es": [
+        "Dejar hueco y que el brazo escape de la barra.",
+        "Tirar con los brazos en lugar de cerrar el cuerpo sobre el codo.",
+        "Ir demasiado rápido con la palanca, con riesgo para la articulación."
+      ],
+      "source": null,
+      "hero": 0,
+      "order": 113,
+      "frames": [],
+      "views": 0,
+      "common": 0,
+      "grade_id": "3rd",
+      "frames_ok": "pending"
     }
   ],
   "glossary": [
@@ -7708,7 +7749,7 @@ window.ATLAS_DATA = {
       "note_es": "Gedan Barai barre a nivel bajo, por debajo del cinturón."
     },
     {
-      "term": "Jyodan",
+      "term": "Jodan",
       "reading": "上段",
       "group": "name-parts",
       "meaning": "Upper level.",
@@ -8216,9 +8257,9 @@ window.ATLAS_DATA = {
       "reading": "足",
       "group": "name-parts",
       "meaning": "Foot, leg.",
-      "note": "Tsugi ashi and ayumi ashi are the two basic ways of stepping.",
+      "note": "Tsugi ashi and ayumi ashi are the two basic ways of stepping; ashibo uke blocks with the shin.",
       "meaning_es": "Pie, pierna.",
-      "note_es": "Tsugi ashi, ayumi ashi."
+      "note_es": "Tsugi ashi y ayumi ashi son las dos formas básicas de desplazarse; ashibo uke bloquea con la espinilla."
     },
     {
       "term": "Tsugi",
@@ -8570,6 +8611,24 @@ window.ATLAS_DATA = {
       "note": "Kansetsu waza controls a joint; kata ude kansetsu locks a single arm.",
       "meaning_es": "Articulación.",
       "note_es": "Kansetsu waza controla una articulación; kata ude kansetsu bloquea un solo brazo."
+    },
+    {
+      "term": "Bo",
+      "reading": "棒",
+      "group": "name-parts",
+      "meaning": "Staff, rod, stick.",
+      "note": "In ashibo uke the shin is the bar that takes the kick. 棒 also gives the weapons of the dan katas: tambo and hanbo.",
+      "meaning_es": "Barra, bastón, palo.",
+      "note_es": "En ashibo uke la espinilla es la barra que recibe la patada. 棒 forma también las armas de los katas de dan: tambo y hanbo."
+    },
+    {
+      "term": "Kannuki",
+      "reading": "閂",
+      "group": "name-parts",
+      "meaning": "Door bolt, bar, latch.",
+      "note": "Kannuki gatame bars uke's arm over the elbow like a bolt. The federation writes it “kanukki”.",
+      "meaning_es": "Barra, cerrojo, pestillo.",
+      "note_es": "Kannuki gatame barra el brazo de uke sobre el codo como un cerrojo. La federación lo escribe «kanukki»."
     }
   ]
 };

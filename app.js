@@ -21,6 +21,8 @@
     best: "jj_atlas_best",
     flashMode: "jj_atlas_flash_mode",
     speedDir: "jj_atlas_speed_dir",
+    speedMode: "jj_atlas_speed_mode",
+    rounds: "jj_atlas_rounds",
     deck: "jj_atlas_deck",
     glossaryMode: "jj_atlas_glossary_mode",
     lang: "jj_atlas_lang",
@@ -160,6 +162,21 @@
       newBest: false,
       dir: readRaw(STORAGE.speedDir) === "picture" ? "picture" : "name",
     },
+    speedMode: readRaw(STORAGE.speedMode) === "rounds" ? "rounds" : "quick",
+    rounds: {
+      running: false,
+      phase: "idle",
+      round: 0,
+      rounds: 8,
+      work: 60,
+      rest: 15,
+      pairs: false,
+      reps: 0,
+      totalReps: 0,
+      secondsLeft: 0,
+      timerId: null,
+      queue: [],
+    },
   };
 
   /* ---------------- helpers ---------------- */
@@ -284,6 +301,7 @@
     renderKyuGuide();
     renderToday();
     renderSpeedDir();
+    renderSpeedMode();
     updateSpeedStats();
     if (state.speed.finished) renderSpeedEnd();
     else if (state.speed.question && state.speed.running) renderSpeedQuestion();
@@ -318,6 +336,7 @@
     atemi: "あてみ",
     ayumi: "あゆみ",
     barai: "ばらい",
+    bo: "ぼう",
     choku: "ちょく",
     dachi: "だち",
     dan: "だん",
@@ -353,11 +372,13 @@
     jitsu: "じつ",
     juji: "じゅうじ",
     jutsu: "じゅつ",
+    jodan: "じょうだん",
     jyodan: "じょうだん",
     kagi: "かぎ",
     kakato: "かかと",
     kake: "かけ",
     kami: "かみ",
+    kannuki: "かんぬき",
     kansetsu: "かんせつ",
     kata: "かた",
     katame: "かため",
@@ -948,8 +969,9 @@
 
   function setView(view, options = {}) {
     if (!VIEWS.includes(view)) return;
-    if (state.view === "speed" && view !== "speed" && state.speed.running) {
-      stopSpeedToStart();
+    if (state.view === "speed" && view !== "speed") {
+      if (state.speed.running) stopSpeedToStart();
+      if (state.rounds.running) stopRoundsToStart();
     }
     state.view = view;
     closeSheet();
@@ -975,7 +997,8 @@
     }
     if (view === "speed") {
       updateSpeedStats();
-      if (!state.speed.running && !state.speed.question) showSpeedStart();
+      renderSpeedMode();
+      if (state.speedMode === "quick" && !state.speed.running && !state.speed.question) showSpeedStart();
     }
     if (options.updateHash !== false) writeHash(`#${view}`);
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -1165,10 +1188,10 @@
         const strip = hasFrames
           ? `<div class="card-strip ${stripClass(tech.frames.length)}">${frameCells(tech, true, 6)}</div>`
           : `<div class="card-strip empty"><span class="empty-name">${escapeHtml(tech.japanese)}</span><span class="empty-note">${t("card.noFrames")}</span></div>`;
-        const frameText = hasFrames ? `${tech.frames.length} ${t("browse.frames")}` : "";
-        const footerLead = [frameText ? escapeHtml(frameText) : "", literalLinks(tech)]
-          .filter(Boolean)
-          .join(" · ");
+        const frameText = hasFrames
+          ? escapeHtml(`${tech.frames.length} ${t("browse.frames")}`)
+          : `<span class="card-pending">${escapeHtml(t("card.noFrames"))}</span>`;
+        const footerLead = [frameText, literalLinks(tech)].filter(Boolean).join(" · ");
         return `
           <article class="tech-card" tabindex="0" role="button" aria-label="${escapeHtml(t("browse.openCard", { name: tech.japanese }))}" style="--cat-color:${cat.color}" data-id="${tech.id}">
             ${strip}
@@ -1599,6 +1622,294 @@
     button.classList.toggle("is-known", next);
     renderBrowse();
     renderFlash();
+  }
+
+  /* ---------------- training rounds ----------------
+
+     The class drill: a bell, a clock, and a swap. The app keeps time and
+     counts reps and stays out of the way; the music is yours. */
+
+  const ROUNDS_LIMITS = { rounds: [1, 30], work: [15, 300], rest: [0, 300] };
+  let roundAudio = null;
+  let roundWakeLock = null;
+
+  function roundTone(freq, at, length, loud) {
+    const osc = roundAudio.createOscillator();
+    const gain = roundAudio.createGain();
+    osc.type = "sine";
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(0.0001, at);
+    gain.gain.exponentialRampToValueAtTime(loud, at + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.0001, at + length);
+    osc.connect(gain).connect(roundAudio.destination);
+    osc.start(at);
+    osc.stop(at + length + 0.05);
+  }
+
+  function roundAudioContext() {
+    if (!roundAudio) {
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      if (!Ctx) return null;
+      roundAudio = new Ctx();
+    }
+    if (roundAudio.state === "suspended") roundAudio.resume();
+    return roundAudio;
+  }
+
+  /* A two-note bell, once per ring. */
+  function roundBell(rings) {
+    const ctx = roundAudioContext();
+    if (!ctx) return;
+    const base = ctx.currentTime;
+    for (let i = 0; i < rings; i += 1) {
+      roundTone(880, base + i * 0.5, 0.45, 0.35);
+      roundTone(1318, base + i * 0.5 + 0.16, 0.4, 0.28);
+    }
+  }
+
+  /* A single short blip for the last three seconds of a phase. */
+  function roundBlip() {
+    const ctx = roundAudioContext();
+    if (!ctx) return;
+    roundTone(660, ctx.currentTime, 0.12, 0.14);
+  }
+
+  function roundBuzz(pattern) {
+    try { if (navigator.vibrate) navigator.vibrate(pattern); } catch (_) { /* none */ }
+  }
+
+  async function roundWakeLockOn() {
+    try {
+      if ("wakeLock" in navigator && !roundWakeLock) {
+        roundWakeLock = await navigator.wakeLock.request("screen");
+      }
+    } catch (_) { /* denied */ }
+  }
+  function roundWakeLockOff() {
+    try { if (roundWakeLock) { roundWakeLock.release(); roundWakeLock = null; } } catch (_) { /* gone */ }
+  }
+
+  function readRoundsCfg() {
+    const saved = readJSON(STORAGE.rounds, {}) || {};
+    const r = state.rounds;
+    ["rounds", "work", "rest"].forEach((key) => {
+      if (typeof saved[key] === "number" && !Number.isNaN(saved[key])) r[key] = saved[key];
+    });
+    if (typeof saved.pairs === "boolean") r.pairs = saved.pairs;
+  }
+  function saveRoundsCfg() {
+    const { rounds, work, rest, pairs } = state.rounds;
+    writeRaw(STORAGE.rounds, JSON.stringify({ rounds, work, rest, pairs }));
+  }
+
+  function adjustRoundsCfg(key, delta) {
+    const [min, max] = ROUNDS_LIMITS[key];
+    state.rounds[key] = Math.max(min, Math.min(max, state.rounds[key] + delta));
+    saveRoundsCfg();
+    renderRoundsConfig();
+  }
+
+  function roundsScopeLabel() {
+    return state.grade === "all" ? t("grade.all") : t("grade." + state.grade);
+  }
+
+  function renderRoundsConfig() {
+    const r = state.rounds;
+    const set = (id, text) => { const el = $(id); if (el) el.textContent = text; };
+    set("#cfg-rounds", String(r.rounds));
+    set("#cfg-work", r.work + "s");
+    set("#cfg-rest", r.rest ? r.rest + "s" : t("rounds.none"));
+    const pairs = $("#cfg-pairs");
+    if (pairs) pairs.checked = r.pairs;
+    set("#rounds-scope", t("rounds.scope", { grade: roundsScopeLabel() }));
+    $$("#speed-rounds [data-cfg]").forEach((button) => {
+      const key = button.getAttribute("data-cfg");
+      const delta = Number(button.getAttribute("data-delta"));
+      const [min, max] = ROUNDS_LIMITS[key];
+      button.disabled = delta < 0 ? r[key] <= min : r[key] >= max;
+    });
+  }
+
+  function showRoundsStart() {
+    const start = $("#rounds-start");
+    const session = $("#rounds-session");
+    const end = $("#rounds-end");
+    if (start) start.hidden = false;
+    if (session) session.hidden = true;
+    if (end) end.hidden = true;
+    renderRoundsConfig();
+  }
+  function showRoundsSession() {
+    const start = $("#rounds-start");
+    const session = $("#rounds-session");
+    const end = $("#rounds-end");
+    if (start) start.hidden = true;
+    if (session) session.hidden = false;
+    if (end) end.hidden = true;
+  }
+
+  function roundsPick() {
+    const pool = activeTech().slice();
+    for (let i = pool.length - 1; i > 0; i -= 1) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [pool[i], pool[j]] = [pool[j], pool[i]];
+    }
+    return pool;
+  }
+
+  function startRounds() {
+    const r = state.rounds;
+    if (!activeTech().length) return;
+    r.running = true;
+    r.phase = "prep";
+    r.round = 0;
+    r.reps = 0;
+    r.totalReps = 0;
+    r.secondsLeft = 5;
+    r.queue = roundsPick();
+    roundWakeLockOn();
+    showRoundsSession();
+    renderRoundsSession();
+    roundBell(1);
+    clearInterval(r.timerId);
+    r.timerId = setInterval(roundsTick, 1000);
+  }
+
+  function beginRound() {
+    const r = state.rounds;
+    r.round += 1;
+    r.phase = "work";
+    r.reps = 0;
+    r.secondsLeft = r.work;
+    roundBell(2);
+    roundBuzz([90, 60, 90]);
+    renderRoundsSession();
+  }
+
+  function finishRound() {
+    const r = state.rounds;
+    r.totalReps += r.reps;
+    roundBell(3);
+    roundBuzz([140, 80, 140, 80, 140]);
+    if (r.round >= r.rounds) { endRounds(); return; }
+    if (r.rest > 0) {
+      r.phase = "rest";
+      r.secondsLeft = r.rest;
+    } else {
+      beginRound();
+    }
+  }
+
+  function roundsTick() {
+    const r = state.rounds;
+    if (!r.running) return;
+    r.secondsLeft -= 1;
+    if (r.secondsLeft <= 0) {
+      if (r.phase === "prep" || r.phase === "rest") beginRound();
+      else if (r.phase === "work") finishRound();
+    } else if (r.secondsLeft <= 3 && (r.phase === "work" || r.phase === "rest")) {
+      roundBlip();
+    }
+    renderRoundsSession();
+  }
+
+  function endRounds() {
+    const r = state.rounds;
+    r.running = false;
+    r.phase = "done";
+    clearInterval(r.timerId);
+    r.timerId = null;
+    roundWakeLockOff();
+    roundBell(3);
+    const session = $("#rounds-session");
+    const end = $("#rounds-end");
+    if (session) session.hidden = true;
+    if (end) end.hidden = false;
+    const score = $("#rounds-end-score");
+    if (score) score.textContent = t("rounds.totalReps", { n: r.totalReps });
+  }
+
+  function stopRoundsToStart() {
+    const r = state.rounds;
+    r.running = false;
+    r.phase = "idle";
+    clearInterval(r.timerId);
+    r.timerId = null;
+    roundWakeLockOff();
+    showRoundsStart();
+  }
+
+  function addRoundRep() {
+    const r = state.rounds;
+    if (!r.running || r.phase !== "work") return;
+    r.reps += 1;
+    const el = $("#rounds-rep-count");
+    if (el) el.textContent = String(r.reps);
+    roundBuzz(15);
+  }
+
+  function renderRoundsSession() {
+    const r = state.rounds;
+    const phase = $("#rounds-phase");
+    const clock = $("#rounds-clock");
+    if (!clock) return;
+    let label = t("rounds.workLabel");
+    if (r.phase === "prep") label = t("rounds.prepare");
+    else if (r.phase === "rest") label = t("rounds.restLabel");
+    if (phase) phase.textContent = label;
+    clock.textContent = String(Math.max(0, r.secondsLeft));
+    clock.classList.toggle("is-prep", r.phase === "prep");
+    clock.classList.toggle("is-rest", r.phase === "rest");
+    const meta = $("#rounds-meta");
+    if (meta) meta.textContent = t("rounds.roundOf", { n: Math.max(1, r.round), total: r.rounds });
+    const role = $("#rounds-role");
+    if (role) {
+      if (r.pairs && r.phase === "work") {
+        role.hidden = false;
+        role.textContent = r.round % 2 === 1 ? t("rounds.toriYou") : t("rounds.toriPartner");
+      } else {
+        role.hidden = true;
+      }
+    }
+    const target = $("#rounds-target");
+    if (target) {
+      const idx = r.phase === "rest" ? r.round : Math.max(0, r.round - 1);
+      const tech = r.queue.length ? r.queue[((idx % r.queue.length) + r.queue.length) % r.queue.length] : null;
+      if (tech) {
+        const hero = heroFrame(tech);
+        target.innerHTML = `${hero ? `<img src="${hero.src}" alt="" loading="lazy">` : ""}<span class="rounds-target-name">${escapeHtml(tech.japanese)}</span><span class="rounds-target-sub">${escapeHtml(pick(tech, "translation"))}</span>`;
+      } else {
+        target.innerHTML = "";
+      }
+    }
+    const repCount = $("#rounds-rep-count");
+    if (repCount) repCount.textContent = String(r.reps);
+    const repBtn = $("#rounds-rep");
+    if (repBtn) repBtn.classList.toggle("is-idle", r.phase !== "work");
+  }
+
+  function setSpeedMode(mode) {
+    if (mode !== "quick" && mode !== "rounds") return;
+    if (state.speedMode === mode) return;
+    if (state.speed.running) stopSpeedToStart();
+    if (state.rounds.running) stopRoundsToStart();
+    state.speedMode = mode;
+    writeRaw(STORAGE.speedMode, mode);
+    renderSpeedMode();
+  }
+
+  function renderSpeedMode() {
+    const rounds = state.speedMode === "rounds";
+    const quick = $("#speed-quick");
+    const host = $("#speed-rounds");
+    if (quick) quick.hidden = rounds;
+    if (host) host.hidden = !rounds;
+    $$("#speed-mode [data-smode]").forEach((button) => {
+      const on = button.getAttribute("data-smode") === state.speedMode;
+      button.classList.toggle("active", on);
+      button.setAttribute("aria-pressed", String(on));
+    });
+    if (rounds && !state.rounds.running) showRoundsStart();
   }
 
   /* ---------------- today ---------------- */
@@ -2803,6 +3114,26 @@
       }
     });
 
+    // Training rounds
+    $("#speed-mode").addEventListener("click", (event) => {
+      const button = event.target.closest("[data-smode]");
+      if (button) setSpeedMode(button.getAttribute("data-smode"));
+    });
+    $("#speed-rounds").addEventListener("click", (event) => {
+      const step = event.target.closest("[data-cfg]");
+      if (step) {
+        adjustRoundsCfg(step.getAttribute("data-cfg"), Number(step.getAttribute("data-delta")));
+      }
+    });
+    $("#cfg-pairs").addEventListener("change", (event) => {
+      state.rounds.pairs = event.target.checked;
+      saveRoundsCfg();
+    });
+    $("#rounds-start-btn").addEventListener("click", startRounds);
+    $("#rounds-again").addEventListener("click", stopRoundsToStart);
+    $("#rounds-stop").addEventListener("click", stopRoundsToStart);
+    $("#rounds-rep").addEventListener("click", addRoundRep);
+
     $("#speed-options").addEventListener("click", (event) => {
       const option = event.target.closest(".speed-option");
       if (!option) return;
@@ -2932,7 +3263,9 @@
     renderToday();
     rebuildFlashOrder();
     renderFlash();
+    readRoundsCfg();
     renderSpeedDir();
+    renderSpeedMode();
     updateSpeedStats();
     bindEvents();
     routeFromHash();
