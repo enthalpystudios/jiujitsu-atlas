@@ -2,9 +2,9 @@ window.ATLAS_DATA = {
   "meta": {
     "title": "Jiu-Jitsu Name Atlas",
     "subtitle": "RFEJYDA kyu syllabus · all belts",
-    "version": 6,
+    "version": 7,
     "updated": "2026-11-24",
-    "note": "Five belts, with frame cards and source videos for most entries; the few added from the official programme are syllabus entries pending frames.",
+    "note": "All five belts have frame cards and source videos, taken from the credited YouTube sources.",
     "languages": [
       "en",
       "es"
@@ -7121,10 +7121,36 @@ window.ATLAS_DATA = {
         "Straightening the elbow early, telegraphing the arc.",
         "Dropping the guard hand as the punch travels."
       ],
-      "source": null,
-      "hero": 0,
+      "source": {
+        "title": "Mawashi Zuki - Kyushin Ryu Jujitsu",
+        "channel": "Kyushin Ryu School of Jujitsu",
+        "url": "https://www.youtube.com/watch?v=xWCp92b5FnM",
+        "start": 13
+      },
+      "hero": 3,
       "order": 104,
-      "frames": [],
+      "frames": [
+        {
+          "src": "cards/atemi.mawashi-tsuki/01.jpg",
+          "phase": "Guard",
+          "source_time": 13
+        },
+        {
+          "src": "cards/atemi.mawashi-tsuki/02.jpg",
+          "phase": "Chamber",
+          "source_time": 15
+        },
+        {
+          "src": "cards/atemi.mawashi-tsuki/03.jpg",
+          "phase": "Strike",
+          "source_time": 17
+        },
+        {
+          "src": "cards/atemi.mawashi-tsuki/04.jpg",
+          "phase": "Impact",
+          "source_time": 21.3
+        }
+      ],
       "views": 0,
       "common": 0,
       "grade_id": "1st",
@@ -7141,7 +7167,7 @@ window.ATLAS_DATA = {
         "Estirar el codo demasiado pronto y avisar el arco.",
         "Bajar la mano de guardia mientras viaja el puño."
       ],
-      "frames_ok": "pending"
+      "frames_ok": "ok"
     },
     {
       "id": "uke.juji-uke",
@@ -7162,10 +7188,36 @@ window.ATLAS_DATA = {
         "Raising the shoulders and losing the guard.",
         "Blocking far from the body, where the arms are weakest."
       ],
-      "source": null,
-      "hero": 0,
+      "source": {
+        "title": "Juji Uke - Kyushin Ryu Jujitsu",
+        "channel": "Kyushin Ryu School of Jujitsu",
+        "url": "https://www.youtube.com/watch?v=lvKByezP7nE",
+        "start": 14
+      },
+      "hero": 2,
       "order": 105,
-      "frames": [],
+      "frames": [
+        {
+          "src": "cards/uke.juji-uke/01.jpg",
+          "phase": "Stance",
+          "source_time": 14
+        },
+        {
+          "src": "cards/uke.juji-uke/02.jpg",
+          "phase": "Guard",
+          "source_time": 16
+        },
+        {
+          "src": "cards/uke.juji-uke/03.jpg",
+          "phase": "Approach",
+          "source_time": 18
+        },
+        {
+          "src": "cards/uke.juji-uke/04.jpg",
+          "phase": "Block",
+          "source_time": 19
+        }
+      ],
       "views": 0,
       "common": 0,
       "grade_id": "2nd",
@@ -7182,7 +7234,7 @@ window.ATLAS_DATA = {
         "Subir los hombros y perder la guardia.",
         "Bloquear lejos del cuerpo, donde los brazos son débiles."
       ],
-      "frames_ok": "pending"
+      "frames_ok": "ok"
     },
     {
       "id": "nage.shiho-nage",
@@ -7203,10 +7255,36 @@ window.ATLAS_DATA = {
         "Letting the wrist drift away from your centre.",
         "Stopping halfway and leaving uke balanced on their feet."
       ],
-      "source": null,
-      "hero": 0,
+      "source": {
+        "title": "Shiho Nage - Kyushin Ryu Jujitsu",
+        "channel": "Kyushin Ryu School of Jujitsu",
+        "url": "https://www.youtube.com/watch?v=5ar4P48q4q0",
+        "start": 15
+      },
+      "hero": 2,
       "order": 106,
-      "frames": [],
+      "frames": [
+        {
+          "src": "cards/nage.shiho-nage/01.jpg",
+          "phase": "Grip",
+          "source_time": 15.7
+        },
+        {
+          "src": "cards/nage.shiho-nage/02.jpg",
+          "phase": "Throw",
+          "source_time": 19.7
+        },
+        {
+          "src": "cards/nage.shiho-nage/03.jpg",
+          "phase": "Landing",
+          "source_time": 23.6
+        },
+        {
+          "src": "cards/nage.shiho-nage/04.jpg",
+          "phase": "Control",
+          "source_time": 39.3
+        }
+      ],
       "views": 0,
       "common": 0,
       "grade_id": "2nd",
@@ -7223,7 +7301,7 @@ window.ATLAS_DATA = {
         "Dejar que la muñeca se aleje de tu centro.",
         "Quedarse a medias y dejar a uke equilibrado de pie."
       ],
-      "frames_ok": "pending"
+      "frames_ok": "ok"
     },
     {
       "id": "katame.kata-ude-kansetsu",
@@ -7244,10 +7322,31 @@ window.ATLAS_DATA = {
         "Jerking the wrist instead of controlling it.",
         "Applying the lock before the arm is trapped."
       ],
-      "source": null,
-      "hero": 0,
+      "source": {
+        "title": "Kata Ude Kansetsu y Shiho Nage",
+        "channel": "Manolo Ortiz",
+        "url": "https://www.youtube.com/watch?v=h0mm-4uK5lw",
+        "start": 40
+      },
+      "hero": 2,
       "order": 107,
-      "frames": [],
+      "frames": [
+        {
+          "src": "cards/katame.kata-ude-kansetsu/01.jpg",
+          "phase": "Approach",
+          "source_time": 40
+        },
+        {
+          "src": "cards/katame.kata-ude-kansetsu/02.jpg",
+          "phase": "Lock",
+          "source_time": 80
+        },
+        {
+          "src": "cards/katame.kata-ude-kansetsu/03.jpg",
+          "phase": "Finish",
+          "source_time": 92.7
+        }
+      ],
       "views": 0,
       "common": 0,
       "grade_id": "2nd",
@@ -7264,7 +7363,7 @@ window.ATLAS_DATA = {
         "Sacudir la muñeca en vez de controlarla.",
         "Aplicar la llave antes de atrapar el brazo."
       ],
-      "frames_ok": "pending"
+      "frames_ok": "ok"
     },
     {
       "id": "katame.juji-gatame",
@@ -7285,10 +7384,31 @@ window.ATLAS_DATA = {
         "Pushing with the arms instead of the hips.",
         "Lifting the head and losing control of uke's shoulder."
       ],
-      "source": null,
-      "hero": 0,
+      "source": {
+        "title": "腕挫十字固 / Ude-hishigi-juji-gatame",
+        "channel": "KODOKAN",
+        "url": "https://www.youtube.com/watch?v=OWgSOlCuMXw",
+        "start": 14
+      },
+      "hero": 3,
       "order": 108,
-      "frames": [],
+      "frames": [
+        {
+          "src": "cards/katame.juji-gatame/01.jpg",
+          "phase": "Grip",
+          "source_time": 14.2
+        },
+        {
+          "src": "cards/katame.juji-gatame/02.jpg",
+          "phase": "Entry",
+          "source_time": 18.9
+        },
+        {
+          "src": "cards/katame.juji-gatame/03.jpg",
+          "phase": "Lock",
+          "source_time": 33.1
+        }
+      ],
       "views": 0,
       "common": 0,
       "grade_id": "2nd",
@@ -7305,7 +7425,7 @@ window.ATLAS_DATA = {
         "Empujar con los brazos en lugar de con la cadera.",
         "Levantar la cabeza y perder el control del hombro de uke."
       ],
-      "frames_ok": "pending"
+      "frames_ok": "ok"
     },
     {
       "id": "nage.ushiro-kiri-otoshi",
@@ -7326,10 +7446,36 @@ window.ATLAS_DATA = {
         "Standing too far away to control the drop.",
         "Stopping the cut halfway."
       ],
-      "source": null,
-      "hero": 0,
+      "source": {
+        "title": "#Ushiro Kiri Otoshi, derribo por la espalda",
+        "channel": "jose luis de antonio herrera",
+        "url": "https://www.youtube.com/watch?v=p5f6wssHf3A",
+        "start": 14
+      },
+      "hero": 3,
       "order": 109,
-      "frames": [],
+      "frames": [
+        {
+          "src": "cards/nage.ushiro-kiri-otoshi/01.jpg",
+          "phase": "Stance",
+          "source_time": 14.4
+        },
+        {
+          "src": "cards/nage.ushiro-kiri-otoshi/02.jpg",
+          "phase": "Grip",
+          "source_time": 18.2
+        },
+        {
+          "src": "cards/nage.ushiro-kiri-otoshi/03.jpg",
+          "phase": "Throw",
+          "source_time": 21
+        },
+        {
+          "src": "cards/nage.ushiro-kiri-otoshi/04.jpg",
+          "phase": "Landing",
+          "source_time": 24
+        }
+      ],
       "views": 0,
       "common": 0,
       "grade_id": "3rd",
@@ -7346,7 +7492,7 @@ window.ATLAS_DATA = {
         "Quedarse demasiado lejos para controlar la caída.",
         "Detener el corte a medias."
       ],
-      "frames_ok": "pending"
+      "frames_ok": "ok"
     },
     {
       "id": "nage.ko-uchi-gari",
@@ -7367,10 +7513,36 @@ window.ATLAS_DATA = {
         "Kicking with the leg instead of scooping with the sole.",
         "Leaning back and losing your own balance."
       ],
-      "source": null,
-      "hero": 0,
+      "source": {
+        "title": "小内刈 / Ko-uchi-gari",
+        "channel": "KODOKAN",
+        "url": "https://www.youtube.com/watch?v=3Jb3tZvr9Ng",
+        "start": 6
+      },
+      "hero": 3,
       "order": 110,
-      "frames": [],
+      "frames": [
+        {
+          "src": "cards/nage.ko-uchi-gari/01.jpg",
+          "phase": "Grip",
+          "source_time": 6.1
+        },
+        {
+          "src": "cards/nage.ko-uchi-gari/02.jpg",
+          "phase": "Entry",
+          "source_time": 12.3
+        },
+        {
+          "src": "cards/nage.ko-uchi-gari/03.jpg",
+          "phase": "Throw",
+          "source_time": 18.4
+        },
+        {
+          "src": "cards/nage.ko-uchi-gari/04.jpg",
+          "phase": "Finish",
+          "source_time": 30.7
+        }
+      ],
       "views": 0,
       "common": 0,
       "grade_id": "3rd",
@@ -7387,7 +7559,7 @@ window.ATLAS_DATA = {
         "Golpear con la pierna en vez de segar con la planta.",
         "Echarse atrás y perder tu propio equilibrio."
       ],
-      "frames_ok": "pending"
+      "frames_ok": "ok"
     },
     {
       "id": "osae.kata-gatame",
@@ -7408,10 +7580,36 @@ window.ATLAS_DATA = {
         "Sitting up and losing weight on uke's chest.",
         "Crossing your feet, which gives uke a way to tip you over."
       ],
-      "source": null,
-      "hero": 0,
+      "source": {
+        "title": "肩固 / Kata-gatame",
+        "channel": "KODOKAN",
+        "url": "https://www.youtube.com/watch?v=zQR3IOXxO_Q",
+        "start": 6
+      },
+      "hero": 4,
       "order": 111,
-      "frames": [],
+      "frames": [
+        {
+          "src": "cards/osae.kata-gatame/01.jpg",
+          "phase": "Stance",
+          "source_time": 6
+        },
+        {
+          "src": "cards/osae.kata-gatame/02.jpg",
+          "phase": "Entry",
+          "source_time": 10
+        },
+        {
+          "src": "cards/osae.kata-gatame/03.jpg",
+          "phase": "Hold",
+          "source_time": 14
+        },
+        {
+          "src": "cards/osae.kata-gatame/04.jpg",
+          "phase": "Control",
+          "source_time": 26
+        }
+      ],
       "views": 0,
       "common": 0,
       "grade_id": "4th",
@@ -7428,7 +7626,7 @@ window.ATLAS_DATA = {
         "Incorporarse y perder peso sobre el pecho de uke.",
         "Cruzar los pies, que da a uke una forma de voltearte."
       ],
-      "frames_ok": "pending"
+      "frames_ok": "ok"
     },
     {
       "id": "katame.kuzure-kote-gaeshi",
@@ -7449,10 +7647,36 @@ window.ATLAS_DATA = {
         "Turning only the wrist and not the body.",
         "Releasing control as uke goes to the ground."
       ],
-      "source": null,
-      "hero": 0,
+      "source": {
+        "title": "Ju-Jutsu-Do | Kipphandhebel - Kuzure Kote Gaeshi",
+        "channel": "RoninZ Kampfkunstschule",
+        "url": "https://www.youtube.com/watch?v=Ssq13RO7Gjo",
+        "start": 11
+      },
+      "hero": 3,
       "order": 112,
-      "frames": [],
+      "frames": [
+        {
+          "src": "cards/katame.kuzure-kote-gaeshi/01.jpg",
+          "phase": "Grip",
+          "source_time": 11.7
+        },
+        {
+          "src": "cards/katame.kuzure-kote-gaeshi/02.jpg",
+          "phase": "Turn",
+          "source_time": 17.6
+        },
+        {
+          "src": "cards/katame.kuzure-kote-gaeshi/03.jpg",
+          "phase": "Throw",
+          "source_time": 23.5
+        },
+        {
+          "src": "cards/katame.kuzure-kote-gaeshi/04.jpg",
+          "phase": "Finish",
+          "source_time": 29.3
+        }
+      ],
       "views": 0,
       "common": 0,
       "grade_id": "4th",
@@ -7469,7 +7693,7 @@ window.ATLAS_DATA = {
         "Girar solo la muñeca y no el cuerpo.",
         "Soltar el control mientras uke cae."
       ],
-      "frames_ok": "pending"
+      "frames_ok": "ok"
     },
     {
       "id": "katame.kannuki-gatame",
@@ -7503,14 +7727,35 @@ window.ATLAS_DATA = {
         "Tirar con los brazos en lugar de cerrar el cuerpo sobre el codo.",
         "Ir demasiado rápido con la palanca, con riesgo para la articulación."
       ],
-      "source": null,
-      "hero": 0,
+      "source": {
+        "title": "KANNUKI GATAME",
+        "channel": "Welcome Mat Judo Channel",
+        "url": "https://www.youtube.com/watch?v=5rfOTdljDls",
+        "start": 40
+      },
+      "hero": 2,
       "order": 113,
-      "frames": [],
+      "frames": [
+        {
+          "src": "cards/katame.kannuki-gatame/01.jpg",
+          "phase": "Approach",
+          "source_time": 40.3
+        },
+        {
+          "src": "cards/katame.kannuki-gatame/02.jpg",
+          "phase": "Lock",
+          "source_time": 60.4
+        },
+        {
+          "src": "cards/katame.kannuki-gatame/03.jpg",
+          "phase": "Control",
+          "source_time": 120.8
+        }
+      ],
       "views": 0,
       "common": 0,
       "grade_id": "3rd",
-      "frames_ok": "pending"
+      "frames_ok": "ok"
     }
   ],
   "glossary": [

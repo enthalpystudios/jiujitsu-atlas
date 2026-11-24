@@ -290,14 +290,17 @@
             <div class="rounds-row">
               <span data-i18n="rounds.rest">Descanso</span>
               <span class="stepper">
-                <button type="button" data-cfg="rest" data-delta="-15" aria-label="Menos descanso">−</button>
+                <button type="button" data-cfg="rest" data-delta="-5" aria-label="Menos descanso">−</button>
                 <b id="cfg-rest">15s</b>
-                <button type="button" data-cfg="rest" data-delta="15" aria-label="Más descanso">+</button>
+                <button type="button" data-cfg="rest" data-delta="5" aria-label="Más descanso">+</button>
               </span>
             </div>
             <label class="checkline rounds-pairs"><input type="checkbox" id="cfg-pairs"> <span data-i18n="rounds.pairs">En pareja (Tori / Uke)</span></label>
           </div>
-          <p class="fineprint" id="rounds-scope"></p>
+          <button type="button" class="rounds-pick" id="rounds-pick-btn">
+            <span data-i18n="rounds.pick">Técnicas</span>
+            <b id="rounds-pick-label">—</b>
+          </button>
           <button id="rounds-start-btn" class="primary big" data-i18n="rounds.start">Empezar la sesión</button>
           <p class="fineprint" data-i18n="rounds.tip">La campana suena sola, así que puedes dejar el móvil en el tatami. El audio del móvil sigue sonando donde esté la música que pongas tú.</p>
         </div>
@@ -308,7 +311,6 @@
           <p class="rounds-meta" id="rounds-meta"></p>
           <p class="rounds-role" id="rounds-role" hidden></p>
           <div class="rounds-target" id="rounds-target"></div>
-          <button type="button" id="rounds-rep" class="rounds-rep"><b id="rounds-rep-count">0</b><span data-i18n="rounds.repsShort">repeticiones</span></button>
           <button type="button" id="rounds-stop" class="ghost" data-i18n="rounds.stop">Parar</button>
         </div>
 
@@ -473,6 +475,24 @@
   </div>
 
   <!-- DETAIL MODAL -->
+  <!-- TECHNIQUE PICKER FOR TRAINING ROUNDS -->
+  <div class="sheet" id="sheet-rounds" hidden>
+    <div class="sheet-backdrop" data-sheet-close></div>
+    <div class="sheet-panel" role="dialog" aria-modal="true" aria-labelledby="sheet-rounds-title">
+      <span class="sheet-grip" aria-hidden="true"></span>
+      <div class="sheet-head">
+        <h2 class="sheet-title" id="sheet-rounds-title" data-i18n="rounds.pickTitle">¿Qué técnicas?</h2>
+        <button type="button" class="sheet-close" data-sheet-close aria-label="Cerrar" data-i18n-aria="sheet.close">×</button>
+      </div>
+      <p class="sheet-note" data-i18n="rounds.pickHint">Elige los ejercicios que quieras repetir. La ronda va pasando por ellos en orden.</p>
+      <div class="rounds-pick-actions">
+        <button type="button" class="chip" id="rounds-pick-all" data-i18n="rounds.pickAll">Todas</button>
+        <button type="button" class="chip" id="rounds-pick-none" data-i18n="rounds.pickNone">Ninguna</button>
+      </div>
+      <div class="rounds-pick-list" id="rounds-picks"></div>
+    </div>
+  </div>
+
   <div id="modal" class="modal" hidden>
     <div class="modal-backdrop" data-close="modal"></div>
     <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="modal-title">

@@ -23,6 +23,7 @@
     speedDir: "jj_atlas_speed_dir",
     speedMode: "jj_atlas_speed_mode",
     rounds: "jj_atlas_rounds",
+    roundsPicks: "jj_atlas_rounds_picks",
     deck: "jj_atlas_deck",
     glossaryMode: "jj_atlas_glossary_mode",
     lang: "jj_atlas_lang",
@@ -176,6 +177,7 @@
       secondsLeft: 0,
       timerId: null,
       queue: [],
+      picks: null,
     },
   };
 
@@ -1256,6 +1258,7 @@
     "sheet-belt": "scope-btn",
     "sheet-filters": "filters-btn",
     "sheet-settings": "settings-btn",
+    "sheet-rounds": "rounds-pick-btn",
   };
   let openSheetId = null;
 
@@ -1626,10 +1629,11 @@
 
   /* ---------------- training rounds ----------------
 
-     The class drill: a bell, a clock, and a swap. The app keeps time and
-     counts reps and stays out of the way; the music is yours. */
+     The class drill: a bell, a clock and a swap. You choose the exercises;
+     the app keeps time, counts the 4-3-2-1 in and out, and swaps the roles.
+     The music is yours. */
 
-  const ROUNDS_LIMITS = { rounds: [1, 30], work: [15, 300], rest: [0, 300] };
+  const ROUNDS_LIMITS = { rounds: [1, 30], work: [10, 300], rest: [0, 300] };
   let roundAudio = null;
   let roundWakeLock = null;
 
@@ -1656,7 +1660,6 @@
     return roundAudio;
   }
 
-  /* A two-note bell, once per ring. */
   function roundBell(rings) {
     const ctx = roundAudioContext();
     if (!ctx) return;
@@ -1667,11 +1670,11 @@
     }
   }
 
-  /* A single short blip for the last three seconds of a phase. */
-  function roundBlip() {
+  /* The short blip of the 4-3-2-1 count. */
+  function roundBlip(last) {
     const ctx = roundAudioContext();
     if (!ctx) return;
-    roundTone(660, ctx.currentTime, 0.12, 0.14);
+    roundTone(last ? 990 : 660, ctx.currentTime, 0.12, last ? 0.22 : 0.14);
   }
 
   function roundBuzz(pattern) {
@@ -1696,10 +1699,15 @@
       if (typeof saved[key] === "number" && !Number.isNaN(saved[key])) r[key] = saved[key];
     });
     if (typeof saved.pairs === "boolean") r.pairs = saved.pairs;
+    const picks = readJSON(STORAGE.roundsPicks, null);
+    r.picks = Array.isArray(picks) ? picks : null;
   }
   function saveRoundsCfg() {
     const { rounds, work, rest, pairs } = state.rounds;
     writeRaw(STORAGE.rounds, JSON.stringify({ rounds, work, rest, pairs }));
+  }
+  function saveRoundsPicks() {
+    writeRaw(STORAGE.roundsPicks, JSON.stringify(state.rounds.picks));
   }
 
   function adjustRoundsCfg(key, delta) {
@@ -1709,8 +1717,15 @@
     renderRoundsConfig();
   }
 
-  function roundsScopeLabel() {
-    return state.grade === "all" ? t("grade.all") : t("grade." + state.grade);
+  /* The exercises the session will drill: the picked ones, or the whole belt. */
+  function roundsEffectiveIds() {
+    const pool = activeTech().map((t) => t.id);
+    const picks = state.rounds.picks;
+    if (picks === null) return pool;
+    if (!picks.length) return [];
+    const set = new Set(picks);
+    const kept = pool.filter((id) => set.has(id));
+    return kept.length ? kept : pool;
   }
 
   function renderRoundsConfig() {
@@ -1721,13 +1736,20 @@
     set("#cfg-rest", r.rest ? r.rest + "s" : t("rounds.none"));
     const pairs = $("#cfg-pairs");
     if (pairs) pairs.checked = r.pairs;
-    set("#rounds-scope", t("rounds.scope", { grade: roundsScopeLabel() }));
+    const ids = roundsEffectiveIds();
+    const all = r.picks === null || ids.length === activeTech().length;
+    set("#rounds-pick-label", all ? t("rounds.selectedAll", { n: activeTech().length }) : t("rounds.selectedSome", { n: ids.length }));
     $$("#speed-rounds [data-cfg]").forEach((button) => {
       const key = button.getAttribute("data-cfg");
       const delta = Number(button.getAttribute("data-delta"));
       const [min, max] = ROUNDS_LIMITS[key];
       button.disabled = delta < 0 ? r[key] <= min : r[key] >= max;
     });
+    const start = $("#rounds-start-btn");
+    if (start) {
+      start.disabled = ids.length === 0;
+      start.textContent = ids.length === 0 ? t("rounds.empty") : t("rounds.start");
+    }
   }
 
   function showRoundsStart() {
@@ -1748,8 +1770,9 @@
     if (end) end.hidden = true;
   }
 
-  function roundsPick() {
-    const pool = activeTech().slice();
+  function roundsQueue() {
+    const ids = new Set(roundsEffectiveIds());
+    const pool = activeTech().filter((tech) => ids.has(tech.id));
     for (let i = pool.length - 1; i > 0; i -= 1) {
       const j = Math.floor(Math.random() * (i + 1));
       [pool[i], pool[j]] = [pool[j], pool[i]];
@@ -1759,14 +1782,13 @@
 
   function startRounds() {
     const r = state.rounds;
-    if (!activeTech().length) return;
+    const queue = roundsQueue();
+    if (!queue.length) return;
     r.running = true;
     r.phase = "prep";
     r.round = 0;
-    r.reps = 0;
-    r.totalReps = 0;
-    r.secondsLeft = 5;
-    r.queue = roundsPick();
+    r.secondsLeft = 4;
+    r.queue = queue;
     roundWakeLockOn();
     showRoundsSession();
     renderRoundsSession();
@@ -1775,29 +1797,35 @@
     r.timerId = setInterval(roundsTick, 1000);
   }
 
+  function beginPrep() {
+    const r = state.rounds;
+    r.phase = "prep";
+    r.secondsLeft = 4;
+    renderRoundsSession();
+  }
+
   function beginRound() {
     const r = state.rounds;
     r.round += 1;
     r.phase = "work";
-    r.reps = 0;
     r.secondsLeft = r.work;
     roundBell(2);
-    roundBuzz([90, 60, 90]);
+    roundBuzz([120, 60, 120]);
     renderRoundsSession();
   }
 
   function finishRound() {
     const r = state.rounds;
-    r.totalReps += r.reps;
     roundBell(3);
-    roundBuzz([140, 80, 140, 80, 140]);
+    roundBuzz([160, 80, 160, 80, 160]);
     if (r.round >= r.rounds) { endRounds(); return; }
     if (r.rest > 0) {
       r.phase = "rest";
       r.secondsLeft = r.rest;
     } else {
-      beginRound();
+      beginPrep();
     }
+    renderRoundsSession();
   }
 
   function roundsTick() {
@@ -1805,11 +1833,13 @@
     if (!r.running) return;
     r.secondsLeft -= 1;
     if (r.secondsLeft <= 0) {
-      if (r.phase === "prep" || r.phase === "rest") beginRound();
+      if (r.phase === "prep") beginRound();
       else if (r.phase === "work") finishRound();
-    } else if (r.secondsLeft <= 3 && (r.phase === "work" || r.phase === "rest")) {
-      roundBlip();
+      else if (r.phase === "rest") beginPrep();
+      return;
     }
+    // The 4-3-2-1: through the whole count-in, and the last four seconds of work and rest.
+    if (r.phase === "prep" || r.secondsLeft <= 4) roundBlip(r.secondsLeft === 1);
     renderRoundsSession();
   }
 
@@ -1826,7 +1856,7 @@
     if (session) session.hidden = true;
     if (end) end.hidden = false;
     const score = $("#rounds-end-score");
-    if (score) score.textContent = t("rounds.totalReps", { n: r.totalReps });
+    if (score) score.textContent = t("rounds.roundsDone", { n: r.rounds });
   }
 
   function stopRoundsToStart() {
@@ -1837,15 +1867,6 @@
     r.timerId = null;
     roundWakeLockOff();
     showRoundsStart();
-  }
-
-  function addRoundRep() {
-    const r = state.rounds;
-    if (!r.running || r.phase !== "work") return;
-    r.reps += 1;
-    const el = $("#rounds-rep-count");
-    if (el) el.textContent = String(r.reps);
-    roundBuzz(15);
   }
 
   function renderRoundsSession() {
@@ -1860,6 +1881,7 @@
     clock.textContent = String(Math.max(0, r.secondsLeft));
     clock.classList.toggle("is-prep", r.phase === "prep");
     clock.classList.toggle("is-rest", r.phase === "rest");
+    clock.classList.toggle("is-count", r.phase === "prep" || (r.phase === "work" && r.secondsLeft <= 4));
     const meta = $("#rounds-meta");
     if (meta) meta.textContent = t("rounds.roundOf", { n: Math.max(1, r.round), total: r.rounds });
     const role = $("#rounds-role");
@@ -1877,15 +1899,52 @@
       const tech = r.queue.length ? r.queue[((idx % r.queue.length) + r.queue.length) % r.queue.length] : null;
       if (tech) {
         const hero = heroFrame(tech);
-        target.innerHTML = `${hero ? `<img src="${hero.src}" alt="" loading="lazy">` : ""}<span class="rounds-target-name">${escapeHtml(tech.japanese)}</span><span class="rounds-target-sub">${escapeHtml(pick(tech, "translation"))}</span>`;
+        target.innerHTML = `${hero ? `<img src="${hero.src}" alt="">` : ""}<span class="rounds-target-name">${escapeHtml(tech.japanese)}</span><span class="rounds-target-sub">${escapeHtml(pick(tech, "translation"))}</span>`;
       } else {
         target.innerHTML = "";
       }
     }
-    const repCount = $("#rounds-rep-count");
-    if (repCount) repCount.textContent = String(r.reps);
-    const repBtn = $("#rounds-rep");
-    if (repBtn) repBtn.classList.toggle("is-idle", r.phase !== "work");
+  }
+
+  function renderRoundsPicks() {
+    const host = $("#rounds-picks");
+    if (!host) return;
+    const picks = Array.isArray(state.rounds.picks) ? new Set(state.rounds.picks) : null;
+    const pool = activeTech();
+    host.innerHTML = DATA.categories
+      .map((cat) => {
+        const items = pool.filter((tech) => tech.category === cat.id);
+        if (!items.length) return "";
+        return `<div class="pick-group">
+          <p class="pick-group-label" style="--cat-color:${cat.color}">${escapeHtml(cat.name)}<b>${items.length}</b></p>
+          ${items
+            .map((tech) => {
+              const on = picks === null || picks.has(tech.id);
+              return `<label class="pick-row"><input type="checkbox" data-pick="${tech.id}" ${on ? "checked" : ""}> <span>${escapeHtml(tech.japanese)}</span></label>`;
+            })
+            .join("")}
+        </div>`;
+      })
+      .join("");
+  }
+
+  function openRoundsSheet() {
+    renderRoundsPicks();
+    openSheet("sheet-rounds");
+  }
+
+  function setRoundsPicks(picks) {
+    state.rounds.picks = picks;
+    saveRoundsPicks();
+    renderRoundsPicks();
+    renderRoundsConfig();
+  }
+
+  function toggleRoundsPick(input) {
+    const current = new Set(roundsEffectiveIds());
+    if (input.checked) current.add(input.getAttribute("data-pick"));
+    else current.delete(input.getAttribute("data-pick"));
+    setRoundsPicks([...current]);
   }
 
   function setSpeedMode(mode) {
@@ -3132,7 +3191,13 @@
     $("#rounds-start-btn").addEventListener("click", startRounds);
     $("#rounds-again").addEventListener("click", stopRoundsToStart);
     $("#rounds-stop").addEventListener("click", stopRoundsToStart);
-    $("#rounds-rep").addEventListener("click", addRoundRep);
+    $("#rounds-pick-btn").addEventListener("click", openRoundsSheet);
+    $("#rounds-picks").addEventListener("change", (event) => {
+      const input = event.target.closest("[data-pick]");
+      if (input) toggleRoundsPick(input);
+    });
+    $("#rounds-pick-all").addEventListener("click", () => setRoundsPicks(null));
+    $("#rounds-pick-none").addEventListener("click", () => setRoundsPicks([]));
 
     $("#speed-options").addEventListener("click", (event) => {
       const option = event.target.closest(".speed-option");

@@ -2017,39 +2017,93 @@ h2 {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-  min-height: 92px;
+  gap: 6px;
+  width: 100%;
 }
 
+/* The image is the thing you look at from the mat, so it is the whole width. */
 .rounds-target img {
-  width: 132px;
-  height: 99px;
+  width: min(100%, 560px);
+  aspect-ratio: 16 / 9;
+  height: auto;
   object-fit: cover;
-  border-radius: 12px;
+  border-radius: 14px;
   background: var(--bg-2);
 }
 
-.rounds-target-name { font-size: 1.15rem; font-weight: 650; }
-.rounds-target-sub { color: var(--muted); font-size: 0.85rem; }
+.rounds-target-name { font-size: 1.25rem; font-weight: 650; }
+.rounds-target-sub { color: var(--muted); font-size: 0.88rem; }
 
-.rounds-rep {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 8px;
-  min-height: 88px;
-  padding: 8px 30px;
-  border: 1px solid var(--accent);
-  border-radius: 20px;
-  background: var(--accent-soft);
+/* The 4-3-2-1 turns the clock to the accent so the eye catches it. */
+.rounds-clock.is-count { color: var(--accent); }
+
+.rounds-pick {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  max-width: 340px;
+  margin: 4px auto 0;
+  padding: 13px 16px;
+  border: 1px solid var(--line-strong);
+  border-radius: 12px;
+  background: var(--panel-2);
   color: var(--text);
+  font: inherit;
+  font-size: 0.9rem;
   cursor: pointer;
-  transition: transform 90ms var(--ease), background 150ms var(--ease);
+  transition: border-color 150ms var(--ease);
 }
 
-.rounds-rep:active { transform: scale(0.97); }
-.rounds-rep b { font-size: 2.6rem; font-weight: 750; font-variant-numeric: tabular-nums; }
-.rounds-rep span { color: var(--muted); font-size: 0.85rem; }
-.rounds-rep.is-idle { opacity: 0.45; }
+.rounds-pick:hover { border-color: var(--accent); }
+.rounds-pick b { color: var(--accent); font-weight: 650; }
+
+.sheet-note {
+  margin: 2px 0 12px;
+  color: var(--muted);
+  font-size: 0.86rem;
+  line-height: 1.5;
+}
+
+.rounds-pick-actions { display: flex; gap: 8px; margin: 0 0 12px; }
+.rounds-pick-list { display: grid; gap: 14px; }
+
+.pick-group-label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0 0 4px;
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.pick-group-label::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--cat-color, var(--accent));
+}
+
+.pick-group-label b { margin-left: auto; color: var(--faint); }
+
+.pick-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 46px;
+  padding: 2px 4px;
+  border-radius: 8px;
+  font-size: 0.92rem;
+  cursor: pointer;
+}
+
+.pick-row:hover { background: var(--panel-2); }
+.pick-row input { width: 20px; height: 20px; accent-color: var(--accent); }
 
 .start-panel h3 {
   margin: 0;
