@@ -1664,8 +1664,10 @@
     } catch (_) { /* nothing we can do */ }
   }
 
+  /* The cues are spoken in English in both interface languages: a single good
+     voice beats a good voice reading Spanish it cannot pronounce. */
+  const CUE_LANG = "en";
   const ROUND_SOUNDS = ["bell", "blip",
-    "es-n1", "es-n2", "es-n3", "es-n4", "es-start", "es-go", "es-rest", "es-stop",
     "en-n1", "en-n2", "en-n3", "en-n4", "en-start", "en-go", "en-rest", "en-stop"];
 
   function preloadRoundAudio() {
@@ -1689,7 +1691,7 @@
   /* Every word is its own recording, so the voice is exactly as generated:
      one number per blink, and the cue word at the moment the count finishes. */
   function playNum(n) {
-    playSound(`${state.lang === "en" ? "en" : "es"}-n${n}`);
+    playSound(`${CUE_LANG}-n${n}`);
   }
   /* iOS only allows programmatic playback on a media element that a gesture has
      already started. This plays every clip silently once, inside the Start tap,
@@ -1714,7 +1716,7 @@
   }
 
   function playWord(name) {
-    playSound(`${state.lang === "en" ? "en" : "es"}-${name}`);
+    playSound(`${CUE_LANG}-${name}`);
   }
 
   function stopCue() {
