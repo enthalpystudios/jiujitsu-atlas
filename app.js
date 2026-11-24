@@ -1658,7 +1658,9 @@
       // prime on the same element can never leak through or be heard twice.
       el.muted = false;
       el.volume = volume == null ? 1 : volume;
-      el.currentTime = 0;
+      // Start at the word itself (a hair before it, to be safe) rather than at
+      // sample 0. Nothing is trimmed, so no consonant can be lost.
+      el.currentTime = COUNT_LEAD[name] || 0;
       const p = el.play();
       if (p && p.catch) p.catch(() => { /* blocked until a tap */ });
     } catch (_) { /* nothing we can do */ }
