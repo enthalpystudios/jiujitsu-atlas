@@ -1,7 +1,7 @@
 /* Offline for the mat: the shell is served fresh when online and from the
    cache when not; the card images are cache-first, since they never change
    once a technique's frames are set. */
-const CACHE = "jj-atlas-v16";
+const CACHE = "jj-atlas-v17";
 const CORE = [
   "./",
   "./index.html",
@@ -15,12 +15,18 @@ const CORE = [
   "./icon-512.png",
   "./count/bell.wav",
   "./count/blip.wav",
-  "./count/es-nums.wav",
+  "./count/es-n1.wav",
+  "./count/es-n2.wav",
+  "./count/es-n3.wav",
+  "./count/es-n4.wav",
   "./count/es-start.wav",
   "./count/es-go.wav",
   "./count/es-rest.wav",
   "./count/es-stop.wav",
-  "./count/en-nums.wav",
+  "./count/en-n1.wav",
+  "./count/en-n2.wav",
+  "./count/en-n3.wav",
+  "./count/en-n4.wav",
   "./count/en-start.wav",
   "./count/en-go.wav",
   "./count/en-rest.wav",

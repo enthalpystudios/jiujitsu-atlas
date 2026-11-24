@@ -1665,9 +1665,8 @@
   }
 
   const ROUND_SOUNDS = ["bell", "blip",
-    "es-nums", "es-start", "es-go", "es-rest", "es-stop",
-    "en-nums", "en-start", "en-go", "en-rest", "en-stop"];
-  let cueWordTimer = null;
+    "es-n1", "es-n2", "es-n3", "es-n4", "es-start", "es-go", "es-rest", "es-stop",
+    "en-n1", "en-n2", "en-n3", "en-n4", "en-start", "en-go", "en-rest", "en-stop"];
 
   function preloadRoundAudio() {
     ROUND_SOUNDS.forEach((name) => { try { soundEl(name).load(); } catch (_) { /* ignore */ } });
@@ -1687,33 +1686,16 @@
   /* The numbers are one recording of 4-3-2-1, shared by every cue, played whole
      and never cut. The cue's word is a separate recording, started on the beat
      at 3.5 s - so the numbers are identical everywhere and no word is clipped. */
-  /* The numbers are one shared recording, played whole. The cue's word is a
-     separate file, started only once the numbers have actually finished
-     playing - a fixed delay collided with the final "1". */
-  /* The numbers are one shared recording, played whole. The cue word is a
-     separate file; it starts when the numbers have finished - measured from
-     the file's own duration, with its ended event as a backup - so the word
-     can never collide with the final "1". */
-  function playCue(name) {
-    stopCue();
-    const lang = state.lang === "en" ? "en" : "es";
-    const nums = soundEl(`${lang}-nums`);
-    let fired = false;
-    const sayWord = () => {
-      if (fired) return;
-      fired = true;
-      if (cueWordTimer) { clearTimeout(cueWordTimer); cueWordTimer = null; }
-      nums.onended = null;
-      playSound(`${lang}-${name}`);
-    };
-    nums.onended = sayWord;
-    const len = nums.duration && isFinite(nums.duration) ? nums.duration : 3.4;
-    cueWordTimer = setTimeout(sayWord, Math.round((len + 0.15) * 1000));
-    playSound(`${lang}-nums`);
+  /* Every word is its own recording, so the voice is exactly as generated:
+     one number per blink, and the cue word at the moment the count finishes. */
+  function playNum(n) {
+    playSound(`${state.lang === "en" ? "en" : "es"}-n${n}`);
+  }
+  function playWord(name) {
+    playSound(`${state.lang === "en" ? "en" : "es"}-${name}`);
   }
 
   function stopCue() {
-    if (cueWordTimer) { clearTimeout(cueWordTimer); cueWordTimer = null; }
     ROUND_SOUNDS.forEach((n) => { const el = SOUND_ELS[n]; if (el) el.onended = null; });
     ROUND_SOUNDS.forEach((name) => {
       const el = SOUND_ELS[name];
@@ -1838,18 +1820,19 @@
     roundWakeLockOn();
     showRoundsSession();
     renderRoundsSession();
-    playCue("start");
+    playNum(4);
     clearInterval(r.timerId);
     r.timerId = setInterval(roundsTick, 1000);
   }
 
+  /* A count-in: the numbers sound on each blink, the word when it reaches 0. */
   function beginPrep(cue) {
     const r = state.rounds;
     r.phase = "prep";
     r.secondsLeft = 4;
     r.prepCue = cue || "go";
     renderRoundsSession();
-    playCue(r.prepCue);
+    playNum(4);
   }
 
   function beginRound() {
@@ -1865,12 +1848,12 @@
     const r = state.rounds;
     roundBuzz([160, 80, 160, 80, 160]);
     if (r.round >= r.rounds) { endRounds(); return; }
-    if (r.rest >= 4) {
+    if (r.rest >= 1) {
       r.phase = "rest";
       r.secondsLeft = r.rest;
       renderRoundsSession();
     } else {
-      // No room for a count inside the rest: count in with "Go!" instead.
+      // No rest: go straight into a count-in whose word is "Go!".
       beginPrep("go");
     }
   }
@@ -1880,19 +1863,23 @@
     if (!r.running) return;
     r.secondsLeft -= 1;
     if (r.secondsLeft <= 0) {
-      if (r.phase === "prep") beginRound();
-      else if (r.phase === "work") finishRound();
-      // The rest's last four seconds were the count-in, so it goes straight in.
-      else if (r.phase === "rest") beginRound();
+      // The count has finished: say the word for this transition, then move on.
+      if (r.phase === "prep") {
+        playWord(r.prepCue === "go" ? "go" : "start");
+        beginRound();
+      } else if (r.phase === "work") {
+        if (r.round >= r.rounds) playWord("stop");
+        else if (r.rest >= 1) playWord("rest");
+        finishRound();
+      } else if (r.phase === "rest") {
+        playWord("go");
+        beginRound();
+      }
       return;
     }
-    // One cue per count: "Rest!" or "Stop!" as the work runs out, "Go!" as the
-    // rest does. Nothing else sounds - the rest is not counted down.
-    if (r.phase === "work" && r.secondsLeft === 4) {
-      playCue(r.round >= r.rounds ? "stop" : "rest");
-    } else if (r.phase === "rest" && r.secondsLeft === 4) {
-      playCue("go");
-    }
+    // One number on each blink, through the count-in and the last four seconds
+    // of work. The rest is silent, as asked.
+    if ((r.phase === "prep" || r.phase === "work") && r.secondsLeft <= 4) playNum(r.secondsLeft);
     renderRoundsSession();
   }
 
@@ -3253,7 +3240,12 @@
       saveRoundsCfg();
     });
     $("#rounds-start-btn").addEventListener("click", startRounds);
-    $("#rounds-test").addEventListener("click", () => playCue("start"));
+    $("#rounds-test").addEventListener("click", () => {
+      // play the whole count-in, exactly as a session opens
+      playNum(4);
+      [3, 2, 1].forEach((n, i) => setTimeout(() => playNum(n), (i + 1) * 1000));
+      setTimeout(() => playWord("start"), 4000);
+    });
     $("#rounds-again").addEventListener("click", stopRoundsToStart);
     $("#rounds-stop").addEventListener("click", stopRoundsToStart);
     $("#rounds-pick-btn").addEventListener("click", openRoundsSheet);
