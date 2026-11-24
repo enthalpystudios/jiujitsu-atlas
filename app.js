@@ -1978,15 +1978,16 @@
     }
     const target = $("#rounds-target");
     if (target) {
-      // Nothing is being drilled during the rest, so no technique is shown there.
-      const tech = r.phase === "rest"
-        ? null
-        : (r.queue.length
-          ? r.queue[((Math.max(0, r.round - 1) % r.queue.length) + r.queue.length) % r.queue.length]
-          : null);
+      // In the rest the technique shown is the one coming up, clearly labelled
+      // as such rather than looking like the thing to do now.
+      const isRest = r.phase === "rest";
+      const idx = isRest ? r.round : Math.max(0, r.round - 1);
+      const tech = r.queue.length
+        ? r.queue[((idx % r.queue.length) + r.queue.length) % r.queue.length]
+        : null;
       if (tech) {
         const hero = heroFrame(tech);
-        target.innerHTML = `${hero ? `<img src="${hero.src}" alt="">` : ""}<span class="rounds-target-name">${escapeHtml(tech.japanese)}</span><span class="rounds-target-sub">${escapeHtml(pick(tech, "translation"))}</span>`;
+        target.innerHTML = `${isRest ? `<span class="rounds-next">${escapeHtml(t("rounds.nextUp"))}</span>` : ""}${hero ? `<img src="${hero.src}" alt="">` : ""}<span class="rounds-target-name">${escapeHtml(tech.japanese)}</span><span class="rounds-target-sub">${escapeHtml(pick(tech, "translation"))}</span>`;
       } else {
         target.innerHTML = "";
       }

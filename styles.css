@@ -2054,6 +2054,16 @@ h2 {
 }
 
 .rounds-target-name { font-size: 1.25rem; font-weight: 650; }
+
+/* The rest shows the next round's technique, labelled so it does not read as "now". */
+.rounds-next {
+  color: var(--accent);
+  font-size: 0.66rem;
+  font-weight: 750;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
 .rounds-target-sub { color: var(--muted); font-size: 0.88rem; }
 
 /* The 4-3-2-1 turns the clock to the accent so the eye catches it. */
