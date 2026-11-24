@@ -2,9 +2,9 @@ window.ATLAS_DATA = {
   "meta": {
     "title": "Jiu-Jitsu Name Atlas",
     "subtitle": "RFEJYDA kyu syllabus · all belts",
-    "version": 4,
-    "updated": "2026-11-22",
-    "note": "All five belts have frame cards and source videos. Reused-frame entries share the source of the technique they demonstrate.",
+    "version": 5,
+    "updated": "2026-11-24",
+    "note": "Five belts, with frame cards and source videos for most entries; the few added from the official programme are syllabus entries pending frames.",
     "languages": [
       "en",
       "es"
@@ -163,17 +163,17 @@ window.ATLAS_DATA = {
         {
           "src": "cards/kihon.ritsu-rei/01.jpg",
           "phase": "Stand",
-          "source_time": 2.0
+          "source_time": 2
         },
         {
           "src": "cards/kihon.ritsu-rei/02.jpg",
           "phase": "Bow",
-          "source_time": 4.0
+          "source_time": 4
         },
         {
           "src": "cards/kihon.ritsu-rei/03.jpg",
           "phase": "Recover",
-          "source_time": 6.0
+          "source_time": 6
         }
       ],
       "views": 20884,
@@ -227,17 +227,17 @@ window.ATLAS_DATA = {
         {
           "src": "cards/kihon.za-rei/01.jpg",
           "phase": "Seiza",
-          "source_time": 24.0
+          "source_time": 24
         },
         {
           "src": "cards/kihon.za-rei/02.jpg",
           "phase": "Bow",
-          "source_time": 26.0
+          "source_time": 26
         },
         {
           "src": "cards/kihon.za-rei/03.jpg",
           "phase": "Recover",
-          "source_time": 28.0
+          "source_time": 28
         }
       ],
       "views": 20884,
@@ -291,17 +291,17 @@ window.ATLAS_DATA = {
         {
           "src": "cards/kihon.shizentai/01.jpg",
           "phase": "Stand",
-          "source_time": 2.0
+          "source_time": 2
         },
         {
           "src": "cards/kihon.shizentai/02.jpg",
           "phase": "Natural stance",
-          "source_time": 4.0
+          "source_time": 4
         },
         {
           "src": "cards/kihon.shizentai/03.jpg",
           "phase": "Balance",
-          "source_time": 6.0
+          "source_time": 6
         }
       ],
       "views": 1239,
@@ -355,17 +355,17 @@ window.ATLAS_DATA = {
         {
           "src": "cards/kihon.jigotai/01.jpg",
           "phase": "Widen",
-          "source_time": 28.0
+          "source_time": 28
         },
         {
           "src": "cards/kihon.jigotai/02.jpg",
           "phase": "Defensive stance",
-          "source_time": 30.0
+          "source_time": 30
         },
         {
           "src": "cards/kihon.jigotai/03.jpg",
           "phase": "Balance",
-          "source_time": 32.0
+          "source_time": 32
         }
       ],
       "views": 1239,
@@ -419,17 +419,17 @@ window.ATLAS_DATA = {
         {
           "src": "cards/kihon.shiko-dachi/01.jpg",
           "phase": "Widen",
-          "source_time": 42.0
+          "source_time": 42
         },
         {
           "src": "cards/kihon.shiko-dachi/02.jpg",
           "phase": "Shiko dachi",
-          "source_time": 44.0
+          "source_time": 44
         },
         {
           "src": "cards/kihon.shiko-dachi/03.jpg",
           "phase": "Hold",
-          "source_time": 46.0
+          "source_time": 46
         }
       ],
       "views": 1239,
@@ -483,17 +483,17 @@ window.ATLAS_DATA = {
         {
           "src": "cards/kihon.zenkutsu-dachi/01.jpg",
           "phase": "Step",
-          "source_time": 34.0
+          "source_time": 34
         },
         {
           "src": "cards/kihon.zenkutsu-dachi/02.jpg",
           "phase": "Sink",
-          "source_time": 36.0
+          "source_time": 36
         },
         {
           "src": "cards/kihon.zenkutsu-dachi/03.jpg",
           "phase": "Front stance",
-          "source_time": 38.0
+          "source_time": 38
         }
       ],
       "views": 16,
@@ -547,17 +547,17 @@ window.ATLAS_DATA = {
         {
           "src": "cards/kihon.seiza/01.jpg",
           "phase": "Sit back",
-          "source_time": 7.0
+          "source_time": 7
         },
         {
           "src": "cards/kihon.seiza/02.jpg",
           "phase": "Seiza",
-          "source_time": 8.0
+          "source_time": 8
         },
         {
           "src": "cards/kihon.seiza/03.jpg",
           "phase": "Upright",
-          "source_time": 10.0
+          "source_time": 10
         }
       ],
       "views": 8607,
@@ -611,17 +611,17 @@ window.ATLAS_DATA = {
         {
           "src": "cards/kihon.choku-ritsu/01.jpg",
           "phase": "Turn to front",
-          "source_time": 74.0
+          "source_time": 74
         },
         {
           "src": "cards/kihon.choku-ritsu/02.jpg",
           "phase": "Feet together",
-          "source_time": 78.0
+          "source_time": 78
         },
         {
           "src": "cards/kihon.choku-ritsu/03.jpg",
           "phase": "Stand straight",
-          "source_time": 80.0
+          "source_time": 80
         }
       ],
       "views": 468,
@@ -675,17 +675,17 @@ window.ATLAS_DATA = {
         {
           "src": "cards/kihon.tsugi-ashi/01.jpg",
           "phase": "Stand",
-          "source_time": 28.0
+          "source_time": 28
         },
         {
           "src": "cards/kihon.tsugi-ashi/02.jpg",
           "phase": "Slide",
-          "source_time": 30.0
+          "source_time": 30
         },
         {
           "src": "cards/kihon.tsugi-ashi/03.jpg",
           "phase": "Follow",
-          "source_time": 34.0
+          "source_time": 34
         }
       ],
       "views": 72147,
@@ -739,17 +739,17 @@ window.ATLAS_DATA = {
         {
           "src": "cards/kihon.ayumi-ashi/01.jpg",
           "phase": "Stand",
-          "source_time": 4.0
+          "source_time": 4
         },
         {
           "src": "cards/kihon.ayumi-ashi/02.jpg",
           "phase": "Step",
-          "source_time": 6.0
+          "source_time": 6
         },
         {
           "src": "cards/kihon.ayumi-ashi/03.jpg",
           "phase": "Walk",
-          "source_time": 8.0
+          "source_time": 8
         }
       ],
       "views": 72147,
@@ -803,17 +803,17 @@ window.ATLAS_DATA = {
         {
           "src": "cards/kihon.tai-sabaki/01.jpg",
           "phase": "Step",
-          "source_time": 20.0
+          "source_time": 20
         },
         {
           "src": "cards/kihon.tai-sabaki/02.jpg",
           "phase": "Pivot",
-          "source_time": 26.0
+          "source_time": 26
         },
         {
           "src": "cards/kihon.tai-sabaki/03.jpg",
           "phase": "Turn through",
-          "source_time": 28.0
+          "source_time": 28
         }
       ],
       "views": 69252,
@@ -867,17 +867,17 @@ window.ATLAS_DATA = {
         {
           "src": "cards/kihon.kumikata/01.jpg",
           "phase": "Face off",
-          "source_time": 14.0
+          "source_time": 14
         },
         {
           "src": "cards/kihon.kumikata/02.jpg",
           "phase": "Lapel grip",
-          "source_time": 18.0
+          "source_time": 18
         },
         {
           "src": "cards/kihon.kumikata/03.jpg",
           "phase": "Sleeve + lapel",
-          "source_time": 20.0
+          "source_time": 20
         }
       ],
       "views": 21367,
@@ -931,17 +931,17 @@ window.ATLAS_DATA = {
         {
           "src": "cards/kihon.ushiro-ukemi/01.jpg",
           "phase": "Stand",
-          "source_time": 2.0
+          "source_time": 2
         },
         {
           "src": "cards/kihon.ushiro-ukemi/02.jpg",
           "phase": "Roll back",
-          "source_time": 4.0
+          "source_time": 4
         },
         {
           "src": "cards/kihon.ushiro-ukemi/03.jpg",
           "phase": "Land",
-          "source_time": 8.0
+          "source_time": 8
         }
       ],
       "views": 104791,
@@ -995,17 +995,17 @@ window.ATLAS_DATA = {
         {
           "src": "cards/kihon.yoko-ukemi/01.jpg",
           "phase": "Turn",
-          "source_time": 3.0
+          "source_time": 3
         },
         {
           "src": "cards/kihon.yoko-ukemi/02.jpg",
           "phase": "Land",
-          "source_time": 4.0
+          "source_time": 4
         },
         {
           "src": "cards/kihon.yoko-ukemi/03.jpg",
           "phase": "Thrown",
-          "source_time": 11.0
+          "source_time": 11
         }
       ],
       "views": 118683,
@@ -1059,17 +1059,17 @@ window.ATLAS_DATA = {
         {
           "src": "cards/kihon.mae-ukemi/01.jpg",
           "phase": "Bend",
-          "source_time": 3.0
+          "source_time": 3
         },
         {
           "src": "cards/kihon.mae-ukemi/02.jpg",
           "phase": "Land",
-          "source_time": 4.0
+          "source_time": 4
         },
         {
           "src": "cards/kihon.mae-ukemi/03.jpg",
           "phase": "Thrown",
-          "source_time": 11.0
+          "source_time": 11
         }
       ],
       "views": 88116,
@@ -1123,17 +1123,17 @@ window.ATLAS_DATA = {
         {
           "src": "cards/kihon.mae-mawari-ukemi/01.jpg",
           "phase": "Crouch",
-          "source_time": 3.0
+          "source_time": 3
         },
         {
           "src": "cards/kihon.mae-mawari-ukemi/02.jpg",
           "phase": "Roll",
-          "source_time": 7.0
+          "source_time": 7
         },
         {
           "src": "cards/kihon.mae-mawari-ukemi/03.jpg",
           "phase": "Land",
-          "source_time": 8.0
+          "source_time": 8
         }
       ],
       "views": 88667,
@@ -1187,22 +1187,22 @@ window.ATLAS_DATA = {
         {
           "src": "cards/atemi.mae-tsuki/01.jpg",
           "phase": "Guard",
-          "source_time": 2.0
+          "source_time": 2
         },
         {
           "src": "cards/atemi.mae-tsuki/02.jpg",
           "phase": "Step in",
-          "source_time": 7.0
+          "source_time": 7
         },
         {
           "src": "cards/atemi.mae-tsuki/03.jpg",
           "phase": "Impact",
-          "source_time": 8.0
+          "source_time": 8
         },
         {
           "src": "cards/atemi.mae-tsuki/04.jpg",
           "phase": "Recover",
-          "source_time": 9.0
+          "source_time": 9
         }
       ],
       "views": 1230,
@@ -1256,22 +1256,22 @@ window.ATLAS_DATA = {
         {
           "src": "cards/atemi.oi-tsuki/01.jpg",
           "phase": "Guard",
-          "source_time": 1.0
+          "source_time": 1
         },
         {
           "src": "cards/atemi.oi-tsuki/02.jpg",
           "phase": "Drive",
-          "source_time": 2.0
+          "source_time": 2
         },
         {
           "src": "cards/atemi.oi-tsuki/03.jpg",
           "phase": "Impact",
-          "source_time": 3.0
+          "source_time": 3
         },
         {
           "src": "cards/atemi.oi-tsuki/04.jpg",
           "phase": "Recover",
-          "source_time": 4.0
+          "source_time": 4
         }
       ],
       "views": 281,
@@ -1325,22 +1325,22 @@ window.ATLAS_DATA = {
         {
           "src": "cards/atemi.gyaku-tsuki/01.jpg",
           "phase": "Guard",
-          "source_time": 6.0
+          "source_time": 6
         },
         {
           "src": "cards/atemi.gyaku-tsuki/02.jpg",
           "phase": "Chamber",
-          "source_time": 8.0
+          "source_time": 8
         },
         {
           "src": "cards/atemi.gyaku-tsuki/03.jpg",
           "phase": "Strike",
-          "source_time": 9.0
+          "source_time": 9
         },
         {
           "src": "cards/atemi.gyaku-tsuki/04.jpg",
           "phase": "Retract",
-          "source_time": 11.0
+          "source_time": 11
         }
       ],
       "views": 320,
@@ -1394,22 +1394,22 @@ window.ATLAS_DATA = {
         {
           "src": "cards/atemi.mae-geri/01.jpg",
           "phase": "Guard",
-          "source_time": 14.0
+          "source_time": 14
         },
         {
           "src": "cards/atemi.mae-geri/02.jpg",
           "phase": "Chamber",
-          "source_time": 16.0
+          "source_time": 16
         },
         {
           "src": "cards/atemi.mae-geri/03.jpg",
           "phase": "Kick",
-          "source_time": 18.0
+          "source_time": 18
         },
         {
           "src": "cards/atemi.mae-geri/04.jpg",
           "phase": "Recover",
-          "source_time": 20.0
+          "source_time": 20
         }
       ],
       "views": 1387,
@@ -1463,22 +1463,22 @@ window.ATLAS_DATA = {
         {
           "src": "cards/atemi.oi-geri/01.jpg",
           "phase": "Guard",
-          "source_time": 12.0
+          "source_time": 12
         },
         {
           "src": "cards/atemi.oi-geri/02.jpg",
           "phase": "Chamber",
-          "source_time": 13.0
+          "source_time": 13
         },
         {
           "src": "cards/atemi.oi-geri/03.jpg",
           "phase": "Kick",
-          "source_time": 15.0
+          "source_time": 15
         },
         {
           "src": "cards/atemi.oi-geri/04.jpg",
           "phase": "Recover",
-          "source_time": 17.0
+          "source_time": 17
         }
       ],
       "views": 6390,
@@ -1532,17 +1532,17 @@ window.ATLAS_DATA = {
         {
           "src": "cards/uke.gedan-barai/01.jpg",
           "phase": "Wind up",
-          "source_time": 2.0
+          "source_time": 2
         },
         {
           "src": "cards/uke.gedan-barai/02.jpg",
           "phase": "Sweep",
-          "source_time": 3.0
+          "source_time": 3
         },
         {
           "src": "cards/uke.gedan-barai/03.jpg",
           "phase": "Block",
-          "source_time": 4.0
+          "source_time": 4
         }
       ],
       "views": 201,
@@ -1596,17 +1596,17 @@ window.ATLAS_DATA = {
         {
           "src": "cards/uke.soto-uke/01.jpg",
           "phase": "Wind up",
-          "source_time": 2.0
+          "source_time": 2
         },
         {
           "src": "cards/uke.soto-uke/02.jpg",
           "phase": "Block",
-          "source_time": 3.0
+          "source_time": 3
         },
         {
           "src": "cards/uke.soto-uke/03.jpg",
           "phase": "Hold",
-          "source_time": 4.0
+          "source_time": 4
         }
       ],
       "views": 247,
@@ -1660,17 +1660,17 @@ window.ATLAS_DATA = {
         {
           "src": "cards/uke.uchi-uke/01.jpg",
           "phase": "Wind up",
-          "source_time": 7.0
+          "source_time": 7
         },
         {
           "src": "cards/uke.uchi-uke/02.jpg",
           "phase": "Block",
-          "source_time": 8.0
+          "source_time": 8
         },
         {
           "src": "cards/uke.uchi-uke/03.jpg",
           "phase": "Hold",
-          "source_time": 9.0
+          "source_time": 9
         }
       ],
       "views": 246,
@@ -1726,7 +1726,7 @@ window.ATLAS_DATA = {
         {
           "src": "cards/nage.o-soto-otoshi/01.jpg",
           "phase": "Grip",
-          "source_time": 16.0
+          "source_time": 16
         },
         {
           "src": "cards/nage.o-soto-otoshi/02.jpg",
@@ -1799,12 +1799,12 @@ window.ATLAS_DATA = {
         {
           "src": "cards/nage.uki-goshi/01.jpg",
           "phase": "Grip",
-          "source_time": 4.0
+          "source_time": 4
         },
         {
           "src": "cards/nage.uki-goshi/02.jpg",
           "phase": "Entry",
-          "source_time": 5.0
+          "source_time": 5
         },
         {
           "src": "cards/nage.uki-goshi/03.jpg",
@@ -1814,7 +1814,7 @@ window.ATLAS_DATA = {
         {
           "src": "cards/nage.uki-goshi/04.jpg",
           "phase": "Finish",
-          "source_time": 7.0
+          "source_time": 7
         }
       ],
       "views": 265,
@@ -1872,22 +1872,22 @@ window.ATLAS_DATA = {
         {
           "src": "cards/nage.koshi-guruma/01.jpg",
           "phase": "Grip",
-          "source_time": 1.0
+          "source_time": 1
         },
         {
           "src": "cards/nage.koshi-guruma/02.jpg",
           "phase": "Turn",
-          "source_time": 5.0
+          "source_time": 5
         },
         {
           "src": "cards/nage.koshi-guruma/03.jpg",
           "phase": "Throw",
-          "source_time": 7.0
+          "source_time": 7
         },
         {
           "src": "cards/nage.koshi-guruma/04.jpg",
           "phase": "Finish",
-          "source_time": 8.0
+          "source_time": 8
         }
       ],
       "views": 52414,
@@ -1945,22 +1945,22 @@ window.ATLAS_DATA = {
         {
           "src": "cards/katame.ikkyo/01.jpg",
           "phase": "Grip",
-          "source_time": 7.0
+          "source_time": 7
         },
         {
           "src": "cards/katame.ikkyo/02.jpg",
           "phase": "Lock",
-          "source_time": 8.0
+          "source_time": 8
         },
         {
           "src": "cards/katame.ikkyo/03.jpg",
           "phase": "Pin",
-          "source_time": 9.0
+          "source_time": 9
         },
         {
           "src": "cards/katame.ikkyo/04.jpg",
           "phase": "Control",
-          "source_time": 10.0
+          "source_time": 10
         }
       ],
       "views": 818,
@@ -2018,7 +2018,7 @@ window.ATLAS_DATA = {
         {
           "src": "cards/katame.kote-gaeshi/01.jpg",
           "phase": "Grip",
-          "source_time": 1.0
+          "source_time": 1
         },
         {
           "src": "cards/katame.kote-gaeshi/02.jpg",
@@ -2028,12 +2028,12 @@ window.ATLAS_DATA = {
         {
           "src": "cards/katame.kote-gaeshi/03.jpg",
           "phase": "Throw",
-          "source_time": 5.0
+          "source_time": 5
         },
         {
           "src": "cards/katame.kote-gaeshi/04.jpg",
           "phase": "Control",
-          "source_time": 7.0
+          "source_time": 7
         }
       ],
       "views": 339,
@@ -2091,12 +2091,12 @@ window.ATLAS_DATA = {
         {
           "src": "cards/katame.ude-gatame/01.jpg",
           "phase": "Grip",
-          "source_time": 0.0
+          "source_time": 0
         },
         {
           "src": "cards/katame.ude-gatame/02.jpg",
           "phase": "Lock",
-          "source_time": 1.0
+          "source_time": 1
         },
         {
           "src": "cards/katame.ude-gatame/03.jpg",
@@ -2106,7 +2106,7 @@ window.ATLAS_DATA = {
         {
           "src": "cards/katame.ude-gatame/04.jpg",
           "phase": "Control",
-          "source_time": 3.0
+          "source_time": 3
         }
       ],
       "views": 1072,
@@ -2164,22 +2164,22 @@ window.ATLAS_DATA = {
         {
           "src": "cards/osae.kesa-gatame/01.jpg",
           "phase": "Uke down",
-          "source_time": 1.0
+          "source_time": 1
         },
         {
           "src": "cards/osae.kesa-gatame/02.jpg",
           "phase": "Entry",
-          "source_time": 4.0
+          "source_time": 4
         },
         {
           "src": "cards/osae.kesa-gatame/03.jpg",
           "phase": "Hold",
-          "source_time": 8.0
+          "source_time": 8
         },
         {
           "src": "cards/osae.kesa-gatame/04.jpg",
           "phase": "Hold",
-          "source_time": 10.0
+          "source_time": 10
         }
       ],
       "views": 299,
@@ -2237,22 +2237,22 @@ window.ATLAS_DATA = {
         {
           "src": "cards/osae.kami-shiho-gatame/01.jpg",
           "phase": "Approach",
-          "source_time": 2.0
+          "source_time": 2
         },
         {
           "src": "cards/osae.kami-shiho-gatame/02.jpg",
           "phase": "Grip",
-          "source_time": 6.0
+          "source_time": 6
         },
         {
           "src": "cards/osae.kami-shiho-gatame/03.jpg",
           "phase": "Hold",
-          "source_time": 10.0
+          "source_time": 10
         },
         {
           "src": "cards/osae.kami-shiho-gatame/04.jpg",
           "phase": "Hold",
-          "source_time": 12.0
+          "source_time": 12
         }
       ],
       "views": 408,
@@ -2310,22 +2310,22 @@ window.ATLAS_DATA = {
         {
           "src": "cards/osae.yoko-shiho-gatame/01.jpg",
           "phase": "Kneel",
-          "source_time": 2.0
+          "source_time": 2
         },
         {
           "src": "cards/osae.yoko-shiho-gatame/02.jpg",
           "phase": "Entry",
-          "source_time": 4.0
+          "source_time": 4
         },
         {
           "src": "cards/osae.yoko-shiho-gatame/03.jpg",
           "phase": "Hold",
-          "source_time": 8.0
+          "source_time": 8
         },
         {
           "src": "cards/osae.yoko-shiho-gatame/04.jpg",
           "phase": "Hold",
-          "source_time": 10.0
+          "source_time": 10
         }
       ],
       "views": 460,
@@ -2383,22 +2383,22 @@ window.ATLAS_DATA = {
         {
           "src": "cards/osae.tate-shiho-gatame/01.jpg",
           "phase": "Kneel",
-          "source_time": 2.0
+          "source_time": 2
         },
         {
           "src": "cards/osae.tate-shiho-gatame/02.jpg",
           "phase": "Settle",
-          "source_time": 5.0
+          "source_time": 5
         },
         {
           "src": "cards/osae.tate-shiho-gatame/03.jpg",
           "phase": "Hold",
-          "source_time": 10.0
+          "source_time": 10
         },
         {
           "src": "cards/osae.tate-shiho-gatame/04.jpg",
           "phase": "Hold",
-          "source_time": 12.0
+          "source_time": 12
         }
       ],
       "views": 5655,
@@ -2454,32 +2454,32 @@ window.ATLAS_DATA = {
         {
           "src": "cards/kata.tsuki-jitsu-no-kata/01.jpg",
           "phase": "Start",
-          "source_time": 10.0
+          "source_time": 10
         },
         {
           "src": "cards/kata.tsuki-jitsu-no-kata/02.jpg",
           "phase": "First thrust",
-          "source_time": 18.0
+          "source_time": 18
         },
         {
           "src": "cards/kata.tsuki-jitsu-no-kata/03.jpg",
           "phase": "Sequence",
-          "source_time": 30.0
+          "source_time": 30
         },
         {
           "src": "cards/kata.tsuki-jitsu-no-kata/04.jpg",
           "phase": "Second thrust",
-          "source_time": 48.0
+          "source_time": 48
         },
         {
           "src": "cards/kata.tsuki-jitsu-no-kata/05.jpg",
           "phase": "Sequence",
-          "source_time": 66.0
+          "source_time": 66
         },
         {
           "src": "cards/kata.tsuki-jitsu-no-kata/06.jpg",
           "phase": "Finish",
-          "source_time": 94.0
+          "source_time": 94
         }
       ],
       "views": 481,
@@ -2594,7 +2594,7 @@ window.ATLAS_DATA = {
         {
           "src": "cards/kihon.heiko-dachi/02.jpg",
           "phase": "Move",
-          "source_time": 27.0
+          "source_time": 27
         },
         {
           "src": "cards/kihon.heiko-dachi/03.jpg",
@@ -2791,7 +2791,7 @@ window.ATLAS_DATA = {
         {
           "src": "cards/atemi.uraken/03.jpg",
           "phase": "Strike",
-          "source_time": 23.0
+          "source_time": 23
         },
         {
           "src": "cards/atemi.uraken/04.jpg",
@@ -2919,7 +2919,7 @@ window.ATLAS_DATA = {
         {
           "src": "cards/atemi.hiza-geri/01.jpg",
           "phase": "Guard",
-          "source_time": 1.0
+          "source_time": 1
         },
         {
           "src": "cards/atemi.hiza-geri/02.jpg",
@@ -2929,7 +2929,7 @@ window.ATLAS_DATA = {
         {
           "src": "cards/atemi.hiza-geri/03.jpg",
           "phase": "Strike",
-          "source_time": 2.0
+          "source_time": 2
         },
         {
           "src": "cards/atemi.hiza-geri/04.jpg",
@@ -3131,7 +3131,7 @@ window.ATLAS_DATA = {
         {
           "src": "cards/uke.jyodan-uke/02.jpg",
           "phase": "Block",
-          "source_time": 167.0
+          "source_time": 167
         },
         {
           "src": "cards/uke.jyodan-uke/03.jpg",
@@ -3195,7 +3195,7 @@ window.ATLAS_DATA = {
         {
           "src": "cards/uke.nagashi-uke/02.jpg",
           "phase": "Block",
-          "source_time": 7.0
+          "source_time": 7
         },
         {
           "src": "cards/uke.nagashi-uke/03.jpg",
@@ -3328,7 +3328,7 @@ window.ATLAS_DATA = {
         {
           "src": "cards/nage.o-uchi-gari/03.jpg",
           "phase": "Throw",
-          "source_time": 28.0
+          "source_time": 28
         },
         {
           "src": "cards/nage.o-uchi-gari/04.jpg",
@@ -3397,7 +3397,7 @@ window.ATLAS_DATA = {
         {
           "src": "cards/nage.ko-soto-gari/03.jpg",
           "phase": "Throw",
-          "source_time": 15.0
+          "source_time": 15
         },
         {
           "src": "cards/nage.ko-soto-gari/04.jpg",
@@ -3471,7 +3471,7 @@ window.ATLAS_DATA = {
         {
           "src": "cards/nage.kubi-nage/04.jpg",
           "phase": "Finish",
-          "source_time": 6.0
+          "source_time": 6
         }
       ],
       "order": 50,
@@ -3525,7 +3525,7 @@ window.ATLAS_DATA = {
         {
           "src": "cards/nage.o-goshi/01.jpg",
           "phase": "Grip",
-          "source_time": 8.0
+          "source_time": 8
         },
         {
           "src": "cards/nage.o-goshi/02.jpg",
@@ -3640,75 +3640,6 @@ window.ATLAS_DATA = {
       "frames_ok": "ok"
     },
     {
-      "id": "katame.ude-gatame-4th",
-      "japanese": "Ude Gatame",
-      "translation": "Arm lock",
-      "translation_es": "Luxación de brazo",
-      "literal": "ude (arm) + gatame (lock)",
-      "literal_es": "ude (brazo) + gatame (luxación)",
-      "category": "katame",
-      "grade": "4th kyu",
-      "grade_id": "4th",
-      "belt": "Orange",
-      "cue": "Kneel beside uke, trap their near wrist under your armpit and press their elbow against your hip to lock the arm.",
-      "cue_es": "Arrodíllate junto a uke, atrapa su muñeca más próxima bajo tu axila y presiona su codo contra tu cadera para bloquear el brazo.",
-      "common": 2,
-      "source": {
-        "title": "Ude Gatame",
-        "channel": "Ronin Do",
-        "url": "https://www.youtube.com/watch?v=4DYWcZIuq7U",
-        "start": 0
-      },
-      "frames": [
-        {
-          "src": "cards/katame.ude-gatame/01.jpg",
-          "phase": "Grip",
-          "source_time": 0.0
-        },
-        {
-          "src": "cards/katame.ude-gatame/02.jpg",
-          "phase": "Lock",
-          "source_time": 1.0
-        },
-        {
-          "src": "cards/katame.ude-gatame/03.jpg",
-          "phase": "Drop",
-          "source_time": 2.5
-        },
-        {
-          "src": "cards/katame.ude-gatame/04.jpg",
-          "phase": "Control",
-          "source_time": 3.0
-        }
-      ],
-      "order": 53,
-      "hero": 2,
-      "views": 1072,
-      "key_points": [
-        "Kneel beside uke's head and take their near wrist with both hands.",
-        "Trap the wrist under your armpit and press their elbow against your hip, keeping the arm straight.",
-        "Sink your weight back and keep your base to lock the elbow without jerking.",
-        "Release safely on the tap."
-      ],
-      "key_points_es": [
-        "Arrodíllate junto a la cabeza de uke y sujeta su muñeca cercana con las dos manos.",
-        "Atrapa la muñeca bajo tu axila y presiona su codo contra tu cadera, manteniendo el brazo recto.",
-        "Hunde tu peso hacia atrás y mantén la base para bloquear el codo sin dar tirones.",
-        "Suelta con seguridad en cuanto uke dé la palmada."
-      ],
-      "mistakes": [
-        "Applying force with the arms only.",
-        "Leaving space under the elbow so the lock escapes.",
-        "Jerking the arm instead of controlling it."
-      ],
-      "mistakes_es": [
-        "Aplicar fuerza solo con los brazos.",
-        "Dejar espacio bajo el codo y que la luxación se escape.",
-        "Dar tirones al brazo en lugar de controlarlo."
-      ],
-      "frames_ok": "ok"
-    },
-    {
       "id": "katame.waki-gatame",
       "japanese": "Waki Gatame",
       "translation": "Armpit lock",
@@ -3785,9 +3716,9 @@ window.ATLAS_DATA = {
       "literal": "hon (basic) + kesa (scarf) + gatame (hold)",
       "literal_es": "hon (básica) + kesa (bufanda) + gatame (inmovilización)",
       "category": "osae",
-      "grade": "4th kyu",
-      "grade_id": "4th",
-      "belt": "Orange",
+      "grade": "5th kyu",
+      "grade_id": "5th",
+      "belt": "Yellow",
       "cue": "Sit at uke's right side, clamp their right arm under your left armpit and wrap your right arm around their head.",
       "cue_es": "Siéntate al lado derecho de uke, sujeta su brazo derecho bajo tu axila izquierda y rodea su cabeza con el brazo derecho.",
       "common": 2,
@@ -4022,23 +3953,23 @@ window.ATLAS_DATA = {
         "title": "Neko Ashi Dachi",
         "channel": "Shihan Lisa",
         "url": "https://www.youtube.com/watch?v=gTyxKfDNvho",
-        "start": 8.0
+        "start": 8
       },
       "frames": [
         {
           "src": "cards/kihon.neko-ashi-dachi/01.jpg",
           "phase": "Stance",
-          "source_time": 8.0
+          "source_time": 8
         },
         {
           "src": "cards/kihon.neko-ashi-dachi/02.jpg",
           "phase": "Move",
-          "source_time": 22.0
+          "source_time": 22
         },
         {
           "src": "cards/kihon.neko-ashi-dachi/03.jpg",
           "phase": "Return",
-          "source_time": 36.0
+          "source_time": 36
         }
       ],
       "order": 58,
@@ -4086,28 +4017,28 @@ window.ATLAS_DATA = {
         "title": "Tate Tsuki",
         "channel": "OYAMA KARATE Tulln",
         "url": "https://www.youtube.com/watch?v=KU0Gie51kmY",
-        "start": 20.0
+        "start": 20
       },
       "frames": [
         {
           "src": "cards/atemi.tate-tsuki/01.jpg",
           "phase": "Guard",
-          "source_time": 20.0
+          "source_time": 20
         },
         {
           "src": "cards/atemi.tate-tsuki/02.jpg",
           "phase": "Chamber",
-          "source_time": 42.0
+          "source_time": 42
         },
         {
           "src": "cards/atemi.tate-tsuki/03.jpg",
           "phase": "Strike",
-          "source_time": 64.0
+          "source_time": 64
         },
         {
           "src": "cards/atemi.tate-tsuki/04.jpg",
           "phase": "Retract",
-          "source_time": 84.0
+          "source_time": 84
         }
       ],
       "order": 59,
@@ -4155,13 +4086,13 @@ window.ATLAS_DATA = {
         "title": "Haito Uchi",
         "channel": "NATIONAL KARATE KOBUDO FEDERATION",
         "url": "https://www.youtube.com/watch?v=nIKjmDIvgo4",
-        "start": 3.0
+        "start": 3
       },
       "frames": [
         {
           "src": "cards/atemi.haito-uchi/01.jpg",
           "phase": "Guard",
-          "source_time": 3.0
+          "source_time": 3
         },
         {
           "src": "cards/atemi.haito-uchi/02.jpg",
@@ -4171,12 +4102,12 @@ window.ATLAS_DATA = {
         {
           "src": "cards/atemi.haito-uchi/03.jpg",
           "phase": "Strike",
-          "source_time": 10.0
+          "source_time": 10
         },
         {
           "src": "cards/atemi.haito-uchi/04.jpg",
           "phase": "Retract",
-          "source_time": 13.0
+          "source_time": 13
         }
       ],
       "order": 60,
@@ -4224,7 +4155,7 @@ window.ATLAS_DATA = {
         "title": "Shuto Uchi",
         "channel": "Holloway's Isshin-Ryu Karate School",
         "url": "https://www.youtube.com/watch?v=G3igHVFkb_k",
-        "start": 5.0
+        "start": 5
       },
       "frames": [
         {
@@ -4235,7 +4166,7 @@ window.ATLAS_DATA = {
         {
           "src": "cards/atemi.shuto-uchi/02.jpg",
           "phase": "Chamber",
-          "source_time": 18.0
+          "source_time": 18
         },
         {
           "src": "cards/atemi.shuto-uchi/03.jpg",
@@ -4245,7 +4176,7 @@ window.ATLAS_DATA = {
         {
           "src": "cards/atemi.shuto-uchi/04.jpg",
           "phase": "Retract",
-          "source_time": 19.0
+          "source_time": 19
         }
       ],
       "order": 61,
@@ -4293,23 +4224,23 @@ window.ATLAS_DATA = {
         "title": "Teisho Uchi",
         "channel": "KARATE SIR",
         "url": "https://www.youtube.com/watch?v=dweVGdppnFE",
-        "start": 8.0
+        "start": 8
       },
       "frames": [
         {
           "src": "cards/atemi.teisho-uchi/01.jpg",
           "phase": "Guard",
-          "source_time": 8.0
+          "source_time": 8
         },
         {
           "src": "cards/atemi.teisho-uchi/02.jpg",
           "phase": "Chamber",
-          "source_time": 11.0
+          "source_time": 11
         },
         {
           "src": "cards/atemi.teisho-uchi/03.jpg",
           "phase": "Strike",
-          "source_time": 12.0
+          "source_time": 12
         },
         {
           "src": "cards/atemi.teisho-uchi/04.jpg",
@@ -4362,28 +4293,28 @@ window.ATLAS_DATA = {
         "title": "Ushiro Geri",
         "channel": "CSDToronto",
         "url": "https://www.youtube.com/watch?v=BPt1k0mVMBc",
-        "start": 5.0
+        "start": 5
       },
       "frames": [
         {
           "src": "cards/atemi.ushiro-geri/01.jpg",
           "phase": "Guard",
-          "source_time": 5.0
+          "source_time": 5
         },
         {
           "src": "cards/atemi.ushiro-geri/02.jpg",
           "phase": "Chamber",
-          "source_time": 11.0
+          "source_time": 11
         },
         {
           "src": "cards/atemi.ushiro-geri/03.jpg",
           "phase": "Strike",
-          "source_time": 17.0
+          "source_time": 17
         },
         {
           "src": "cards/atemi.ushiro-geri/04.jpg",
           "phase": "Retract",
-          "source_time": 23.0
+          "source_time": 23
         }
       ],
       "order": 63,
@@ -4431,7 +4362,7 @@ window.ATLAS_DATA = {
         "title": "Kakato Geri",
         "channel": "Cumbria Coast Karate",
         "url": "https://www.youtube.com/watch?v=yh5sK5T9FmU",
-        "start": 14.0
+        "start": 14
       },
       "frames": [
         {
@@ -4447,7 +4378,7 @@ window.ATLAS_DATA = {
         {
           "src": "cards/atemi.kakato-geri/03.jpg",
           "phase": "Strike",
-          "source_time": 56.0
+          "source_time": 56
         },
         {
           "src": "cards/atemi.kakato-geri/04.jpg",
@@ -4500,23 +4431,23 @@ window.ATLAS_DATA = {
         "title": "Ude Uke",
         "channel": "budoshotokanru",
         "url": "https://www.youtube.com/watch?v=gYf1HN8VSCw",
-        "start": 8.0
+        "start": 8
       },
       "frames": [
         {
           "src": "cards/uke.ude-uke/01.jpg",
           "phase": "Guard",
-          "source_time": 8.0
+          "source_time": 8
         },
         {
           "src": "cards/uke.ude-uke/02.jpg",
           "phase": "Block",
-          "source_time": 18.0
+          "source_time": 18
         },
         {
           "src": "cards/uke.ude-uke/03.jpg",
           "phase": "Return",
-          "source_time": 30.0
+          "source_time": 30
         }
       ],
       "order": 65,
@@ -4564,28 +4495,28 @@ window.ATLAS_DATA = {
         "title": "Ko Soto Gake",
         "channel": "Judo Life",
         "url": "https://www.youtube.com/watch?v=3xf3Z5BXPos",
-        "start": 3.0
+        "start": 3
       },
       "frames": [
         {
           "src": "cards/nage.ko-soto-gake/01.jpg",
           "phase": "Grip",
-          "source_time": 3.0
+          "source_time": 3
         },
         {
           "src": "cards/nage.ko-soto-gake/02.jpg",
           "phase": "Entry",
-          "source_time": 7.0
+          "source_time": 7
         },
         {
           "src": "cards/nage.ko-soto-gake/03.jpg",
           "phase": "Throw",
-          "source_time": 11.0
+          "source_time": 11
         },
         {
           "src": "cards/nage.ko-soto-gake/04.jpg",
           "phase": "Finish",
-          "source_time": 14.0
+          "source_time": 14
         }
       ],
       "order": 66,
@@ -4633,7 +4564,7 @@ window.ATLAS_DATA = {
         "title": "Hiza Guruma",
         "channel": "KODOKAN",
         "url": "https://www.youtube.com/watch?v=JPJx9-oAVns",
-        "start": 20.0
+        "start": 20
       },
       "frames": [
         {
@@ -4649,12 +4580,12 @@ window.ATLAS_DATA = {
         {
           "src": "cards/nage.hiza-guruma/03.jpg",
           "phase": "Throw",
-          "source_time": 20.0
+          "source_time": 20
         },
         {
           "src": "cards/nage.hiza-guruma/04.jpg",
           "phase": "Finish",
-          "source_time": 22.0
+          "source_time": 22
         }
       ],
       "order": 67,
@@ -4702,28 +4633,28 @@ window.ATLAS_DATA = {
         "title": "Tai Otoshi",
         "channel": "Martial Arts around the World by Ben Hinson",
         "url": "https://www.youtube.com/watch?v=2hUAPsBrBLY",
-        "start": 20.0
+        "start": 20
       },
       "frames": [
         {
           "src": "cards/nage.tai-otoshi/01.jpg",
           "phase": "Grip",
-          "source_time": 20.0
+          "source_time": 20
         },
         {
           "src": "cards/nage.tai-otoshi/02.jpg",
           "phase": "Entry",
-          "source_time": 40.0
+          "source_time": 40
         },
         {
           "src": "cards/nage.tai-otoshi/03.jpg",
           "phase": "Throw",
-          "source_time": 60.0
+          "source_time": 60
         },
         {
           "src": "cards/nage.tai-otoshi/04.jpg",
           "phase": "Finish",
-          "source_time": 78.0
+          "source_time": 78
         }
       ],
       "order": 68,
@@ -4761,9 +4692,9 @@ window.ATLAS_DATA = {
       "literal": "san (three) + kyo (teaching)",
       "literal_es": "san (tres) + kyo (enseñanza)",
       "category": "katame",
-      "grade": "3rd kyu",
-      "grade_id": "3rd",
-      "belt": "Green",
+      "grade": "4th kyu",
+      "grade_id": "4th",
+      "belt": "Orange",
       "cue": "Grip uke's right hand with your left hand, turn the wrist outward toward the little finger and press it down to lock the shoulder.",
       "cue_es": "Sujeta la mano derecha de uke con tu mano izquierda, gira la muñeca hacia fuera, hacia el dedo meñique, y presiónala hacia abajo para bloquear el hombro.",
       "common": 2,
@@ -4771,28 +4702,28 @@ window.ATLAS_DATA = {
         "title": "Sankyo",
         "channel": "Shop4 Martial Arts",
         "url": "https://www.youtube.com/watch?v=MbY7K6X-Bzc",
-        "start": 3.0
+        "start": 3
       },
       "frames": [
         {
           "src": "cards/katame.sankyo/01.jpg",
           "phase": "Grip",
-          "source_time": 3.0
+          "source_time": 3
         },
         {
           "src": "cards/katame.sankyo/02.jpg",
           "phase": "Control",
-          "source_time": 7.0
+          "source_time": 7
         },
         {
           "src": "cards/katame.sankyo/03.jpg",
           "phase": "Lock",
-          "source_time": 11.0
+          "source_time": 11
         },
         {
           "src": "cards/katame.sankyo/04.jpg",
           "phase": "Pin",
-          "source_time": 15.0
+          "source_time": 15
         }
       ],
       "order": 69,
@@ -4830,9 +4761,9 @@ window.ATLAS_DATA = {
       "literal": "ni (two) + kyo (teaching)",
       "literal_es": "ni (dos) + kyo (enseñanza)",
       "category": "katame",
-      "grade": "3rd kyu",
-      "grade_id": "3rd",
-      "belt": "Green",
+      "grade": "4th kyu",
+      "grade_id": "4th",
+      "belt": "Orange",
       "cue": "Grip uke's right hand with your left hand, bend the wrist inward toward the forearm and press down to lock the arm and shoulder.",
       "cue_es": "Sujeta la mano derecha de uke con tu mano izquierda, dobla la muñeca hacia dentro, hacia el antebrazo, y presiona hacia abajo para bloquear el brazo y el hombro.",
       "common": 2,
@@ -4840,28 +4771,28 @@ window.ATLAS_DATA = {
         "title": "Nikyo",
         "channel": "Wayne Sniffen",
         "url": "https://www.youtube.com/watch?v=xq5w74vBtiE",
-        "start": 12.0
+        "start": 12
       },
       "frames": [
         {
           "src": "cards/katame.nikyo/01.jpg",
           "phase": "Grip",
-          "source_time": 12.0
+          "source_time": 12
         },
         {
           "src": "cards/katame.nikyo/02.jpg",
           "phase": "Control",
-          "source_time": 26.0
+          "source_time": 26
         },
         {
           "src": "cards/katame.nikyo/03.jpg",
           "phase": "Lock",
-          "source_time": 40.0
+          "source_time": 40
         },
         {
           "src": "cards/katame.nikyo/04.jpg",
           "phase": "Pin",
-          "source_time": 54.0
+          "source_time": 54
         }
       ],
       "order": 70,
@@ -4899,9 +4830,9 @@ window.ATLAS_DATA = {
       "literal": "kuzure (modified) + kesa (scarf) + gatame (hold)",
       "literal_es": "kuzure (modificada) + kesa (bufanda) + gatame (inmovilización)",
       "category": "osae",
-      "grade": "3rd kyu",
-      "grade_id": "3rd",
-      "belt": "Green",
+      "grade": "4th kyu",
+      "grade_id": "4th",
+      "belt": "Orange",
       "cue": "Sit at uke's right side, clamp their right arm under your left armpit and control their far arm with your right arm.",
       "cue_es": "Siéntate al lado derecho de uke, sujeta su brazo derecho bajo tu axila izquierda y controla su brazo más lejano con el brazo derecho.",
       "common": 2,
@@ -4909,28 +4840,28 @@ window.ATLAS_DATA = {
         "title": "Kuzure Kesa Gatame",
         "channel": "Sampson Judo",
         "url": "https://www.youtube.com/watch?v=oXzrusNRq70",
-        "start": 3.0
+        "start": 3
       },
       "frames": [
         {
           "src": "cards/osae.kuzure-kesa-gatame/01.jpg",
           "phase": "Entry",
-          "source_time": 3.0
+          "source_time": 3
         },
         {
           "src": "cards/osae.kuzure-kesa-gatame/02.jpg",
           "phase": "Control",
-          "source_time": 7.0
+          "source_time": 7
         },
         {
           "src": "cards/osae.kuzure-kesa-gatame/03.jpg",
           "phase": "Hold",
-          "source_time": 11.0
+          "source_time": 11
         },
         {
           "src": "cards/osae.kuzure-kesa-gatame/04.jpg",
           "phase": "Settle",
-          "source_time": 15.0
+          "source_time": 15
         }
       ],
       "order": 71,
@@ -4968,9 +4899,9 @@ window.ATLAS_DATA = {
       "literal": "kuzure (modified) + kami (upper) + shiho (four corners) + gatame (hold)",
       "literal_es": "kuzure (modificada) + kami (superior) + shiho (cuatro esquinas) + gatame (inmovilización)",
       "category": "osae",
-      "grade": "3rd kyu",
-      "grade_id": "3rd",
-      "belt": "Green",
+      "grade": "4th kyu",
+      "grade_id": "4th",
+      "belt": "Orange",
       "cue": "Kneel at uke's head, thread your arms under their shoulders to trap both arms and spread your legs wide over their chest.",
       "cue_es": "Arrodíllate junto a la cabeza de uke, pasa los brazos por debajo de sus hombros para atrapar ambos brazos y abre bien las piernas sobre su pecho.",
       "common": 2,
@@ -4978,28 +4909,28 @@ window.ATLAS_DATA = {
         "title": "Kuzure Kami Shiho Gatame",
         "channel": "Sampson Judo",
         "url": "https://www.youtube.com/watch?v=8ksl0RypJhM",
-        "start": 8.0
+        "start": 8
       },
       "frames": [
         {
           "src": "cards/osae.kuzure-kami-shiho-gatame/01.jpg",
           "phase": "Entry",
-          "source_time": 8.0
+          "source_time": 8
         },
         {
           "src": "cards/osae.kuzure-kami-shiho-gatame/02.jpg",
           "phase": "Control",
-          "source_time": 16.0
+          "source_time": 16
         },
         {
           "src": "cards/osae.kuzure-kami-shiho-gatame/03.jpg",
           "phase": "Hold",
-          "source_time": 24.0
+          "source_time": 24
         },
         {
           "src": "cards/osae.kuzure-kami-shiho-gatame/04.jpg",
           "phase": "Settle",
-          "source_time": 32.0
+          "source_time": 32
         }
       ],
       "order": 72,
@@ -5047,28 +4978,28 @@ window.ATLAS_DATA = {
         "title": "Hadaka Jime",
         "channel": "KODOKAN",
         "url": "https://www.youtube.com/watch?v=9f0n8jez7iA",
-        "start": 14.0
+        "start": 14
       },
       "frames": [
         {
           "src": "cards/shime.hadaka-jime/01.jpg",
           "phase": "Grip",
-          "source_time": 14.0
+          "source_time": 14
         },
         {
           "src": "cards/shime.hadaka-jime/02.jpg",
           "phase": "Set",
-          "source_time": 30.0
+          "source_time": 30
         },
         {
           "src": "cards/shime.hadaka-jime/03.jpg",
           "phase": "Squeeze",
-          "source_time": 46.0
+          "source_time": 46
         },
         {
           "src": "cards/shime.hadaka-jime/04.jpg",
           "phase": "Finish",
-          "source_time": 62.0
+          "source_time": 62
         }
       ],
       "order": 73,
@@ -5116,38 +5047,38 @@ window.ATLAS_DATA = {
         "title": "Geri Jitsu no Kata",
         "channel": "Jiu-Jitsu (España)",
         "url": "https://www.youtube.com/watch?v=5q5FIShX91A",
-        "start": 12.0
+        "start": 12
       },
       "frames": [
         {
           "src": "cards/kata.geri-jitsu-no-kata/01.jpg",
           "phase": "Start",
-          "source_time": 12.0
+          "source_time": 12
         },
         {
           "src": "cards/kata.geri-jitsu-no-kata/02.jpg",
           "phase": "First",
-          "source_time": 28.0
+          "source_time": 28
         },
         {
           "src": "cards/kata.geri-jitsu-no-kata/03.jpg",
           "phase": "Second",
-          "source_time": 44.0
+          "source_time": 44
         },
         {
           "src": "cards/kata.geri-jitsu-no-kata/04.jpg",
           "phase": "Third",
-          "source_time": 60.0
+          "source_time": 60
         },
         {
           "src": "cards/kata.geri-jitsu-no-kata/05.jpg",
           "phase": "Fourth",
-          "source_time": 76.0
+          "source_time": 76
         },
         {
           "src": "cards/kata.geri-jitsu-no-kata/06.jpg",
           "phase": "Finish",
-          "source_time": 92.0
+          "source_time": 92
         }
       ],
       "order": 74,
@@ -5195,38 +5126,38 @@ window.ATLAS_DATA = {
         "title": "Katame Jitsu no Kata",
         "channel": "Jiu-Jitsu (España)",
         "url": "https://www.youtube.com/watch?v=00Jv-5UItnU",
-        "start": 12.0
+        "start": 12
       },
       "frames": [
         {
           "src": "cards/kata.katame-jitsu-no-kata/01.jpg",
           "phase": "Start",
-          "source_time": 12.0
+          "source_time": 12
         },
         {
           "src": "cards/kata.katame-jitsu-no-kata/02.jpg",
           "phase": "First",
-          "source_time": 28.0
+          "source_time": 28
         },
         {
           "src": "cards/kata.katame-jitsu-no-kata/03.jpg",
           "phase": "Second",
-          "source_time": 44.0
+          "source_time": 44
         },
         {
           "src": "cards/kata.katame-jitsu-no-kata/04.jpg",
           "phase": "Third",
-          "source_time": 60.0
+          "source_time": 60
         },
         {
           "src": "cards/kata.katame-jitsu-no-kata/05.jpg",
           "phase": "Fourth",
-          "source_time": 76.0
+          "source_time": 76
         },
         {
           "src": "cards/kata.katame-jitsu-no-kata/06.jpg",
           "phase": "Finish",
-          "source_time": 92.0
+          "source_time": 92
         }
       ],
       "order": 75,
@@ -5274,38 +5205,38 @@ window.ATLAS_DATA = {
         "title": "Seme Kata",
         "channel": "Juan Mayoral Jiu-Jitsu",
         "url": "https://www.youtube.com/watch?v=xJ7e1ZSneao",
-        "start": 4.0
+        "start": 4
       },
       "frames": [
         {
           "src": "cards/kata.seme-kata/01.jpg",
           "phase": "Start",
-          "source_time": 4.0
+          "source_time": 4
         },
         {
           "src": "cards/kata.seme-kata/02.jpg",
           "phase": "First",
-          "source_time": 10.0
+          "source_time": 10
         },
         {
           "src": "cards/kata.seme-kata/03.jpg",
           "phase": "Second",
-          "source_time": 16.0
+          "source_time": 16
         },
         {
           "src": "cards/kata.seme-kata/04.jpg",
           "phase": "Third",
-          "source_time": 22.0
+          "source_time": 22
         },
         {
           "src": "cards/kata.seme-kata/05.jpg",
           "phase": "Fourth",
-          "source_time": 28.0
+          "source_time": 28
         },
         {
           "src": "cards/kata.seme-kata/06.jpg",
           "phase": "Finish",
-          "source_time": 34.0
+          "source_time": 34
         }
       ],
       "order": 76,
@@ -5359,22 +5290,22 @@ window.ATLAS_DATA = {
         {
           "src": "cards/atemi.kagi-tsuki/01.jpg",
           "phase": "Guard",
-          "source_time": 0.0
+          "source_time": 0
         },
         {
           "src": "cards/atemi.kagi-tsuki/02.jpg",
           "phase": "Chamber",
-          "source_time": 2.0
+          "source_time": 2
         },
         {
           "src": "cards/atemi.kagi-tsuki/03.jpg",
           "phase": "Strike",
-          "source_time": 4.0
+          "source_time": 4
         },
         {
           "src": "cards/atemi.kagi-tsuki/04.jpg",
           "phase": "Retract",
-          "source_time": 7.0
+          "source_time": 7
         }
       ],
       "order": 77,
@@ -5426,22 +5357,22 @@ window.ATLAS_DATA = {
         {
           "src": "cards/atemi.tetsui-uchi/01.jpg",
           "phase": "Guard",
-          "source_time": 13.0
+          "source_time": 13
         },
         {
           "src": "cards/atemi.tetsui-uchi/02.jpg",
           "phase": "Chamber",
-          "source_time": 14.0
+          "source_time": 14
         },
         {
           "src": "cards/atemi.tetsui-uchi/03.jpg",
           "phase": "Strike",
-          "source_time": 17.0
+          "source_time": 17
         },
         {
           "src": "cards/atemi.tetsui-uchi/04.jpg",
           "phase": "Retract",
-          "source_time": 21.0
+          "source_time": 21
         }
       ],
       "order": 78,
@@ -5493,22 +5424,22 @@ window.ATLAS_DATA = {
         {
           "src": "cards/atemi.mikazuki-geri/01.jpg",
           "phase": "Guard",
-          "source_time": 8.0
+          "source_time": 8
         },
         {
           "src": "cards/atemi.mikazuki-geri/02.jpg",
           "phase": "Chamber",
-          "source_time": 9.0
+          "source_time": 9
         },
         {
           "src": "cards/atemi.mikazuki-geri/03.jpg",
           "phase": "Swing",
-          "source_time": 10.0
+          "source_time": 10
         },
         {
           "src": "cards/atemi.mikazuki-geri/04.jpg",
           "phase": "Retract",
-          "source_time": 11.0
+          "source_time": 11
         }
       ],
       "order": 79,
@@ -5560,17 +5491,17 @@ window.ATLAS_DATA = {
         {
           "src": "cards/uke.morote-uke/01.jpg",
           "phase": "Guard",
-          "source_time": 2.0
+          "source_time": 2
         },
         {
           "src": "cards/uke.morote-uke/02.jpg",
           "phase": "Block",
-          "source_time": 3.0
+          "source_time": 3
         },
         {
           "src": "cards/uke.morote-uke/03.jpg",
           "phase": "Return",
-          "source_time": 5.0
+          "source_time": 5
         }
       ],
       "order": 80,
@@ -5622,7 +5553,7 @@ window.ATLAS_DATA = {
         {
           "src": "cards/nage.o-soto-gari/01.jpg",
           "phase": "Grip",
-          "source_time": 7.0
+          "source_time": 7
         },
         {
           "src": "cards/nage.o-soto-gari/02.jpg",
@@ -5637,7 +5568,7 @@ window.ATLAS_DATA = {
         {
           "src": "cards/nage.o-soto-gari/04.jpg",
           "phase": "Throw",
-          "source_time": 11.0
+          "source_time": 11
         }
       ],
       "order": 81,
@@ -5691,22 +5622,22 @@ window.ATLAS_DATA = {
         {
           "src": "cards/nage.tsuri-goshi/01.jpg",
           "phase": "Turn",
-          "source_time": 13.0
+          "source_time": 13
         },
         {
           "src": "cards/nage.tsuri-goshi/02.jpg",
           "phase": "Hips In",
-          "source_time": 14.0
+          "source_time": 14
         },
         {
           "src": "cards/nage.tsuri-goshi/03.jpg",
           "phase": "Lift",
-          "source_time": 15.0
+          "source_time": 15
         },
         {
           "src": "cards/nage.tsuri-goshi/04.jpg",
           "phase": "Throw",
-          "source_time": 16.0
+          "source_time": 16
         }
       ],
       "order": 82,
@@ -5760,22 +5691,22 @@ window.ATLAS_DATA = {
         {
           "src": "cards/nage.tsuri-komi-goshi/01.jpg",
           "phase": "Grip",
-          "source_time": 4.0
+          "source_time": 4
         },
         {
           "src": "cards/nage.tsuri-komi-goshi/02.jpg",
           "phase": "Hips In",
-          "source_time": 5.0
+          "source_time": 5
         },
         {
           "src": "cards/nage.tsuri-komi-goshi/03.jpg",
           "phase": "Lift",
-          "source_time": 7.0
+          "source_time": 7
         },
         {
           "src": "cards/nage.tsuri-komi-goshi/04.jpg",
           "phase": "Throw",
-          "source_time": 9.0
+          "source_time": 9
         }
       ],
       "order": 83,
@@ -5829,22 +5760,22 @@ window.ATLAS_DATA = {
         {
           "src": "cards/nage.harai-goshi/01.jpg",
           "phase": "Grip",
-          "source_time": 7.0
+          "source_time": 7
         },
         {
           "src": "cards/nage.harai-goshi/02.jpg",
           "phase": "Hips In",
-          "source_time": 8.0
+          "source_time": 8
         },
         {
           "src": "cards/nage.harai-goshi/03.jpg",
           "phase": "Reap",
-          "source_time": 9.0
+          "source_time": 9
         },
         {
           "src": "cards/nage.harai-goshi/04.jpg",
           "phase": "Throw",
-          "source_time": 10.0
+          "source_time": 10
         }
       ],
       "order": 84,
@@ -5898,22 +5829,22 @@ window.ATLAS_DATA = {
         {
           "src": "cards/nage.sukui-nage/01.jpg",
           "phase": "Grip",
-          "source_time": 40.0
+          "source_time": 40
         },
         {
           "src": "cards/nage.sukui-nage/02.jpg",
           "phase": "Scoop",
-          "source_time": 43.0
+          "source_time": 43
         },
         {
           "src": "cards/nage.sukui-nage/03.jpg",
           "phase": "Throw",
-          "source_time": 46.0
+          "source_time": 46
         },
         {
           "src": "cards/nage.sukui-nage/04.jpg",
           "phase": "Completion",
-          "source_time": 49.0
+          "source_time": 49
         }
       ],
       "order": 85,
@@ -5967,22 +5898,22 @@ window.ATLAS_DATA = {
         {
           "src": "cards/katame.ude-garami/01.jpg",
           "phase": "Grip",
-          "source_time": 40.0
+          "source_time": 40
         },
         {
           "src": "cards/katame.ude-garami/02.jpg",
           "phase": "Entangle",
-          "source_time": 43.0
+          "source_time": 43
         },
         {
           "src": "cards/katame.ude-garami/03.jpg",
           "phase": "Lock applied",
-          "source_time": 48.0
+          "source_time": 48
         },
         {
           "src": "cards/katame.ude-garami/04.jpg",
           "phase": "Control",
-          "source_time": 72.0
+          "source_time": 72
         }
       ],
       "order": 86,
@@ -6034,22 +5965,22 @@ window.ATLAS_DATA = {
         {
           "src": "cards/shime.kata-juji-jime/01.jpg",
           "phase": "Grip",
-          "source_time": 19.0
+          "source_time": 19
         },
         {
           "src": "cards/shime.kata-juji-jime/02.jpg",
           "phase": "Set",
-          "source_time": 23.0
+          "source_time": 23
         },
         {
           "src": "cards/shime.kata-juji-jime/03.jpg",
           "phase": "Squeeze",
-          "source_time": 25.0
+          "source_time": 25
         },
         {
           "src": "cards/shime.kata-juji-jime/04.jpg",
           "phase": "Finish",
-          "source_time": 27.0
+          "source_time": 27
         }
       ],
       "order": 87,
@@ -6101,22 +6032,22 @@ window.ATLAS_DATA = {
         {
           "src": "cards/shime.gyaku-juji-jime/01.jpg",
           "phase": "Grip",
-          "source_time": 4.0
+          "source_time": 4
         },
         {
           "src": "cards/shime.gyaku-juji-jime/02.jpg",
           "phase": "Set",
-          "source_time": 6.0
+          "source_time": 6
         },
         {
           "src": "cards/shime.gyaku-juji-jime/03.jpg",
           "phase": "Squeeze",
-          "source_time": 9.0
+          "source_time": 9
         },
         {
           "src": "cards/shime.gyaku-juji-jime/04.jpg",
           "phase": "Finish",
-          "source_time": 11.0
+          "source_time": 11
         }
       ],
       "order": 88,
@@ -6168,22 +6099,22 @@ window.ATLAS_DATA = {
         {
           "src": "cards/shime.nami-juji-jime/01.jpg",
           "phase": "Grip",
-          "source_time": 27.0
+          "source_time": 27
         },
         {
           "src": "cards/shime.nami-juji-jime/02.jpg",
           "phase": "Set",
-          "source_time": 35.0
+          "source_time": 35
         },
         {
           "src": "cards/shime.nami-juji-jime/03.jpg",
           "phase": "Squeeze",
-          "source_time": 41.0
+          "source_time": 41
         },
         {
           "src": "cards/shime.nami-juji-jime/04.jpg",
           "phase": "Finish",
-          "source_time": 53.0
+          "source_time": 53
         }
       ],
       "order": 89,
@@ -6235,32 +6166,32 @@ window.ATLAS_DATA = {
         {
           "src": "cards/kata.nage-jitsu-no-kata/01.jpg",
           "phase": "Throw 1",
-          "source_time": 31.0
+          "source_time": 31
         },
         {
           "src": "cards/kata.nage-jitsu-no-kata/02.jpg",
           "phase": "Throw 2",
-          "source_time": 45.0
+          "source_time": 45
         },
         {
           "src": "cards/kata.nage-jitsu-no-kata/03.jpg",
           "phase": "Throw 3",
-          "source_time": 61.0
+          "source_time": 61
         },
         {
           "src": "cards/kata.nage-jitsu-no-kata/04.jpg",
           "phase": "Throw 4",
-          "source_time": 95.0
+          "source_time": 95
         },
         {
           "src": "cards/kata.nage-jitsu-no-kata/05.jpg",
           "phase": "Throw 5",
-          "source_time": 126.0
+          "source_time": 126
         },
         {
           "src": "cards/kata.nage-jitsu-no-kata/06.jpg",
           "phase": "Final throw",
-          "source_time": 141.0
+          "source_time": 141
         }
       ],
       "order": 90,
@@ -6308,13 +6239,13 @@ window.ATLAS_DATA = {
         "title": "Ura Tsuki",
         "channel": "Kyushin Ryu School of Jujitsu",
         "url": "https://www.youtube.com/watch?v=4M45IosBcmY",
-        "start": 12.0
+        "start": 12
       },
       "frames": [
         {
           "src": "cards/atemi.ura-tsuki/01.jpg",
           "phase": "Guard",
-          "source_time": 13.0
+          "source_time": 13
         },
         {
           "src": "cards/atemi.ura-tsuki/02.jpg",
@@ -6324,7 +6255,7 @@ window.ATLAS_DATA = {
         {
           "src": "cards/atemi.ura-tsuki/03.jpg",
           "phase": "Strike",
-          "source_time": 14.0
+          "source_time": 14
         },
         {
           "src": "cards/atemi.ura-tsuki/04.jpg",
@@ -6375,28 +6306,28 @@ window.ATLAS_DATA = {
         "title": "Age Tsuki",
         "channel": "Kampfsportverein Marico San e.v.",
         "url": "https://www.youtube.com/watch?v=t7opdz6lSy8",
-        "start": 12.0
+        "start": 12
       },
       "frames": [
         {
           "src": "cards/atemi.age-tsuki/01.jpg",
           "phase": "Guard",
-          "source_time": 17.0
+          "source_time": 17
         },
         {
           "src": "cards/atemi.age-tsuki/02.jpg",
           "phase": "Chamber",
-          "source_time": 18.0
+          "source_time": 18
         },
         {
           "src": "cards/atemi.age-tsuki/03.jpg",
           "phase": "Strike",
-          "source_time": 19.0
+          "source_time": 19
         },
         {
           "src": "cards/atemi.age-tsuki/04.jpg",
           "phase": "Retract",
-          "source_time": 20.0
+          "source_time": 20
         }
       ],
       "order": 92,
@@ -6425,12 +6356,12 @@ window.ATLAS_DATA = {
       "frames_ok": "ok"
     },
     {
-      "id": "atemi.ura-geri",
-      "japanese": "Ura Geri",
-      "translation": "Rear kick",
-      "translation_es": "Patada trasera",
-      "literal": "ura (back) + geri (kick)",
-      "literal_es": "ura (atrás) + geri (patada)",
+      "id": "atemi.ura-mawashi-geri",
+      "japanese": "Ura Mawashi Geri",
+      "translation": "Reverse roundhouse kick",
+      "translation_es": "Patada circular inversa",
+      "literal": "ura (back) + mawashi (circular) + geri (kick)",
+      "literal_es": "ura (atrás) + mawashi (circular) + geri (patada)",
       "category": "atemi",
       "grade": "1st kyu",
       "grade_id": "1st",
@@ -6442,28 +6373,28 @@ window.ATLAS_DATA = {
         "title": "Ura Geri",
         "channel": "Zen-Shin Martial Arts",
         "url": "https://www.youtube.com/watch?v=l9azV09ia14",
-        "start": 47.0
+        "start": 47
       },
       "frames": [
         {
           "src": "cards/atemi.ura-geri/01.jpg",
           "phase": "Guard",
-          "source_time": 48.0
+          "source_time": 48
         },
         {
           "src": "cards/atemi.ura-geri/02.jpg",
           "phase": "Chamber",
-          "source_time": 54.0
+          "source_time": 54
         },
         {
           "src": "cards/atemi.ura-geri/03.jpg",
           "phase": "Strike",
-          "source_time": 58.0
+          "source_time": 58
         },
         {
           "src": "cards/atemi.ura-geri/04.jpg",
           "phase": "Retract",
-          "source_time": 60.0
+          "source_time": 60
         }
       ],
       "order": 93,
@@ -6509,13 +6440,13 @@ window.ATLAS_DATA = {
         "title": "Mikazuki Uke",
         "channel": "MARIA MERINO FERNÁNDEZ",
         "url": "https://www.youtube.com/watch?v=eDVHK-2KCks",
-        "start": 4.0
+        "start": 4
       },
       "frames": [
         {
           "src": "cards/uke.mikazuki-uke/01.jpg",
           "phase": "Guard",
-          "source_time": 12.0
+          "source_time": 12
         },
         {
           "src": "cards/uke.mikazuki-uke/02.jpg",
@@ -6571,23 +6502,23 @@ window.ATLAS_DATA = {
         "title": "Ashibo Uke",
         "channel": "Dan Djurdjevic - The Way of Least Resistance",
         "url": "https://www.youtube.com/watch?v=8QwgBE8pRW0",
-        "start": 5.0
+        "start": 5
       },
       "frames": [
         {
           "src": "cards/uke.ashibo-uke/01.jpg",
           "phase": "Guard",
-          "source_time": 17.0
+          "source_time": 17
         },
         {
           "src": "cards/uke.ashibo-uke/02.jpg",
           "phase": "Block",
-          "source_time": 22.0
+          "source_time": 22
         },
         {
           "src": "cards/uke.ashibo-uke/03.jpg",
           "phase": "Return",
-          "source_time": 25.0
+          "source_time": 25
         }
       ],
       "order": 95,
@@ -6633,28 +6564,28 @@ window.ATLAS_DATA = {
         "title": "De Ashi Harai",
         "channel": "The Judokai Network",
         "url": "https://www.youtube.com/watch?v=HrS7cJ1oIic",
-        "start": 2.0
+        "start": 2
       },
       "frames": [
         {
           "src": "cards/nage.de-ashi-harai/01.jpg",
           "phase": "Grip",
-          "source_time": 7.0
+          "source_time": 7
         },
         {
           "src": "cards/nage.de-ashi-harai/02.jpg",
           "phase": "Step In",
-          "source_time": 8.0
+          "source_time": 8
         },
         {
           "src": "cards/nage.de-ashi-harai/03.jpg",
           "phase": "Reap",
-          "source_time": 9.0
+          "source_time": 9
         },
         {
           "src": "cards/nage.de-ashi-harai/04.jpg",
           "phase": "Fall",
-          "source_time": 10.0
+          "source_time": 10
         }
       ],
       "order": 96,
@@ -6702,13 +6633,13 @@ window.ATLAS_DATA = {
         "title": "Okuri Ashi Harai",
         "channel": "The Judokai Network",
         "url": "https://www.youtube.com/watch?v=R6qrrG3oqQc",
-        "start": 4.0
+        "start": 4
       },
       "frames": [
         {
           "src": "cards/nage.okuri-ashi-harai/01.jpg",
           "phase": "Grip",
-          "source_time": 12.0
+          "source_time": 12
         },
         {
           "src": "cards/nage.okuri-ashi-harai/02.jpg",
@@ -6718,12 +6649,12 @@ window.ATLAS_DATA = {
         {
           "src": "cards/nage.okuri-ashi-harai/03.jpg",
           "phase": "Airborne",
-          "source_time": 13.0
+          "source_time": 13
         },
         {
           "src": "cards/nage.okuri-ashi-harai/04.jpg",
           "phase": "Landing",
-          "source_time": 14.0
+          "source_time": 14
         }
       ],
       "order": 97,
@@ -6771,13 +6702,13 @@ window.ATLAS_DATA = {
         "title": "Koshi Nage",
         "channel": "Submissions101",
         "url": "https://www.youtube.com/watch?v=1pjbvVKKZuA",
-        "start": 8.0
+        "start": 8
       },
       "frames": [
         {
           "src": "cards/nage.koshi-nage/01.jpg",
           "phase": "Turn",
-          "source_time": 55.0
+          "source_time": 55
         },
         {
           "src": "cards/nage.koshi-nage/02.jpg",
@@ -6840,28 +6771,28 @@ window.ATLAS_DATA = {
         "title": "Irimi Nage",
         "channel": "Harry Fontanez",
         "url": "https://www.youtube.com/watch?v=ybLXeDMGQiw",
-        "start": 2.0
+        "start": 2
       },
       "frames": [
         {
           "src": "cards/nage.irimi-nage/01.jpg",
           "phase": "Grip",
-          "source_time": 5.0
+          "source_time": 5
         },
         {
           "src": "cards/nage.irimi-nage/02.jpg",
           "phase": "Entry",
-          "source_time": 6.0
+          "source_time": 6
         },
         {
           "src": "cards/nage.irimi-nage/03.jpg",
           "phase": "Turn",
-          "source_time": 7.0
+          "source_time": 7
         },
         {
           "src": "cards/nage.irimi-nage/04.jpg",
           "phase": "Throw",
-          "source_time": 8.0
+          "source_time": 8
         }
       ],
       "order": 99,
@@ -6909,13 +6840,13 @@ window.ATLAS_DATA = {
         "title": "Hara Gatame",
         "channel": "Sampson Judo",
         "url": "https://www.youtube.com/watch?v=f1BwochCXIc",
-        "start": 2.0
+        "start": 2
       },
       "frames": [
         {
           "src": "cards/katame.hara-gatame/01.jpg",
           "phase": "Grip",
-          "source_time": 1.0
+          "source_time": 1
         },
         {
           "src": "cards/katame.hara-gatame/02.jpg",
@@ -6930,7 +6861,7 @@ window.ATLAS_DATA = {
         {
           "src": "cards/katame.hara-gatame/04.jpg",
           "phase": "Pin",
-          "source_time": 9.0
+          "source_time": 9
         }
       ],
       "order": 100,
@@ -6976,18 +6907,18 @@ window.ATLAS_DATA = {
         "title": "Okuri Eri Jime",
         "channel": "JudoFanatics",
         "url": "https://www.youtube.com/watch?v=TfZQs_Gi5rI",
-        "start": 10.0
+        "start": 10
       },
       "frames": [
         {
           "src": "cards/shime.okuri-eri-jime/01.jpg",
           "phase": "Grip",
-          "source_time": 5.0
+          "source_time": 5
         },
         {
           "src": "cards/shime.okuri-eri-jime/02.jpg",
           "phase": "Set",
-          "source_time": 8.0
+          "source_time": 8
         },
         {
           "src": "cards/shime.okuri-eri-jime/03.jpg",
@@ -6997,7 +6928,7 @@ window.ATLAS_DATA = {
         {
           "src": "cards/shime.okuri-eri-jime/04.jpg",
           "phase": "Finish",
-          "source_time": 13.0
+          "source_time": 13
         }
       ],
       "order": 101,
@@ -7043,23 +6974,23 @@ window.ATLAS_DATA = {
         "title": "Kata Ha Jime",
         "channel": "Sampson Judo",
         "url": "https://www.youtube.com/watch?v=7xbZMOqw8RA",
-        "start": 2.0
+        "start": 2
       },
       "frames": [
         {
           "src": "cards/shime.kata-ha-jime/01.jpg",
           "phase": "Grip",
-          "source_time": 2.0
+          "source_time": 2
         },
         {
           "src": "cards/shime.kata-ha-jime/02.jpg",
           "phase": "Set",
-          "source_time": 3.0
+          "source_time": 3
         },
         {
           "src": "cards/shime.kata-ha-jime/03.jpg",
           "phase": "Lock",
-          "source_time": 4.0
+          "source_time": 4
         },
         {
           "src": "cards/shime.kata-ha-jime/04.jpg",
@@ -7110,13 +7041,13 @@ window.ATLAS_DATA = {
         "title": "Omote Jitsu no Kata",
         "channel": "Jiu-Jitsu (España)",
         "url": "https://www.youtube.com/watch?v=CWshM6kfYR0",
-        "start": 20.0
+        "start": 20
       },
       "frames": [
         {
           "src": "cards/kata.omote-jitsu-no-kata/01.jpg",
           "phase": "Grip",
-          "source_time": 102.0
+          "source_time": 102
         },
         {
           "src": "cards/kata.omote-jitsu-no-kata/02.jpg",
@@ -7141,7 +7072,7 @@ window.ATLAS_DATA = {
         {
           "src": "cards/kata.omote-jitsu-no-kata/06.jpg",
           "phase": "Throw",
-          "source_time": 111.0
+          "source_time": 111
         }
       ],
       "order": 103,
@@ -7170,6 +7101,375 @@ window.ATLAS_DATA = {
         "Aplicar presión antes de controlar la posición o proyectar sin kuzushi."
       ],
       "frames_ok": "ok"
+    },
+    {
+      "id": "atemi.mawashi-tsuki",
+      "japanese": "Mawashi Tsuki",
+      "translation": "Circular punch",
+      "literal": "mawashi (circular) + tsuki (thrust)",
+      "category": "atemi",
+      "grade": "1st kyu",
+      "belt": "Brown",
+      "cue": "The fist travels a circular path around the guard and lands on the target from the side.",
+      "key_points": [
+        "Start the circle from the floor: turn the hip and the shoulder into the punch.",
+        "Keep the elbow bent through the arc and straighten it only on contact.",
+        "Bring the guard hand back to the face the instant the punch lands."
+      ],
+      "mistakes": [
+        "Swinging the arm alone, with no turn of the body.",
+        "Straightening the elbow early, telegraphing the arc.",
+        "Dropping the guard hand as the punch travels."
+      ],
+      "source": null,
+      "hero": 0,
+      "order": 104,
+      "frames": [],
+      "views": 0,
+      "common": 0,
+      "grade_id": "1st",
+      "translation_es": "Puñetazo circular",
+      "literal_es": "mawashi (circular) + tsuki (estocada)",
+      "cue_es": "El puño describe un arco y llega al objetivo desde el lado, rodeando la guardia.",
+      "key_points_es": [
+        "El círculo nace del suelo: gira la cadera y el hombro hacia el golpe.",
+        "Mantén el codo flexionado durante el arco y estíralo solo al impactar.",
+        "Devuelve la mano de guardia a la cara en cuanto el puño llega."
+      ],
+      "mistakes_es": [
+        "Mover solo el brazo, sin girar el cuerpo.",
+        "Estirar el codo demasiado pronto y avisar el arco.",
+        "Bajar la mano de guardia mientras viaja el puño."
+      ],
+      "frames_ok": "pending"
+    },
+    {
+      "id": "uke.juji-uke",
+      "japanese": "Juji Uke",
+      "translation": "Cross block",
+      "literal": "juji (cross) + uke (block)",
+      "category": "uke",
+      "grade": "2nd kyu",
+      "belt": "Blue",
+      "cue": "Both forearms cross in front of the chest, one over the other, to meet an attack down the centre line.",
+      "key_points": [
+        "The forearms cross at the wrists, making a clear X.",
+        "Elbows stay low and close to the body, not flared out.",
+        "Absorb with a small turn, then open the arms to counter."
+      ],
+      "mistakes": [
+        "Crossing straight arms at the wrists.",
+        "Raising the shoulders and losing the guard.",
+        "Blocking far from the body, where the arms are weakest."
+      ],
+      "source": null,
+      "hero": 0,
+      "order": 105,
+      "frames": [],
+      "views": 0,
+      "common": 0,
+      "grade_id": "2nd",
+      "translation_es": "Bloqueo en cruz",
+      "literal_es": "juji (cruz) + uke (bloqueo)",
+      "cue_es": "Ambos antebrazos se cruzan delante del pecho, uno sobre otro, para detener un ataque en la línea central.",
+      "key_points_es": [
+        "Los antebrazos se cruzan a la altura de las muñecas, formando una X clara.",
+        "Los codos quedan bajos y cerca del cuerpo, no abiertos.",
+        "Absorbe con un pequeño giro y abre los brazos para contraatacar."
+      ],
+      "mistakes_es": [
+        "Cruzar los brazos estirados por las muñecas.",
+        "Subir los hombros y perder la guardia.",
+        "Bloquear lejos del cuerpo, donde los brazos son débiles."
+      ],
+      "frames_ok": "pending"
+    },
+    {
+      "id": "nage.shiho-nage",
+      "japanese": "Shiho Nage",
+      "translation": "Four-direction throw",
+      "literal": "shiho (four directions) + nage (throw)",
+      "category": "nage",
+      "grade": "2nd kyu",
+      "belt": "Blue",
+      "cue": "Take the wrist, turn under the arm and wheel uke over in an arc, dropping them toward the open direction.",
+      "key_points": [
+        "Control the wrist and keep it close to your own centre.",
+        "Turn your whole body under the arm instead of pulling with it.",
+        "Cut uke's balance over the shoulder line, then guide them down."
+      ],
+      "mistakes": [
+        "Pulling with the arm instead of turning the body.",
+        "Letting the wrist drift away from your centre.",
+        "Stopping halfway and leaving uke balanced on their feet."
+      ],
+      "source": null,
+      "hero": 0,
+      "order": 106,
+      "frames": [],
+      "views": 0,
+      "common": 0,
+      "grade_id": "2nd",
+      "translation_es": "Proyección en cuatro direcciones",
+      "literal_es": "shiho (cuatro direcciones) + nage (proyección)",
+      "cue_es": "Toma la muñeca, gira por debajo del brazo y voltea a uke en arco, dejándolo caer hacia la dirección libre.",
+      "key_points_es": [
+        "Controla la muñeca y mantenla cerca de tu centro.",
+        "Gira todo el cuerpo por debajo del brazo en lugar de tirar con él.",
+        "Corta el equilibrio de uke en la línea del hombro y acompáñalo abajo."
+      ],
+      "mistakes_es": [
+        "Tirar con el brazo en vez de girar el cuerpo.",
+        "Dejar que la muñeca se aleje de tu centro.",
+        "Quedarse a medias y dejar a uke equilibrado de pie."
+      ],
+      "frames_ok": "pending"
+    },
+    {
+      "id": "katame.kata-ude-kansetsu",
+      "japanese": "Kata Ude Kansetsu",
+      "translation": "Single-arm joint lock",
+      "literal": "kata (single) + ude (arm) + kansetsu (joint)",
+      "category": "katame",
+      "grade": "2nd kyu",
+      "belt": "Blue",
+      "cue": "Trap one bent arm against your body and lock the elbow by controlling the wrist with one hand and the upper arm with the other.",
+      "key_points": [
+        "Keep the elbow pinned to your ribs; the lock comes from the body, not the hands.",
+        "Control the wrist with one hand and the forearm with the other.",
+        "Apply pressure slowly and stop at the first sign of a tap."
+      ],
+      "mistakes": [
+        "Locking with the arms held away from the body.",
+        "Jerking the wrist instead of controlling it.",
+        "Applying the lock before the arm is trapped."
+      ],
+      "source": null,
+      "hero": 0,
+      "order": 107,
+      "frames": [],
+      "views": 0,
+      "common": 0,
+      "grade_id": "2nd",
+      "translation_es": "Luxación de un solo brazo",
+      "literal_es": "kata (uno) + ude (brazo) + kansetsu (articulación)",
+      "cue_es": "Atrapa un brazo flexionado contra tu cuerpo y bloquea el codo controlando la muñeca con una mano y el brazo con la otra.",
+      "key_points_es": [
+        "Mantén el codo pegado a tus costillas; la llave nace del cuerpo, no de las manos.",
+        "Controla la muñeca con una mano y el antebrazo con la otra.",
+        "Aplica presión despacio y detente ante la primera señal de abandono."
+      ],
+      "mistakes_es": [
+        "Hacer la llave con los brazos lejos del cuerpo.",
+        "Sacudir la muñeca en vez de controlarla.",
+        "Aplicar la llave antes de atrapar el brazo."
+      ],
+      "frames_ok": "pending"
+    },
+    {
+      "id": "katame.juji-gatame",
+      "japanese": "Juji Gatame",
+      "translation": "Cross arm-lock",
+      "literal": "juji (cross) + gatame (hold, lock)",
+      "category": "katame",
+      "grade": "2nd kyu",
+      "belt": "Blue",
+      "cue": "On the ground, pin uke's wrist between your thighs and lean back to straighten the elbow, your body lying across theirs.",
+      "key_points": [
+        "Pin the wrist tight to your body with the thumb up.",
+        "Squeeze the knees together and keep your legs heavy on uke's shoulder.",
+        "Raise the hips and lean back to extend the arm; do not arch the back."
+      ],
+      "mistakes": [
+        "Leaving space between the knees so uke pulls the arm free.",
+        "Pushing with the arms instead of the hips.",
+        "Lifting the head and losing control of uke's shoulder."
+      ],
+      "source": null,
+      "hero": 0,
+      "order": 108,
+      "frames": [],
+      "views": 0,
+      "common": 0,
+      "grade_id": "2nd",
+      "translation_es": "Luxación en cruz",
+      "literal_es": "juji (cruz) + gatame (control)",
+      "cue_es": "En el suelo, aprisiona la muñeca de uke entre tus muslos e inclínate atrás para estirar el codo, con el cuerpo cruzado sobre el suyo.",
+      "key_points_es": [
+        "Aprisiona la muñeca pegada a tu cuerpo, con el pulgar arriba.",
+        "Junta las rodillas y mantén las piernas pesadas sobre el hombro de uke.",
+        "Eleva la cadera e inclínate atrás para estirar el brazo; no arquees la espalda."
+      ],
+      "mistakes_es": [
+        "Dejar hueco entre las rodillas y que uke escape el brazo.",
+        "Empujar con los brazos en lugar de con la cadera.",
+        "Levantar la cabeza y perder el control del hombro de uke."
+      ],
+      "frames_ok": "pending"
+    },
+    {
+      "id": "nage.ushiro-kiri-otoshi",
+      "japanese": "Ushiro Kiri Otoshi",
+      "translation": "Rear cutting drop",
+      "literal": "ushiro (behind) + kiri (cutting) + otoshi (drop)",
+      "category": "nage",
+      "grade": "3rd kyu",
+      "belt": "Green",
+      "cue": "From a grip to the side or back, cut uke's balance across the line and drop them to the mat.",
+      "key_points": [
+        "Break uke's posture toward their back corner first.",
+        "Step across so your body blocks the line of the fall.",
+        "Cut down sharply and follow uke to the mat."
+      ],
+      "mistakes": [
+        "Pulling forward instead of cutting across.",
+        "Standing too far away to control the drop.",
+        "Stopping the cut halfway."
+      ],
+      "source": null,
+      "hero": 0,
+      "order": 109,
+      "frames": [],
+      "views": 0,
+      "common": 0,
+      "grade_id": "3rd",
+      "translation_es": "Proyección cortando por detrás",
+      "literal_es": "ushiro (detrás) + kiri (cortando) + otoshi (caída)",
+      "cue_es": "Desde un agarre lateral o por detrás, corta el equilibrio de uke en diagonal y déjalo caer al tatami.",
+      "key_points_es": [
+        "Rompe la postura de uke hacia su esquina trasera antes de nada.",
+        "Cruza el paso para bloquear la línea de la caída con tu cuerpo.",
+        "Corta hacia abajo con decisión y acompaña a uke hasta el suelo."
+      ],
+      "mistakes_es": [
+        "Tirar hacia delante en lugar de cortar en diagonal.",
+        "Quedarse demasiado lejos para controlar la caída.",
+        "Detener el corte a medias."
+      ],
+      "frames_ok": "pending"
+    },
+    {
+      "id": "nage.ko-uchi-gari",
+      "japanese": "Ko Uchi Gari",
+      "translation": "Minor inner reap",
+      "literal": "ko (minor) + uchi (inner) + gari (reap)",
+      "category": "nage",
+      "grade": "3rd kyu",
+      "belt": "Green",
+      "cue": "Draw uke's weight forward, then scoop the inside of their near leg from behind with your own and reap it away.",
+      "key_points": [
+        "Pull uke's weight onto their front foot before you reap.",
+        "Keep your reaping leg bent and close to uke's ankle.",
+        "Turn your body and drive with the hips, not just the leg."
+      ],
+      "mistakes": [
+        "Reaping before uke's weight has moved.",
+        "Kicking with the leg instead of scooping with the sole.",
+        "Leaning back and losing your own balance."
+      ],
+      "source": null,
+      "hero": 0,
+      "order": 110,
+      "frames": [],
+      "views": 0,
+      "common": 0,
+      "grade_id": "3rd",
+      "translation_es": "Siega interior menor",
+      "literal_es": "ko (menor) + uchi (interior) + gari (siega)",
+      "cue_es": "Atrae el peso de uke hacia delante y después engancha el interior de su pierna cercana desde atrás y siega.",
+      "key_points_es": [
+        "Lleva el peso de uke a su pie delantero antes de segar.",
+        "Mantén la pierna que siega flexionada y cerca del tobillo de uke.",
+        "Gira el cuerpo y empuja con la cadera, no solo con la pierna."
+      ],
+      "mistakes_es": [
+        "Segar antes de que el peso de uke se haya desplazado.",
+        "Golpear con la pierna en vez de segar con la planta.",
+        "Echarse atrás y perder tu propio equilibrio."
+      ],
+      "frames_ok": "pending"
+    },
+    {
+      "id": "osae.kata-gatame",
+      "japanese": "Kata Gatame",
+      "translation": "Shoulder hold",
+      "literal": "kata (shoulder) + gatame (hold)",
+      "category": "osae",
+      "grade": "4th kyu",
+      "belt": "Orange",
+      "cue": "From the side, trap uke's upper arm against your chest and clamp their head with your other arm, holding them flat.",
+      "key_points": [
+        "Tuck uke's arm under your armpit and pin it to your chest.",
+        "Wrap your free arm around their neck and grip your own collar or their belt.",
+        "Keep your chest low on uke and your hips off the mat to add weight."
+      ],
+      "mistakes": [
+        "Leaving space so uke slips their arm free.",
+        "Sitting up and losing weight on uke's chest.",
+        "Crossing your feet, which gives uke a way to tip you over."
+      ],
+      "source": null,
+      "hero": 0,
+      "order": 111,
+      "frames": [],
+      "views": 0,
+      "common": 0,
+      "grade_id": "4th",
+      "translation_es": "Inmovilización por el hombro",
+      "literal_es": "kata (hombro) + gatame (control)",
+      "cue_es": "Desde el costado, atrapa el brazo de uke contra tu pecho y sujeta su cabeza con el otro brazo, manteniéndolo plano.",
+      "key_points_es": [
+        "Encaja el brazo de uke bajo tu axila y presiónalo contra tu pecho.",
+        "Rodea su cuello con el brazo libre y agarra tu propia solapa o su cinturón.",
+        "Mantén el pecho pegado a uke y la cadera separada del tatami para dar peso."
+      ],
+      "mistakes_es": [
+        "Dejar hueco y que uke libere el brazo.",
+        "Incorporarse y perder peso sobre el pecho de uke.",
+        "Cruzar los pies, que da a uke una forma de voltearte."
+      ],
+      "frames_ok": "pending"
+    },
+    {
+      "id": "katame.kuzure-kote-gaeshi",
+      "japanese": "Kuzure Kote Gaeshi",
+      "translation": "Modified wrist reversal",
+      "literal": "kuzure (modified) + kote (wrist) + gaeshi (reversal)",
+      "category": "katame",
+      "grade": "4th kyu",
+      "belt": "Orange",
+      "cue": "A variation of the wrist reversal in which the hand is fed in from a different angle, taking uke down to their side.",
+      "key_points": [
+        "Take the hand so the thumb points inward or away, opening the wrist.",
+        "Fold the wrist with a small, sharp turn of your whole body.",
+        "Keep your elbow close and guide uke down rather than shoving."
+      ],
+      "mistakes": [
+        "Opening the wrist with the arm extended.",
+        "Turning only the wrist and not the body.",
+        "Releasing control as uke goes to the ground."
+      ],
+      "source": null,
+      "hero": 0,
+      "order": 112,
+      "frames": [],
+      "views": 0,
+      "common": 0,
+      "grade_id": "4th",
+      "translation_es": "Reversión de muñeca modificada",
+      "literal_es": "kuzure (modificada) + kote (muñeca) + gaeshi (reversión)",
+      "cue_es": "Una variante de la reversión de muñeca en la que la mano entra desde otro ángulo, llevando a uke al suelo de costado.",
+      "key_points_es": [
+        "Toma la mano de modo que el pulgar mire hacia dentro o hacia fuera, abriendo la muñeca.",
+        "Dobla la muñeca con un giro corto y seco de todo el cuerpo.",
+        "Mantén el codo cerca y acompaña a uke abajo en lugar de empujar."
+      ],
+      "mistakes_es": [
+        "Abrir la muñeca con el brazo estirado.",
+        "Girar solo la muñeca y no el cuerpo.",
+        "Soltar el control mientras uke cae."
+      ],
+      "frames_ok": "pending"
     }
   ],
   "glossary": [
@@ -7204,10 +7504,10 @@ window.ATLAS_DATA = {
       "term": "Kata",
       "reading": "型",
       "group": "basics",
-      "meaning": "A pre-arranged form.",
-      "note": "A fixed sequence practised with a partner, not a free fight.",
-      "meaning_es": "Forma preestablecida.",
-      "note_es": "Una secuencia fija practicada con un compañero, no un combate libre."
+      "meaning": "A pre-arranged form; also, by the same sound, one side or the shoulder.",
+      "note": "Three words share this sound: 型 a form, as in Tsuki Jitsu no Kata; 片 one side, as in kata ha jime; 肩 the shoulder, as in kata gatame.",
+      "meaning_es": "Una forma preestablecida; también, con el mismo sonido, un lado o el hombro.",
+      "note_es": "Tres palabras comparten este sonido: 型 forma, como en Tsuki Jitsu no Kata; 片 un lado, como en kata ha jime; 肩 el hombro, como en kata gatame."
     },
     {
       "term": "Kihon",
@@ -7394,9 +7694,9 @@ window.ATLAS_DATA = {
       "reading": "裏",
       "group": "name-parts",
       "meaning": "Back, reverse, hidden side.",
-      "note": "The reverse or far side of a technique, as in Ura Tsuki and Ura Geri.",
+      "note": "The reverse or far side of a technique, as in Ura Tsuki and Ura Mawashi Geri.",
       "meaning_es": "Reverso, lado oculto.",
-      "note_es": "El lado inverso o lejano de una técnica, como en Ura Tsuki y Ura Geri."
+      "note_es": "El lado inverso o lejano de una técnica, como en Ura Tsuki y Ura Mawashi Geri."
     },
     {
       "term": "Gedan",
@@ -8258,9 +8558,18 @@ window.ATLAS_DATA = {
       "reading": "切り",
       "group": "name-parts",
       "meaning": "Cutting.",
-      "note": "Ushiro kiri nage is a rear cut throw.",
+      "note": "Ushiro kiri otoshi is a rear cutting drop.",
       "meaning_es": "Cortar.",
-      "note_es": "Ushiro kiri nage es una proyección cortando por detrás."
+      "note_es": "Ushiro kiri otoshi es una proyección cortando por detrás."
+    },
+    {
+      "term": "Kansetsu",
+      "reading": "関節",
+      "group": "name-parts",
+      "meaning": "Joint.",
+      "note": "Kansetsu waza controls a joint; kata ude kansetsu locks a single arm.",
+      "meaning_es": "Articulación.",
+      "note_es": "Kansetsu waza controla una articulación; kata ude kansetsu bloquea un solo brazo."
     }
   ]
 };

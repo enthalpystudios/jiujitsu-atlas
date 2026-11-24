@@ -142,6 +142,7 @@
     modalFrame: 0,
     glossaryGroup: "all",
     glossarySearch: "",
+    videoRate: 1,
     speed: {
       running: false,
       score: 0,
@@ -711,6 +712,17 @@
     return frame.phase;
   }
 
+  /* One sound, several words: the breakdown's meaning says which kanji belongs
+     under a name part, so "kata (single)" is not shown as the kata of "form". */
+  function kanjiFor(word, hint) {
+    if (word.toLowerCase() === "kata") {
+      const h = (hint || "").toLowerCase();
+      if (/single|one side|\bun\b|\buno\b|lado/.test(h)) return "\u7247";
+      if (/shoulder|hombro/.test(h)) return "\u80a9";
+    }
+    return "";
+  }
+
   function wordParts(tech) {
     return String(pick(tech, "literal") || "")
       .split("+")
@@ -775,7 +787,7 @@
       .map((part) => {
         const term = glossaryForWord(part.word);
         const meaning = part.meaning || (term && pick(term, "meaning")) || "";
-        const reading = term && term.reading ? term.reading : "";
+        const reading = kanjiFor(part.word, part.meaning) || (term && term.reading ? term.reading : "");
         const title = term && pick(term, "note") ? pick(term, "note") : "";
         // The word itself opens its glossary entry; the speaker stays a
         // separate button, since nesting one button inside another is invalid.
@@ -1348,7 +1360,10 @@
             <div class="modal-stage">
               <div class="stage-actions">
                 <button class="stage-action ${known ? "is-known" : ""}" data-known-toggle="${tech.id}">${known ? "✓ " + t("modal.known") : t("modal.markKnown")}</button>
-                ${video && EMBED_OK ? `<button class="stage-action" data-play-source="${video.id}" data-play-start="${video.start}">▶ ${t("modal.play")}</button>` : `<a class="stage-action" href="${sourceUrl(tech)}" target="_blank" rel="noopener">${t("modal.watch")} ↗</a>`}
+                ${video && EMBED_OK ? `<button class="stage-action" data-play-source="${video.id}" data-play-start="${video.start}">▶ ${t("modal.play")}</button>
+                <div class="stage-speeds" role="group" aria-label="${t("modal.speed")}" hidden>
+                  ${[0.25, 0.5, 1].map((rate) => `<button type="button" class="stage-speed ${rate === state.videoRate ? "active" : ""}" data-rate="${rate}" aria-pressed="${rate === state.videoRate}">${rate}×</button>`).join("")}
+                </div>` : `<a class="stage-action" href="${sourceUrl(tech)}" target="_blank" rel="noopener">${t("modal.watch")} ↗</a>`}
               </div>
               <img id="stage-img" src="${frame.src}" alt="${escapeHtml(tech.japanese)} — ${escapeHtml(phaseLabel(frame))}">
               <div class="stage-video" hidden></div>
@@ -1509,6 +1524,11 @@
             onReady: (event) => {
               const player = event.target;
               try { player.playVideo(); } catch (_) { /* policy said no */ }
+              try {
+                player.setPlaybackRate(state.videoRate || 1);
+                const speeds = $(".stage-speeds", stage);
+                if (speeds) speeds.hidden = false;
+              } catch (_) { /* rate not available */ }
 
               /* Safari will not let a tap on our page start audio inside a
                  cross-origin frame, so "play with sound" can silently do
@@ -1555,6 +1575,8 @@
       host.hidden = true;
     }
     stage.classList.remove("is-playing");
+    const speeds = $(".stage-speeds", stage);
+    if (speeds) speeds.hidden = true;
     const button = $("[data-play-source]", stage);
     if (button) button.hidden = false;
   }
@@ -2600,6 +2622,19 @@
       const playButton = event.target.closest("[data-play-source]");
       if (playButton) {
         playStageSource(playButton);
+        return;
+      }
+      const rateButton = event.target.closest("[data-rate]");
+      if (rateButton) {
+        state.videoRate = Number(rateButton.getAttribute("data-rate")) || 1;
+        rateButton.parentElement.querySelectorAll("[data-rate]").forEach((b) => {
+          const on = Number(b.getAttribute("data-rate")) === state.videoRate;
+          b.classList.toggle("active", on);
+          b.setAttribute("aria-pressed", String(on));
+        });
+        if (stagePlayer) {
+          try { stagePlayer.setPlaybackRate(state.videoRate); } catch (_) { /* ignore */ }
+        }
         return;
       }
       const knownButton = event.target.closest("[data-known-toggle]");
