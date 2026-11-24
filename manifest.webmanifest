@@ -1,0 +1,17 @@
+{
+  "name": "Jiu-Jitsu Name Atlas",
+  "short_name": "Jiu-Jitsu",
+  "description": "RFEJYDA kyu syllabus: techniques, names and the words inside them.",
+  "lang": "es",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0a0b0c",
+  "theme_color": "#0a0b0c",
+  "icons": [
+    { "src": "favicon.png", "sizes": "64x64", "type": "image/png" },
+    { "src": "apple-touch-icon.png", "sizes": "180x180", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}

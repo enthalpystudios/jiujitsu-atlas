@@ -453,6 +453,15 @@
     return first;
   }
 
+  /* The reading, written under the kanji: how the word is actually said. It is
+     the same romaji map the speech uses, so the two can never disagree. Empty
+     when the word has no kana mapping. */
+  function kanaFor(text) {
+    const raw = String(text || "").trim();
+    const kana = japaneseText(raw);
+    return kana && kana !== raw ? kana : "";
+  }
+
   let voiceCache = [];
   let warnedNoJapanese = false;
   let speechUnlocked = false;
@@ -789,6 +798,7 @@
         const meaning = part.meaning || (term && pick(term, "meaning")) || "";
         const reading = kanjiFor(part.word, part.meaning) || (term && term.reading ? term.reading : "");
         const title = term && pick(term, "note") ? pick(term, "note") : "";
+        const kana = kanaFor(part.word);
         // The word itself opens its glossary entry; the speaker stays a
         // separate button, since nesting one button inside another is invalid.
         const wordMark = term
@@ -796,7 +806,7 @@
           : `<b>${escapeHtml(part.word)}</b>`;
         return `<span class="word-chip" title="${escapeHtml(title)}">${wordMark}${
           reading ? `<span class="word-kanji">${escapeHtml(reading)}</span>` : ""
-        }<span class="word-meaning">${escapeHtml(meaning)}</span>${speakButton(part.word, "chip-speak")}</span>`;
+        }${kana ? `<span class="kana">${escapeHtml(kana)}</span>` : ""}<span class="word-meaning">${escapeHtml(meaning)}</span>${speakButton(part.word, "chip-speak")}</span>`;
       })
       .join("");
     return `<div class="word-chips ${options.className || ""}" aria-label="${escapeHtml(t("modal.wordParts"))}">${chips}</div>`;
@@ -1626,7 +1636,7 @@
       wordHost.innerHTML = word
         ? `<p class="today-card-label">${escapeHtml(t("today.word"))}</p>
            <h3 class="today-word">${escapeHtml(word.term)} ${speakButton(word.term)}</h3>
-           <p class="today-reading">${escapeHtml(word.reading)}</p>
+           <p class="today-reading">${escapeHtml(word.reading)}${kanaFor(word.term) ? `<span class="kana">${escapeHtml(kanaFor(word.term))}</span>` : ""}</p>
            <p class="today-meaning">${escapeHtml(pick(word, "meaning"))}</p>
            <p class="today-note">${escapeHtml(pick(word, "note"))}</p>
            <button type="button" class="ghost today-open" data-gloss="${escapeHtml(word.term)}">${escapeHtml(t("glossary.open"))}</button>`
@@ -1824,7 +1834,7 @@
       host.innerHTML = `
         ${markToggle(item.term)}
         <h2 class="flash-name">${escapeHtml(item.term)} ${speakButton(item.term)}</h2>
-        <p class="flash-reading">${escapeHtml(item.reading)}</p>
+        <p class="flash-reading">${escapeHtml(item.reading)}${kanaFor(item.term) ? `<span class="kana">${escapeHtml(kanaFor(item.term))}</span>` : ""}</p>
         <p class="flash-prompt">${t("flash.wordPrompt")}</p>`;
       return;
     }
@@ -1845,7 +1855,7 @@
     host.innerHTML = `
       ${markToggle(item.term)}
       <h2 class="flash-back-title">${escapeHtml(item.term)} ${speakButton(item.term)}</h2>
-      <p class="flash-back-sub">${escapeHtml(item.reading)}</p>
+      <p class="flash-back-sub">${escapeHtml(item.reading)}${kanaFor(item.term) ? `<span class="kana">${escapeHtml(kanaFor(item.term))}</span>` : ""}</p>
       <p class="flash-cue">${escapeHtml(pick(item, "meaning"))}</p>
       <p class="flash-note">${escapeHtml(pick(item, "note"))}</p>
       ${uses}`;
@@ -2289,26 +2299,56 @@
     const host = $("#kyu-guide-body");
     if (!host) return;
     host.innerHTML = GRADES.map((grade) => {
-      const pool = TECH.filter((tech) => tech.grade_id === grade.id);
-      const counts = pool.reduce((acc, tech) => {
-        acc[tech.category] = (acc[tech.category] || 0) + 1;
-        return acc;
-      }, {});
-      const cats = DATA.categories
-        .filter((cat) => counts[cat.id])
-        .map((cat) => `<span class="kyu-cat">${escapeHtml(cat.name)} <b>${counts[cat.id]}</b></span>`)
+      const pool = TECH.filter((tech) => tech.grade_id === grade.id).sort(
+        (a, b) => (a.order || 0) - (b.order || 0)
+      );
+      const known = pool.filter((tech) => isKnown(tech.id)).length;
+      const pct = pool.length ? Math.round((known / pool.length) * 100) : 0;
+      const checklist = DATA.categories
+        .map((cat) => ({ cat, items: pool.filter((tech) => tech.category === cat.id) }))
+        .filter((group) => group.items.length)
+        .map(({ cat, items }) => `
+          <div class="kyu-group">
+            <p class="kyu-group-label" style="--cat-color:${cat.color}">${escapeHtml(cat.name)}<b>${items.length}</b></p>
+            <div class="kyu-items">${items
+              .map((tech) => {
+                const on = isKnown(tech.id);
+                const pending = !(tech.frames && tech.frames.length);
+                return `<div class="kyu-item ${on ? "is-known" : ""}">
+                  <button type="button" class="kyu-tick" data-exam-tick="${tech.id}" aria-pressed="${on}" aria-label="${escapeHtml(tech.japanese + " — " + t("modal.markKnown"))}">✓</button>
+                  <button type="button" class="kyu-name" data-open-card="${tech.id}">${escapeHtml(tech.japanese)}</button>
+                  ${pending ? `<span class="kyu-pending" title="${escapeHtml(t("kyu.pending"))}">◦</span>` : ""}
+                </div>`;
+              })
+              .join("")}</div>
+          </div>`)
         .join("");
       return `
-        <article class="kyu-card" style="--belt-color:${grade.color}">
+        <article class="kyu-card" data-kyu="${grade.id}" style="--belt-color:${grade.color}">
           <div class="kyu-card-top">
             <span class="kyu-dot" aria-hidden="true"></span>
             <h4>${escapeHtml(t("grade." + grade.id))}</h4>
-            <span class="kyu-count">${pool.length}</span>
+            <span class="kyu-count" data-kyu-count>${known} / ${pool.length}</span>
           </div>
           <p class="kyu-desc">${escapeHtml(t("kyu." + grade.id))}</p>
-          <div class="kyu-cats">${cats}</div>
+          <div class="kyu-bar"><i data-kyu-bar style="width:${pct}%"></i></div>
+          <div class="kyu-checklist">${checklist}</div>
         </article>`;
     }).join("");
+  }
+
+  /* A tick updates only the counters, so the list never jumps under the thumb. */
+  function refreshExamCounts() {
+    $$("#kyu-guide-body .kyu-card").forEach((card) => {
+      const id = card.getAttribute("data-kyu");
+      const pool = TECH.filter((tech) => tech.grade_id === id);
+      const known = pool.filter((tech) => isKnown(tech.id)).length;
+      const pct = pool.length ? Math.round((known / pool.length) * 100) : 0;
+      const count = $("[data-kyu-count]", card);
+      if (count) count.textContent = `${known} / ${pool.length}`;
+      const bar = $("[data-kyu-bar]", card);
+      if (bar) bar.style.width = `${pct}%`;
+    });
   }
 
   function renderNameGrammar() {
@@ -2337,7 +2377,7 @@
           return `<button type="button" class="grammar-word" data-gloss="${escapeHtml(term ? term.term : word)}">
             <b>${escapeHtml(word)}</b>${
               term && term.reading ? `<span class="word-kanji">${escapeHtml(term.reading)}</span>` : ""
-            }
+            }${kanaFor(word) ? `<span class="kana">${escapeHtml(kanaFor(word))}</span>` : ""}
             <span class="grammar-meaning">${escapeHtml(term ? pick(term, "meaning") : "")}</span>
             <span class="grammar-count" title="${escapeHtml(t("grammar.count", { n: info.n }))}">${info.n}</span>
           </button>`;
@@ -2438,7 +2478,7 @@
         <article class="glossary-card" data-term="${escapeHtml(item.term.trim().toLowerCase())}">
           <div class="glossary-term">
             <h3>${item.term} ${speakButton(item.term)}</h3>
-            <span class="glossary-reading">${item.reading}</span>
+            <span class="glossary-reading">${item.reading}${kanaFor(item.term) ? `<span class="kana">${escapeHtml(kanaFor(item.term))}</span>` : ""}</span>
           </div>
           <p class="glossary-meaning">${escapeHtml(pick(item, "meaning"))}</p>
           <p class="glossary-note">${escapeHtml(pick(item, "note"))}</p>
@@ -2494,6 +2534,23 @@
       if (!chip) return;
       setGrade(chip.getAttribute("data-grade"));
       closeSheet();
+    });
+
+    // The exam checklist: tick a technique off its kyu, and every other view
+    // that shows the same state updates with it.
+    document.addEventListener("click", (event) => {
+      const tick = event.target.closest("[data-exam-tick]");
+      if (!tick) return;
+      const id = tick.getAttribute("data-exam-tick");
+      const next = !isKnown(id);
+      setKnown(id, next);
+      tick.setAttribute("aria-pressed", String(next));
+      const item = tick.closest(".kyu-item");
+      if (item) item.classList.toggle("is-known", next);
+      refreshExamCounts();
+      renderBrowse();
+      renderToday();
+      renderFlash();
     });
 
     document.addEventListener("click", (event) => {
@@ -2838,6 +2895,16 @@
     });
   }
 
+  /* Install the offline shell where the browser allows it. From file:// there
+     is no service worker, and the app still works; it just is not installable. */
+  function registerServiceWorker() {
+    if (!("serviceWorker" in navigator)) return;
+    if (location.protocol !== "http:" && location.protocol !== "https:") return;
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("./sw.js").catch(() => {});
+    });
+  }
+
   function init() {
     if (LANGS.includes(queryParam("lang"))) writeRaw(STORAGE.lang, state.lang);
     if (queryParam("grade")) writeRaw(STORAGE.grade, state.grade);
@@ -2873,6 +2940,7 @@
     syncClearButtons();
     initVoices();
     preloadHeroes();
+    registerServiceWorker();
   }
 
   if (queryParam("debug") === "1") {

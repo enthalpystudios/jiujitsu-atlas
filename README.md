@@ -2,8 +2,8 @@
 
 A small, offline-friendly web app for learning the names in the RFEJYDA
 Jiu-Jitsu kyu syllabus. It covers all five kyu belts (5th yellow → 1st brown):
-**103 techniques** across 8 categories, with **393 technique frames** and a
-**98-term glossary**. The interface is bilingual (Spanish from Spain by
+**111 techniques** across 8 categories, with **393 technique frames** and a
+**122-term glossary**. The interface is bilingual (Spanish from Spain by
 default, English toggle); Japanese names stay Japanese.
 
 The whole app is static: no build step, no server, no dependencies. Open
@@ -18,10 +18,16 @@ The whole app is static: no build step, no server, no dependencies. Open
   saved "known" list.
 - **Speed Round** — 60 seconds, name → picture or picture → name, with a best
   score saved locally.
-- **Glossary** — Japanese name parts, basic terms and what each category means.
+- **Glossary** — two halves. *Words* is the dictionary: every Japanese term
+  with its kanji and its kana reading, and the techniques it builds. *Guide*
+  holds the technique families, how a name is read, and the five kyus as a
+  tickable **exam checklist** — each kyu shows what you have signed off.
 
 The belt scope filters every view. The choice is remembered in
 `localStorage` and can be set from the URL.
+
+Every kanji is paired with its kana reading — the same romaji-to-hiragana map
+the speech uses, so the written reading and the spoken one can never disagree.
 
 ## On a phone
 
@@ -53,6 +59,9 @@ reduced and the controls move to where a thumb can reach them:
   three-line clamp and the remaining key points sit behind one tap.
 - **The marketing prelude is dropped** so the first technique appears in the
   first screen rather than ~635 px down.
+- **It installs to the home screen and runs offline.** A web-app manifest and a
+  service worker cache the shell; the technique frames are cached as they are
+  seen. Once visited, it opens on the mat with no signal.
 
 Every interactive control has a minimum 44 px touch target. The phone rules live
 in one `@media (max-width: 719px)` block at the end of `styles.css`, so the
@@ -96,6 +105,8 @@ app.js          rendering, routing, flashcards, speed round, audio
 i18n.js         English/Spanish interface strings
 data.js         all technique, category and glossary content
 cards/<id>/     technique frame images (01.jpg … 05.jpg)
+sw.js           service worker: offline shell, cached frames
+manifest.webmanifest   installable web app
 favicon.png     app icon, from the RFEJYDA Jiu-Jitsu patch (64 px)
 apple-touch-icon.png   home-screen icon (180 px)
 icon-512.png    large icon (512 px)
