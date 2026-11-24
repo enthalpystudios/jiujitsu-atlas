@@ -1658,16 +1658,11 @@
       // prime on the same element can never leak through or be heard twice.
       el.muted = false;
       el.volume = volume == null ? 1 : volume;
-      // Start at the word itself (a hair before it, to be safe) rather than at
-      // sample 0. Nothing is trimmed, so no consonant can be lost.
-      el.currentTime = COUNT_LEAD[name] || 0;
+      el.currentTime = 0;
       const p = el.play();
       if (p && p.catch) p.catch(() => { /* blocked until a tap */ });
     } catch (_) { /* nothing we can do */ }
   }
-
-  /* leading silence per cue file, so playback can skip it safely */
-  const COUNT_LEAD = {"es-n4": 0.03, "es-n3": 0.03, "es-n2": 0.0, "es-n1": 0.0, "en-n4": 0.0, "en-n3": 0.0, "en-n2": 0.03, "en-n1": 0.0, "es-start": 0.0, "es-go": 0.02, "es-rest": 0.01, "es-stop": 0.04, "en-start": 0.0, "en-go": 0.01, "en-rest": 0.0, "en-stop": 0.0};
 
   const ROUND_SOUNDS = ["bell", "blip",
     "es-n1", "es-n2", "es-n3", "es-n4", "es-start", "es-go", "es-rest", "es-stop",
@@ -1696,6 +1691,28 @@
   function playNum(n) {
     playSound(`${state.lang === "en" ? "en" : "es"}-n${n}`);
   }
+  /* iOS only allows programmatic playback on a media element that a gesture has
+     already started. This plays every clip silently once, inside the Start tap,
+     so the numbers and the words are all unlocked before they are needed. */
+  function primeRoundAudio() {
+    return Promise.all(
+      ROUND_SOUNDS.map(
+        (name) =>
+          new Promise((resolve) => {
+            const el = soundEl(name);
+            const done = () => {
+              try { el.pause(); el.currentTime = 0; } catch (_) { /* ignore */ }
+              el.muted = false;
+              el.volume = 1;
+              resolve();
+            };
+            try { el.muted = true; el.volume = 0; const p = el.play(); if (p && p.then) p.then(done, done); else done(); }
+            catch (_) { done(); }
+          })
+      )
+    );
+  }
+
   function playWord(name) {
     playSound(`${state.lang === "en" ? "en" : "es"}-${name}`);
   }
@@ -1812,7 +1829,7 @@
     return pool;
   }
 
-  function startRounds() {
+  async function startRounds() {
     const r = state.rounds;
     const queue = roundsQueue();
     if (!queue.length) return;
@@ -1825,6 +1842,8 @@
     roundWakeLockOn();
     showRoundsSession();
     renderRoundsSession();
+    await primeRoundAudio();
+    if (!r.running) return;
     playNum(4);
     clearInterval(r.timerId);
     r.timerId = setInterval(roundsTick, 1000);
