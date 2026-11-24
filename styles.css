@@ -1814,9 +1814,20 @@ h2 {
   background: var(--panel);
 }
 
+/* The controls are inline-flex, so without this they sit side by side on a
+   wide screen with mismatched heights; stacked and centred, as on a phone. */
 .start-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
   padding: 40px 20px;
   text-align: center;
+}
+
+.start-panel > * {
+  margin-top: 0;
+  margin-bottom: 0;
 }
 
 .start-mark {
