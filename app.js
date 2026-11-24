@@ -168,9 +168,9 @@
       running: false,
       phase: "idle",
       round: 0,
-      rounds: 8,
-      work: 60,
-      rest: 15,
+      rounds: 4,
+      work: 30,
+      rest: 10,
       pairs: false,
       reps: 0,
       totalReps: 0,
@@ -1746,10 +1746,16 @@
   function readRoundsCfg() {
     const saved = readJSON(STORAGE.rounds, {}) || {};
     const r = state.rounds;
-    ["rounds", "work", "rest"].forEach((key) => {
-      if (typeof saved[key] === "number" && !Number.isNaN(saved[key])) r[key] = saved[key];
-    });
-    if (typeof saved.pairs === "boolean") r.pairs = saved.pairs;
+    // 8/60/15 was the old default; anything left on it adopts the new 4/30/10,
+    // while a config that was deliberately changed is kept.
+    const wasOldDefault =
+      saved.rounds === 8 && saved.work === 60 && saved.rest === 15 && !saved.pairs;
+    if (!wasOldDefault) {
+      ["rounds", "work", "rest"].forEach((key) => {
+        if (typeof saved[key] === "number" && !Number.isNaN(saved[key])) r[key] = saved[key];
+      });
+      if (typeof saved.pairs === "boolean") r.pairs = saved.pairs;
+    }
     const picks = readJSON(STORAGE.roundsPicks, null);
     r.picks = Array.isArray(picks) ? picks : null;
   }
@@ -3265,12 +3271,6 @@
       saveRoundsCfg();
     });
     $("#rounds-start-btn").addEventListener("click", startRounds);
-    $("#rounds-test").addEventListener("click", () => {
-      // play the whole count-in, exactly as a session opens
-      playNum(4);
-      [3, 2, 1].forEach((n, i) => setTimeout(() => playNum(n), (i + 1) * 1000));
-      setTimeout(() => playWord("start"), 4000);
-    });
     $("#rounds-again").addEventListener("click", stopRoundsToStart);
     $("#rounds-stop").addEventListener("click", stopRoundsToStart);
     $("#rounds-pick-btn").addEventListener("click", openRoundsSheet);
