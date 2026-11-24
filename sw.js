@@ -1,7 +1,7 @@
 /* Offline for the mat: the shell is served fresh when online and from the
    cache when not; the card images are cache-first, since they never change
    once a technique's frames are set. */
-const CACHE = "jj-atlas-v26";
+const CACHE = "jj-atlas-v27";
 const CORE = [
   "./",
   "./index.html",

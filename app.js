@@ -1978,8 +1978,12 @@
     }
     const target = $("#rounds-target");
     if (target) {
-      const idx = r.phase === "rest" ? r.round : Math.max(0, r.round - 1);
-      const tech = r.queue.length ? r.queue[((idx % r.queue.length) + r.queue.length) % r.queue.length] : null;
+      // Nothing is being drilled during the rest, so no technique is shown there.
+      const tech = r.phase === "rest"
+        ? null
+        : (r.queue.length
+          ? r.queue[((Math.max(0, r.round - 1) % r.queue.length) + r.queue.length) % r.queue.length]
+          : null);
       if (tech) {
         const hero = heroFrame(tech);
         target.innerHTML = `${hero ? `<img src="${hero.src}" alt="">` : ""}<span class="rounds-target-name">${escapeHtml(tech.japanese)}</span><span class="rounds-target-sub">${escapeHtml(pick(tech, "translation"))}</span>`;
