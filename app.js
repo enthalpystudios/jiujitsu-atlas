@@ -1687,18 +1687,34 @@
   /* The numbers are one recording of 4-3-2-1, shared by every cue, played whole
      and never cut. The cue's word is a separate recording, started on the beat
      at 3.5 s - so the numbers are identical everywhere and no word is clipped. */
+  /* The numbers are one shared recording, played whole. The cue's word is a
+     separate file, started only once the numbers have actually finished
+     playing - a fixed delay collided with the final "1". */
+  /* The numbers are one shared recording, played whole. The cue word is a
+     separate file; it starts when the numbers have finished - measured from
+     the file's own duration, with its ended event as a backup - so the word
+     can never collide with the final "1". */
   function playCue(name) {
     stopCue();
     const lang = state.lang === "en" ? "en" : "es";
-    playSound(`${lang}-nums`);
-    cueWordTimer = setTimeout(() => {
-      cueWordTimer = null;
+    const nums = soundEl(`${lang}-nums`);
+    let fired = false;
+    const sayWord = () => {
+      if (fired) return;
+      fired = true;
+      if (cueWordTimer) { clearTimeout(cueWordTimer); cueWordTimer = null; }
+      nums.onended = null;
       playSound(`${lang}-${name}`);
-    }, 3500);
+    };
+    nums.onended = sayWord;
+    const len = nums.duration && isFinite(nums.duration) ? nums.duration : 3.4;
+    cueWordTimer = setTimeout(sayWord, Math.round((len + 0.15) * 1000));
+    playSound(`${lang}-nums`);
   }
 
   function stopCue() {
     if (cueWordTimer) { clearTimeout(cueWordTimer); cueWordTimer = null; }
+    ROUND_SOUNDS.forEach((n) => { const el = SOUND_ELS[n]; if (el) el.onended = null; });
     ROUND_SOUNDS.forEach((name) => {
       const el = SOUND_ELS[name];
       if (!el) return;
