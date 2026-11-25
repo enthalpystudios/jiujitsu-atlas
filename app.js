@@ -1396,19 +1396,19 @@
       ? `<div class="modal-visual" style="--cat-color:${cat.color}">
           <div class="modal-stage-wrap">
             <div class="modal-stage">
-              <div class="stage-actions">
-                <button class="stage-action ${known ? "is-known" : ""}" data-known-toggle="${tech.id}">${known ? "✓ " + t("modal.known") : t("modal.markKnown")}</button>
-                ${video && EMBED_OK ? `<button class="stage-action" data-play-source="${video.id}" data-play-start="${video.start}">▶ ${t("modal.play")}</button>
-                <div class="stage-speeds" role="group" aria-label="${t("modal.speed")}" hidden>
-                  ${[0.25, 0.5, 1].map((rate) => `<button type="button" class="stage-speed ${rate === state.videoRate ? "active" : ""}" data-rate="${rate}" aria-pressed="${rate === state.videoRate}">${rate}×</button>`).join("")}
-                </div>` : `<a class="stage-action" href="${sourceUrl(tech)}" target="_blank" rel="noopener">${t("modal.watch")} ↗</a>`}
-              </div>
               <img id="stage-img" src="${frame.src}" alt="${escapeHtml(tech.japanese)} — ${escapeHtml(phaseLabel(frame))}">
               <div class="stage-video" hidden></div>
               <span class="stage-phase" id="stage-phase">${escapeHtml(phaseLabel(frame))}</span>
               <span class="stage-count" id="stage-count">${state.modalFrame + 1} / ${tech.frames.length}</span>
               <button class="stage-nav prev" data-stage-step="-1" aria-label="${t("modal.prevFrame")}">←</button>
               <button class="stage-nav next" data-stage-step="1" aria-label="${t("modal.nextFrame")}">→</button>
+            </div>
+            <div class="stage-actions">
+              <button class="stage-action ${known ? "is-known" : ""}" data-known-toggle="${tech.id}">${known ? "✓ " + t("modal.known") : t("modal.markKnown")}</button>
+              ${video && EMBED_OK ? `<button class="stage-action" data-play-source="${video.id}" data-play-start="${video.start}">▶ ${t("modal.play")}</button>
+              <div class="stage-speeds" role="group" aria-label="${t("modal.speed")}" hidden>
+                ${[0.25, 0.5, 1].map((rate) => `<button type="button" class="stage-speed ${rate === state.videoRate ? "active" : ""}" data-rate="${rate}" aria-pressed="${rate === state.videoRate}">${rate}×</button>`).join("")}
+              </div>` : `<a class="stage-action" href="${sourceUrl(tech)}" target="_blank" rel="noopener">${t("modal.watch")} ↗</a>`}
             </div>
             <div class="stage-thumbs" role="tablist" aria-label="${t("modal.phases")}">${thumbs}</div>
           </div>
@@ -1533,10 +1533,11 @@
      has to be asked for from inside it. The same handle is what lets us stop
      playback when the reader moves to another frame. */
   function playStageSource(button) {
-    const stage = button.closest(".modal-stage");
-    const host = stage && $(".stage-video", stage);
+    const wrap = button.closest(".modal-stage-wrap");
+    const stage = wrap && $(".modal-stage", wrap);
+    const host = wrap && $(".stage-video", wrap);
     const id = button.getAttribute("data-play-source");
-    if (!stage || !host || !id) return;
+    if (!wrap || !stage || !host || !id) return;
     const start = Number(button.getAttribute("data-play-start") || 0);
 
     host.innerHTML = '<div class="stage-video-mount"></div>';
@@ -1564,7 +1565,7 @@
               try { player.playVideo(); } catch (_) { /* policy said no */ }
               try {
                 player.setPlaybackRate(state.videoRate || 1);
-                const speeds = $(".stage-speeds", stage);
+                const speeds = $(".stage-speeds", wrap);
                 if (speeds) speeds.hidden = false;
               } catch (_) { /* rate not available */ }
 
@@ -1613,9 +1614,10 @@
       host.hidden = true;
     }
     stage.classList.remove("is-playing");
-    const speeds = $(".stage-speeds", stage);
+    const wrap = stage.closest(".modal-stage-wrap") || stage;
+    const speeds = $(".stage-speeds", wrap);
     if (speeds) speeds.hidden = true;
-    const button = $("[data-play-source]", stage);
+    const button = $("[data-play-source]", wrap);
     if (button) button.hidden = false;
   }
 

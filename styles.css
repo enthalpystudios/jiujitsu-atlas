@@ -1262,18 +1262,14 @@ h2 {
   background: var(--stage-bg);
 }
 
+/* The actions sit under the picture, not over it - a bar across the top of a
+   frame hid the very part you were looking at. */
 .stage-actions {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 4;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  padding: 10px 12px;
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.62), rgba(0, 0, 0, 0));
+  padding: 10px 12px 0;
 }
 
 .stage-action {
@@ -3639,11 +3635,10 @@ h2 {
 
   /* The card becomes a sheet. */
   .modal-close { top: 12px; right: 12px; }
-  /* Keep the stage actions clear of the floating close button. */
   .stage-actions {
     justify-content: flex-start;
     gap: 8px;
-    padding: 10px 62px 10px 12px;
+    padding: 10px 12px 0;
   }
 
   /* Flashcards become a loop: one card, a counter, and one action row pinned
